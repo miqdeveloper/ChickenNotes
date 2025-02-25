@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pdf
+*.csv
+*.txt
 
 # C extensions
 *.so
@@ -10,6 +13,8 @@ __pycache__/
 .Python
 build/
 develop-eggs/
+.vscode/
+.vscode
 dist/
 downloads/
 eggs/
