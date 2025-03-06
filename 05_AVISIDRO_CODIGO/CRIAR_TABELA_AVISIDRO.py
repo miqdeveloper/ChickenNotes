@@ -2,15 +2,23 @@ from math import nan
 from os import remove, replace
 from traceback import print_tb
 import pandas as pd
-import re, ast
+import re, ast, os
 from tqdm import tqdm
 from datetime import datetime
 
+def create_dirs(dirs):
+    """Create directories if they don't exist."""
+    for dir_ in dirs:
+        if not os.path.exists(dir_):
+            os.mkdir(dir_)
 
 def get_date_now():
     date_now = datetime.now()
     d = str(date_now.strftime("""_%d_%m_%Y"""))
     return d
+
+file=['Colunas_Criadas_CSV']
+create_dirs(file)
 
 file_execel = r"Arquivos_Extraidos_CSV/dados_extraidos_avisidro_05_03_2025.csv"
 
@@ -1200,7 +1208,7 @@ def main():
 
     # print(df_2)
     print("Salvando arquivo...")
-    new_dataFrame.to_csv(f"avisidro_tabela{get_date_now()}.csv", mode="w", index=False)
+    new_dataFrame.to_csv(f"{file[0]}/avisidro_tabela{get_date_now()}.csv", mode="w", index=False)
     input("Arquivo salvo com sucesso...")
 
 main()
