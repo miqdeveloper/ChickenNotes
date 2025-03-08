@@ -9,7 +9,7 @@ __pycache__/
 *.png
 # C extensions
 *.so
-
+*.db
 # Distribution / packaging
 .Python
 build/
