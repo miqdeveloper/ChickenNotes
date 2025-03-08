@@ -1087,7 +1087,7 @@ def main():
             # if n__c == 5:
             #     print(nacp_s_f)
             #     pass
-            print(nacp_f)
+            nacp_f = nacp_f.replace("No de Patas Condenadas", "").replace(" ", "")
             nacp_f_ = dicio_obj(l_id, nacp_f)
             nacp_arr.append(nacp_f_)
             
@@ -1126,9 +1126,24 @@ def main():
         if "Pc Calo de Pata - Previsto" in str(new_str):
             l_id = new_str[0]
             pcpp_s = remove_empty_spaces(new_str)
+            # print(pcpp_s)
             pcpp_s = pcpp_s[1].split("Pc Calo de Pata - Previsto")
+            
             pcpp_s = remove_empty_spaces(pcpp_s)
+            
             pcpp_f = (remove_empty_spaces(pcpp_s[-1].split(" "))[0]).replace(" ", "")
+            # print(pcpp_s)
+            if "Conv." in pcpp_f:
+                if (len(new_str) == 3):
+                    pcpp_f = (new_str[-1].split(" ")[0])
+                if (len(new_str) == 4):
+                    if "Pc Calo de Pata - Previsto" in (new_str[2]):
+                        if len(new_str[3].split(" ")) == 3:
+                            pcpp_f = (new_str[2].split("Pc Calo de Pata - Previsto")[-1]).replace(" ", "")
+                        if len(new_str[3].split(" ")) == 4:
+                           pcpp_f =  new_str[3].split(" ")[0]
+                # if (len(new_str) == 2):
+                #     print(new_str)
             pcpp_f_ = dicio_obj(l_id, pcpp_f)
             pcpp_arr.append(pcpp_f_)
             
