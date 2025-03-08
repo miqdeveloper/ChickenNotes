@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Filtragem de Notas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .progress-bar-fill {
+            height: 20px;
+            background-color: #5cb85c;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Filtragem de Notas</h1>
+        <div>
+            <label for="note-type">Escolher tipo de nota:</label>
+            <select id="note-type">
+                <option value="AVIGRAND">AVIGRAND</option>
+                <option value="SEARA">SEARA</option>
+            </select>
+        </div>
+        <div>
+            <label for="char-list">Lista de caracteres a serem removidos:</label>
+            <input type="text" id="char-list">
+        </div>
+        <div>
+            <label for="save-as">Salvar como:</label>
+            <select id="save-as">
+                <option value="csv">CSV</option>
+                <option value="xlsx">XLSX</option>
+            </select>
+        </div>
+        <button id="start-filter">Start Filtrar</button>
+        
+        <h2>Filtrar Arquivo</h2>
+        <div>
+            <label for="line-filter">Filtro por linha:</label>
+            <input type="text" id="line-filter">
+        </div>
+        <div>
+            <label for="table-filter">Filtro por tabela/coluna:</label> 
+            <input type="text" id="table-filter">
+            
+            <label for="line-limit">Limite de linha:</label>
+            <input type="number" id="line-limit">
+        </div>
+        
+        <button id="filter">Filtrar</button>
+        
+        <div class="progress-bar">
+            <div class="progress-bar-fill"></div>
+        </div>
+    </div>
+    
+    <script>
+        // JavaScript para lidar com o envio do formulário e processamento em segundo plano
+        document.getElementById('start-filter').addEventListener('click', function() {
+            // Implementar lógica para iniciar o processo de filtragem
+            // Atualizar a barra de progresso
+            var progressBarFill = document.querySelector('.progress-bar-fill');
+            progressBarFill.style.width = '50%'; // Exemplo de atualização da barra de progresso
+        });
+        
+        document.getElementById('filter').addEventListener('click', function() {
+            // Implementar lógica para filtrar o arquivo
+            // Atualizar a barra de progresso
+            var progressBarFill = document.querySelector('.progress-bar-fill');
+            progressBarFill.style.width = '100%'; // Exemplo de atualização da barra de progresso
+        });
+    </script>
+</body>
+</html>

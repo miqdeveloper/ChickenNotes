@@ -1087,6 +1087,7 @@ def main():
             # if n__c == 5:
             #     print(nacp_s_f)
             #     pass
+            print(nacp_f)
             nacp_f_ = dicio_obj(l_id, nacp_f)
             nacp_arr.append(nacp_f_)
             
