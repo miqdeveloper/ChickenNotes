@@ -4,12 +4,17 @@ __pycache__/
 *$py.class
 *.pdf
 *.csv
-*.txt
+restante.txt
+/newPlumberExtract/
+newPlumberExtract
+/newPlumberExtract/*
+*.zip
 *.jpg
 *.png
 # C extensions
 *.so
 *.db
+AntonioPy/
 # Distribution / packaging
 .Python
 build/
