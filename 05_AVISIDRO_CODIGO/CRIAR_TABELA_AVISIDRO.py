@@ -1134,13 +1134,17 @@ def main():
                 # print(new_str[-1])
                 
                 if (len(new_str[-1].split(" ")) == 3):
-                    pcpp_f = (new_str[-2])
+                    pcpp_f = (new_str[-2]).replace("Pc Calo de Pata - Previsto", " ").split(" ")
+                    pcpp_f = remove_empty_spaces(pcpp_f)[-1]
+                    
                 if (len(new_str[-1].split(" ")) == 4):
                     pcpp_f = remove_empty_spaces(new_str[-1].split(" "))[0]
+                    
                     
             if (len(pcpp_s)) == 2:
                 pcpp_f = remove_empty_spaces(new_str[-2].split("Pc Calo de Pata - Previsto")[-1].split(" "))
                 pcpp_f = (pcpp_f[0])
+            
                 
             pcpp_f_ = dicio_obj(l_id, pcpp_f)
             pcpp_arr.append(pcpp_f_)
