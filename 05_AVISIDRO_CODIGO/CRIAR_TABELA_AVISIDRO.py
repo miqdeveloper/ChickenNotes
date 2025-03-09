@@ -1130,20 +1130,22 @@ def main():
             pcpp_s = pcpp_s[1].split("Pc Calo de Pata - Previsto")
             
             pcpp_s = remove_empty_spaces(pcpp_s)
+            if (len(pcpp_s)) == 1:
+                # print(new_str[-1])
+                
+                if (len(new_str[-1].split(" ")) == 3):
+                    pcpp_f = (new_str[-2]).replace("Pc Calo de Pata - Previsto", " ").split(" ")
+                    pcpp_f = remove_empty_spaces(pcpp_f)[-1]
+                    
+                if (len(new_str[-1].split(" ")) == 4):
+                    pcpp_f = remove_empty_spaces(new_str[-1].split(" "))[0]
+                    
+                    
+            if (len(pcpp_s)) == 2:
+                pcpp_f = remove_empty_spaces(new_str[-2].split("Pc Calo de Pata - Previsto")[-1].split(" "))
+                pcpp_f = (pcpp_f[0])
             
-            pcpp_f = (remove_empty_spaces(pcpp_s[-1].split(" "))[0]).replace(" ", "")
-            # print(pcpp_s)
-            if "Conv." in pcpp_f:
-                if (len(new_str) == 3):
-                    pcpp_f = (new_str[-1].split(" ")[0])
-                if (len(new_str) == 4):
-                    if "Pc Calo de Pata - Previsto" in (new_str[2]):
-                        if len(new_str[3].split(" ")) == 3:
-                            pcpp_f = (new_str[2].split("Pc Calo de Pata - Previsto")[-1]).replace(" ", "")
-                        if len(new_str[3].split(" ")) == 4:
-                           pcpp_f =  new_str[3].split(" ")[0]
-                # if (len(new_str) == 2):
-                #     print(new_str)
+                
             pcpp_f_ = dicio_obj(l_id, pcpp_f)
             pcpp_arr.append(pcpp_f_)
             
