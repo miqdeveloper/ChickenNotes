@@ -1413,7 +1413,7 @@ def main():
 
     # print('depois:', len(integrado_arr_f))
     
-    # new_dataFrame["CHAVE"] = id_uni_f
+    new_dataFrame["CHAVE"] = id_uni_f
     
     new_dataFrame["CLIFFOR"] = integrado_id_arr
     new_dataFrame["INTEGRADO_NOME"] = integrado_nome_arr
