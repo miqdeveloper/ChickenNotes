@@ -1,7 +1,5 @@
 from math import nan
-from os import remove, replace
-from pdb import pm
-from traceback import print_tb
+from os import remove
 import pandas as pd
 import re, ast, os
 from tqdm import tqdm
@@ -1046,7 +1044,20 @@ def main():
             
         if "IEE" in str(new_str):
             l_id = new_str[0]
-            iee_s_f = remove_empty_spaces(new_str[1].split("IEE")[-1].split(" "))[0]
+            if len(new_str) == 2:
+                pass
+            if len(new_str) == 3:
+                iee_s_f = remove_empty_spaces(new_str[1].split("IEE")[-1].split(" "))[0].replace(" ", "")
+               
+            if len(new_str) == 4:
+                if "IEE" in (new_str[1]):
+                    iee_s_f = remove_empty_spaces(new_str[1].split("IEE")[-1].split(" "))[0].replace(" ", "")
+                else:
+                    iee_s_f = remove_empty_spaces(new_str[2].split("IEE")[-1].split(" "))[-1].replace(" ", "")
+                if "Projetado" in iee_s_f:
+                    iee_s_f = remove_empty_spaces(new_str[2].split("IEE")[-1].split(" "))[0]
+           
+                
             iee_s_f_ = dicio_obj(l_id, iee_s_f)
             iee_arr.append(iee_s_f_)
             
@@ -1069,7 +1080,15 @@ def main():
             
         if "Aves Condenadas Total" in str(new_str):
             l_id = new_str[0]
-            avc_t_s_f =  remove_empty_spaces(new_str[1].split("No Aves Condenadas Total"))[-1].replace(" ","")
+            
+            if len(new_str) == 2:
+                avc_t_s_f =  remove_empty_spaces(new_str[1].split("No Aves Condenadas Total"))[-1].replace(" ","")
+                
+            if len(new_str) == 3:
+                avc_t_s_f = new_str[-1].replace("No Aves Condenadas Total", "").replace(" ", "")
+                
+            # if len(new_str) == 4:
+            #     print(new_str)
             avc_t_s_f_ = dicio_obj(l_id, avc_t_s_f)
             avc_t_arr.append(avc_t_s_f_)
         
@@ -1272,9 +1291,15 @@ def main():
 
         if "Idade Abate" in str(new_str):
             l_id = new_str[0]
-            idade_abate = remove_empty_spaces(new_str[1].split("Idade Abate")[-1].split(" "))[0].replace(" ", "")
+            if len(new_str) == 2:
+                # print(new_str)
+                pass
+            if len(new_str) == 3:
+                idade_abate = remove_empty_spaces(new_str[1].split("Idade Abate")[-1].split(" "))[0]
+            if len(new_str) == 4:
+                idade_abate = remove_empty_spaces(new_str[2].split("Idade Abate")[-1].split(" "))[0].replace(" ", "")
+                
             idade_abate_ = dicio_obj(l_id, idade_abate)
-            
             idade_abate_arr.append(idade_abate_)
 
         if "Viabilidade" in str(new_str):
@@ -1388,7 +1413,7 @@ def main():
 
     # print('depois:', len(integrado_arr_f))
     
-    new_dataFrame["CHAVE"] = id_uni_f
+    # new_dataFrame["CHAVE"] = id_uni_f
     
     new_dataFrame["CLIFFOR"] = integrado_id_arr
     new_dataFrame["INTEGRADO_NOME"] = integrado_nome_arr
