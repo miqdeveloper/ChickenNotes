@@ -209,6 +209,7 @@ def dicio_obj(id:str, Data:str)  -> dict:
     
 
 def main():
+    global avcl_n
     integrado_nome_arr = []
     
     print("Filtrando aguarde...")
@@ -628,8 +629,9 @@ def main():
                 avc_cl_separate = (remove_empty_spaces(new_str[1].replace("Avaliação Check-List", "").split(" ")))
                 
                 n_c2 = len(avc_cl_separate)
-
+                
                 if n_c2 == 4:
+
                      # # %
                     acl_percent = (avc_cl_separate[0])
 
@@ -642,6 +644,8 @@ def main():
                 if n_c2 == 5:
                      # # NOVO
                     avcl_n = avc_cl_separate[0]
+                    if not "Novo" in (avcl_n):
+                        avcl_n = "nan"
                      # # %
                     acl_percent = avc_cl_separate[1]
                       # # KG
@@ -667,7 +671,8 @@ def main():
                 if n_c2 == 4:
                     # # NOVO
                     avcl_n = (avc_cl_separate_[0])
-
+                    if not "Novo" in avcl_n:
+                        avcl_n = "nan"
                     # # %
                     acl_percent = avc_cl_separate_[1]
                     # # KG
@@ -679,16 +684,16 @@ def main():
             if n_c1 == 4:
                 avc_cl_separate__ = remove_empty_spaces(new_str)
                 avc_cl_separate__n  = avc_cl_separate__[1].split("Avaliação Check-List")
-
                 
                 # # NOVO
                 avc_cl_separate__n = (remove_empty_spaces(avc_cl_separate__n))
+                
                 if not avc_cl_separate__n:
-                    avcl_n = nan
+                    avcl_n = "nan"
                 else:
-                    avcl_n = remove_empty_spaces(avc_cl_separate__n[0].split(" "))
-                    avcl_n = avcl_n[0]
-                    
+                    avcl_n = remove_empty_spaces(avc_cl_separate__n[0].split(" "))[0]
+                    if not "Novo" in avcl_n:
+                        avcl_n = "nan"
 
                 # # %
                 acl_percent_s = remove_empty_spaces(avc_cl_separate__[1].split("Avaliação Check-List"))
@@ -725,7 +730,9 @@ def main():
             
             # if n_c1 == 5:
             #     print(new_str)
-            #     pass.a
+            #     pass
+            if not avcl_n:
+                avcl_n = nan
             avcl_n_ = dicio_obj(l_id, avcl_n)
             acl_percent_ = dicio_obj(l_id, acl_percent)
             acl_kg_f_ = dicio_obj(l_id, acl_kg_f)
@@ -840,6 +847,8 @@ def main():
             l_id = new_str[0]
             
             adp_f = (new_str[1].split("Área disp")[-1])
+            if not adp_f:
+                adp_f = (new_str[-1])
             
             adp_f_ = dicio_obj(l_id, adp_f)
             adp_arr.append(adp_f_)
@@ -1288,7 +1297,6 @@ def main():
             dpxr_s_f_ = dicio_obj(l_id, dpxr_s_f)
             dpxr_arr.append(dpxr_s_f_)
             
-
         if "Idade Abate" in str(new_str):
             l_id = new_str[0]
             if len(new_str) == 2:
@@ -1458,6 +1466,7 @@ def main():
 
     new_dataFrame["AVALIACAO_CHECK_LIST_KG"] = acl_kg_arr_
     new_dataFrame["AVALIACAO_CHECK_LIST_$"] = acl_real_arr_
+    
     new_dataFrame["AVALIACAO_CHECK_LIST_NOVO"] = avcl_novo_arr_
         
     new_dataFrame["RESULTADO_BRUTO_DO_LOTE_%"] = rbl_percent_arr_
