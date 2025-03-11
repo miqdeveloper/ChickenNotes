@@ -11,6 +11,7 @@ newPlumberExtract
 *.zip
 *.jpg
 *.png
+.vscode/
 # C extensions
 *.so
 *.db

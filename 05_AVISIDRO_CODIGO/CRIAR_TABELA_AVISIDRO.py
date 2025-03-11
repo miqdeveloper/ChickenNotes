@@ -19,7 +19,7 @@ def get_date_now():
 file=['Colunas_Criadas_CSV']
 create_dirs(file)
 
-file_execel = r"Arquivos_Extraidos_CSV/dados_extraidos_avisidro_07_03_2025.csv"
+file_execel = r"Arquivos_Extraidos_CSV/dados_extraidos_avisidro.csv"
 
 # df_2 = pd.read_csv(file_execel, encoding="utf-8", index_col=0)   
 df = pd.read_csv(file_execel, encoding="utf-8")
