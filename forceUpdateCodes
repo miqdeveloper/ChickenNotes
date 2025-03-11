@@ -1,0 +1,52 @@
+
+import os
+import subprocess
+from git import Repo, GitCommandError, InvalidGitRepositoryError
+import sys
+
+def main():
+    print("=== ATUALIZANDO REPOSITÓRIO COM GIT (FORÇADO) ===")
+
+    try:
+        # Tenta abrir o repositório na pasta atual
+        repo = Repo(os.getcwd(), search_parent_directories=True)
+    except InvalidGitRepositoryError:
+        print("Erro: Esta pasta não é um repositório Git válido.")
+        sys.exit(1)
+
+    # Obtém o branch atual
+    try:
+        branch = "developer" #repo.active_branch.name
+    except TypeError:
+        # branch = input("Digite o nome do branch remoto (ex: main): ").strip()
+        branch = "developer"
+        if not branch:
+            print("Erro: Nome do branch é obrigatório.")
+            sys.exit(1)
+
+    # Executa os comandos Git
+    try:
+        print(f"\n[1/3] Buscando alterações do origin/{branch}...")
+        repo.remotes.origin.fetch()
+
+        print(f"[2/3] Resetando branch local para origin/{branch}...")
+        repo.git.reset("--hard", f"origin/{branch}")
+
+        # Pergunta sobre limpeza
+        # clean = i
+        clean = 'n'
+        if clean == 's':
+            print("Limpando arquivos não rastreados...")
+            repo.git.clean("-fd")
+        else:
+            pass
+
+        print("\n=== SUCESSO! ===")
+        print(f"Repositório atualizado para origin/{branch}")
+
+    except GitCommandError as e:
+        print(f"\nErro durante a operação Git: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
