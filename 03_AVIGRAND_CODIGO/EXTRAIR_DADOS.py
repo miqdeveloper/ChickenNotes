@@ -1,18 +1,25 @@
+import datetime
 import os
 from re import template
-import time, traceback
+import time, traceback, shutil
 import pandas as pd
 import pypdf
 from tabula import read_pdf_with_template
 from tqdm import tqdm
 from threading import Semaphore, Thread
+from datetime import datetime
 
 semaforo = Semaphore(5)
+
+def get_date_now():
+    date_now = datetime.now()
+    d = str(date_now.strftime("""_%d_%m_%Y"""))
+    return d
 
 cols = []
 
 del_words = []
-file_save_name = r"file_csv.csv"
+file_save_name = fr"dados_extraidos_avigrand.csv"
 
 """
 ALOJAMENTO,
@@ -67,17 +74,16 @@ def process_arrays(arrays, name_file, chaves):
                 
             cols.append(row_values)    
         semaforo.release()
-
+    return name_file
 
 def main():
     file_use = None
 
     start_time = time.time()
 
-    files = ["ArquivosPDF", "Arquivos_Extraidos_CSV", "TemplateTabula", "NotasAvigloria"]
-    
+    files = ["PDF_Extrair", "Arquivos_Extraidos_CSV", "TemplateTabula", "PDF_Arquivo"]
     create_dirs(files)
-
+    files_extrair = os.path.abspath(files[0])
     def CheckAvigloria(diretorio):
         try:
             # Lista todos os arquivos no diretório
@@ -124,9 +130,9 @@ def main():
     
     file_use = files[0]
 
-    if CheckAvigloria(files[3]):
-        file_use = files[3]
-        template_json = "T1_Avigloria.tabula-template.json"
+    # if CheckAvigloria(files[3]):
+    #     file_use = files[3]
+    #     template_json = "T1_Avigloria.tabula-template.json"
 
     # print(file_use)
     try:
@@ -149,16 +155,16 @@ def main():
                         template_json = "T5.tabula-template.json"
 
                 # print("tp", template_json)
-                dfs = read_pdf_with_template(os.path.join(file_use, file_name), os.path.join(files[2], template_json), stream=True)
-                # print("YourDfs", dfs)
+                dfs = read_pdf_with_template(os.path.join(file_use, file_name), os.path.join(files[2], template_json), stream=True) 
 
-                t = Thread(target=process_arrays, args=(dfs, base_name, chaves,))
+                t = Thread(target=process_arrays, args=(dfs, base_name, chaves,), name=str(file_name))
                 t.daemon = True
                 workers.append(t)
                 t.start()
              
         for worker_ in workers:
-            # print(worker_)
+            # print(os.path.abspath(files[0]+'/'+worker_.name))
+            shutil.move(os.path.abspath(files[0]+'/'+worker_.name), os.path.abspath(files[3]+'/'+worker_.name))
             worker_.join()
             
         # REMOVE Items da lista del_words
