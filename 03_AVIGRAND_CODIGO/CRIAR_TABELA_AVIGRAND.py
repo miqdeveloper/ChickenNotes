@@ -1,14 +1,22 @@
 from genericpath import exists
-import glob
+import glob, datetime, os
+from datetime import datetime
 from math import nan
 from operator import index
 import pandas as pd
-from warnings import simplefilter
-simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
-
 
 from tqdm import tqdm
 import re
+
+from warnings import simplefilter
+
+simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
+
+def get_date_now():
+    date_now = datetime.now()
+    d = str(date_now.strftime("""_%d_%m_%Y"""))
+    return d
+
 global key_arr
 global arr_tmp 
 
@@ -77,8 +85,11 @@ arr_filter = ["Integrado",
 # print("Qtd. Filtros Disponíveis: ", len(arr_filter))
 # print("LCFD: ", arr_filter.index("Peso Médio"))
 
-file_execel = r'ArquivosCSV/file_csv.csv'
+file_execel = r'Arquivos_Extraidos_CSV/dados_extraidos_avigrand.csv'
 # file_execel = 'ArquivosCSV/file_csv.csv'
+
+dir_s = ["Colunas_Criadas_CSV"]
+
 
 def search_term(name, lines_n):
     
@@ -313,6 +324,12 @@ def separate_():
     df = pd.read_csv(file_execel)    
     new_dataFrame= pd.DataFrame()
     
+    def create_dirs(dirs):
+        """Create directories if they don't exist."""
+        for dir_ in dirs:
+            if not os.path.exists(dir_):
+                os.mkdir(dir_)
+
     def find_dates(text):
         date_pattern = r"\b(0[1-9]|1[0-9]|2[0-9]|3[01])/(0[1-9]|1[0-2])/([0-9]{2})\b"
         return re.findall(date_pattern, text)
@@ -357,7 +374,7 @@ def separate_():
         arr_data_final = []
         for id_unico in id_unic_arr:
             if id_unico not in arr_id:
-                f_l = {'Data': 'nan', 'id': id_unico}
+                f_l = {'Data': "nan", 'id': id_unico}
             else:
                 f_l = arr_temp[arr_id.index(id_unico)]
             arr_data_final.append(f_l)
@@ -367,6 +384,7 @@ def separate_():
 
      #ITERA SOBRE O NOVO DATA FRAME FILTRADO
     
+    create_dirs(dir_s)
     for index, row in df.iterrows():
         line_item = str(row.iloc[0])
 
@@ -642,7 +660,6 @@ def separate_():
                     if len(separate_peso_m_f) == 5:
                         print(separate_peso_m_f)
                         pass
-                        
 
                 # GET_GPD
                 if arr_filter[24] == item:
@@ -1655,10 +1672,11 @@ def separate_():
                         # senar_arr.append(senar_separate)
                     
                 if arr_filter[50] == item:
-                    cnt_corrente = remove_empty_spaces(new_str.split(", "))
-                    cnt_corrente = cnt_corrente[1].replace("Conta Corrente Produtor ", "").replace("Conta Corrente Produtor", "")
                     
-                    arr_tmp.append({"id":cnt_corrente[0],"Data":cnt_corrente[1]})
+                    cnt_corrente = remove_empty_spaces(new_str.split(", "))
+                    id_l = (cnt_corrente[0])
+                    cnt_corrente = cnt_corrente[1].replace("Conta Corrente Produtor ", "").replace("Conta Corrente Produtor", "")
+                    arr_tmp.append({"id":id_l,"Data":cnt_corrente})
                     # f = [n for n in len(arr_tmp) if arr_tmp[n] == arr_tmp[n+1]]
                     
                     # conta_corrente.append(cnt_corrente)
@@ -2267,7 +2285,7 @@ def separate_():
 
 
 
-    new_dataFrame.to_csv("ArquivosCSV/filter_tabela_avigrand.csv", mode="w", index=False)
+    new_dataFrame.to_csv(f"{dir_s[0]}/filter_tabela_avigrand{get_date_now()}.csv", mode="w", index=False)
 
     print("Filtragem Completa")
     print("Arquivo filter_tabela.csv salvo na pasta ArquivosCSV!"+"\n")
