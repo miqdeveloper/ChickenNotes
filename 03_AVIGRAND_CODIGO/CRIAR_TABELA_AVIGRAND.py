@@ -79,7 +79,8 @@ arr_filter = ["Integrado",
               "% Calo de Pata A",
               "% Arranhaduras",
               "% Papo Cheio", 
-              "% Condenação"
+              "% Condenação",
+              "Centro"
             ]
 
 # print("Qtd. Filtros Disponíveis: ", len(arr_filter))
@@ -321,6 +322,8 @@ def separate_():
     
     arr_tmp_2 = []
 
+    centro_arr = []
+    
     df = pd.read_csv(file_execel)    
     new_dataFrame= pd.DataFrame()
     
@@ -2070,7 +2073,22 @@ def separate_():
                     percent_codenacao_real_arr.append(p_codenacao_real)
                     percent_codenacao_prev_arr.append(p_codenacao_prev)
                     percent_codenacao_diferenca_arr.append(p_codenacao_diferenca)
-            
+                
+                if arr_filter[59] == item:
+                    centro_ = remove_empty_spaces(new_str.split(", "))
+                    nc_ = len(centro_)
+                    if nc_ == 2:
+                        centro_s = (centro_[-1].split(" "))[1]
+                        centro_s = centro_s.replace(" ", "")
+                        centro_f = centro_s
+                
+                    if nc_ == 3:
+                        centro_s = centro_[1]
+                        centro_s = centro_s.replace("Centro", "").replace(" ", "")
+                        centro_f = centro_s
+                        
+                    centro_arr.append(centro_f)
+                    
     # metodo usando compreessao de lista para FUNRURAL           
     id_para_valor = {item[0]: item[2] for item in funrural_arr}
     funrural_arr_f = [id_para_valor.get(id, 'nan') for id in id_uni]
@@ -2281,8 +2299,7 @@ def separate_():
     new_dataFrame["%_CODENACAO_REAL"] = percent_codenacao_real_arr
     new_dataFrame["%_CODENACAO_PREV"] = percent_codenacao_prev_arr
     new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr 
-
-
+    new_dataFrame["CENTRO"] = centro_arr
 
 
     new_dataFrame.to_csv(f"{dir_s[0]}/filter_tabela_avigrand{get_date_now()}.csv", mode="w", index=False)
