@@ -192,5 +192,3 @@ def main():
     # input("\nAperte qualquer tecla para sair...")
 
 main()
-
-print()
