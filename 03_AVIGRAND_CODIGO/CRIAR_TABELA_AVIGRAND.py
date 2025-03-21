@@ -1218,7 +1218,6 @@ def separate_():
                         aj_meritocracia_mt_real = aj_meritocracia_mt_separate[-1]                        
                         aj_meritocracia_mt_real_arr.append(aj_meritocracia_mt_real)
                         
-                
                 # GET_Aj Calo Pata A
                 if arr_filter[40] == item:
                     aj_calo_pata_separate = remove_empty_spaces(new_str.split(", "))
