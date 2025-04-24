@@ -127,7 +127,7 @@ def convert_pdfs_to_tifs(input_dir: str, output_dir: str, pdf_path: str, base_na
 def convert_thread(input_dir: str, output_dir: str):
     futures = []
     
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         
         for filename in os.listdir(input_dir):
             if not filename.lower().endswith('.pdf'):
@@ -174,7 +174,7 @@ def _process_image(src_path: str, dst_path: str,
 
 def batch_process_tifs_threaded(input_dir: str,
                                 output_dir: str,
-                                resize_factor: float = 2.4,
+                                resize_factor: float = 2.0,
                                 black_point: float = 0.0,
                                 threshold: float = 0.5,
                                 deskew_threshold: float = 40.0) -> None:
