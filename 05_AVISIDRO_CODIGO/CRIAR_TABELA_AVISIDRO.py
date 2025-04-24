@@ -1,6 +1,5 @@
 from math import nan
-from os import remove, replace
-from traceback import print_tb
+from os import remove
 import pandas as pd
 import re, ast, os
 from tqdm import tqdm
@@ -20,7 +19,7 @@ def get_date_now():
 file=['Colunas_Criadas_CSV']
 create_dirs(file)
 
-file_execel = r"Arquivos_Extraidos_CSV/dados_extraidos_avisidro_07_03_2025.csv"
+file_execel = r"Arquivos_Extraidos_CSV/dados_extraidos_avisidro.csv"
 
 # df_2 = pd.read_csv(file_execel, encoding="utf-8", index_col=0)   
 df = pd.read_csv(file_execel, encoding="utf-8")
@@ -210,6 +209,7 @@ def dicio_obj(id:str, Data:str)  -> dict:
     
 
 def main():
+    global avcl_n
     integrado_nome_arr = []
     
     print("Filtrando aguarde...")
@@ -392,8 +392,9 @@ def main():
             l_id = new_str[0]
             
             car_f = new_str[1].replace("Pc Condenações - Previsto ", ", ").split(", ")[0].replace("Conv. Alimentar Real", "").replace(" ", "")
-            car_f = dicio_obj(l_id, car_f)
-            car_arr.append(car_f)
+            car_f =  car_f.replace("PcCondenações-Previsto", "")
+            car_f_ = dicio_obj(l_id, car_f)
+            car_arr.append(car_f_)
           
         if "Conv. Real Ajustada" in str(new_str):
             l_id = new_str[0]
@@ -628,8 +629,9 @@ def main():
                 avc_cl_separate = (remove_empty_spaces(new_str[1].replace("Avaliação Check-List", "").split(" ")))
                 
                 n_c2 = len(avc_cl_separate)
-
+                
                 if n_c2 == 4:
+
                      # # %
                     acl_percent = (avc_cl_separate[0])
 
@@ -642,6 +644,8 @@ def main():
                 if n_c2 == 5:
                      # # NOVO
                     avcl_n = avc_cl_separate[0]
+                    if not "Novo" in (avcl_n):
+                        avcl_n = "nan"
                      # # %
                     acl_percent = avc_cl_separate[1]
                       # # KG
@@ -667,7 +671,8 @@ def main():
                 if n_c2 == 4:
                     # # NOVO
                     avcl_n = (avc_cl_separate_[0])
-
+                    if not "Novo" in avcl_n:
+                        avcl_n = "nan"
                     # # %
                     acl_percent = avc_cl_separate_[1]
                     # # KG
@@ -679,16 +684,16 @@ def main():
             if n_c1 == 4:
                 avc_cl_separate__ = remove_empty_spaces(new_str)
                 avc_cl_separate__n  = avc_cl_separate__[1].split("Avaliação Check-List")
-
                 
                 # # NOVO
                 avc_cl_separate__n = (remove_empty_spaces(avc_cl_separate__n))
+                
                 if not avc_cl_separate__n:
-                    avcl_n = nan
+                    avcl_n = "nan"
                 else:
-                    avcl_n = remove_empty_spaces(avc_cl_separate__n[0].split(" "))
-                    avcl_n = avcl_n[0]
-                    
+                    avcl_n = remove_empty_spaces(avc_cl_separate__n[0].split(" "))[0]
+                    if not "Novo" in avcl_n:
+                        avcl_n = "nan"
 
                 # # %
                 acl_percent_s = remove_empty_spaces(avc_cl_separate__[1].split("Avaliação Check-List"))
@@ -725,7 +730,9 @@ def main():
             
             # if n_c1 == 5:
             #     print(new_str)
-            #     pass.a
+            #     pass
+            if not avcl_n:
+                avcl_n = nan
             avcl_n_ = dicio_obj(l_id, avcl_n)
             acl_percent_ = dicio_obj(l_id, acl_percent)
             acl_kg_f_ = dicio_obj(l_id, acl_kg_f)
@@ -840,6 +847,8 @@ def main():
             l_id = new_str[0]
             
             adp_f = (new_str[1].split("Área disp")[-1])
+            if not adp_f:
+                adp_f = (new_str[-1])
             
             adp_f_ = dicio_obj(l_id, adp_f)
             adp_arr.append(adp_f_)
@@ -860,14 +869,13 @@ def main():
             
             if dal_s_f:
                dal_s_f = (dal_s_f[0].replace(" ", ""))
-               
+               if "Lote" in (dal_s_f):
+                   dal_s_f = (new_str[(-1-1)]).replace("Data Acerto do Lote", "")
             if not dal_s_f:
                 dal_s_f = (new_str[2])
 
             dal_s_f_ = dicio_obj(l_id, dal_s_f)
             dal_arr.append(dal_s_f_)
-        
-        # # "Qtde Abatida"
 
         if "Qtde Abatida" and "Data Acerto do Lote" in str(new_str):
             l_id = new_str[0]
@@ -1045,25 +1053,53 @@ def main():
             
         if "IEE" in str(new_str):
             l_id = new_str[0]
-            iee_s_f = remove_empty_spaces(new_str[1].split("IEE")[-1].split(" "))[0]
+            if len(new_str) == 2:
+                pass
+            if len(new_str) == 3:
+                iee_s_f = remove_empty_spaces(new_str[1].split("IEE")[-1].split(" "))[0].replace(" ", "")
+               
+            if len(new_str) == 4:
+                if "IEE" in (new_str[1]):
+                    iee_s_f = remove_empty_spaces(new_str[1].split("IEE")[-1].split(" "))[0].replace(" ", "")
+                else:
+                    iee_s_f = remove_empty_spaces(new_str[2].split("IEE")[-1].split(" "))[-1].replace(" ", "")
+                if "Projetado" in iee_s_f:
+                    iee_s_f = remove_empty_spaces(new_str[2].split("IEE")[-1].split(" "))[0]
+           
+                
             iee_s_f_ = dicio_obj(l_id, iee_s_f)
             iee_arr.append(iee_s_f_)
             
         if "IEP" in str(new_str):
             l_id = new_str[0]
             iep_s_f = remove_empty_spaces((new_str[1].split("IEP"))[-1].split(" "))[0]
+            if "Ajs" in iep_s_f:
+                iep_s_f = remove_empty_spaces(new_str[2].replace("IEP", " ").split(" "))[-1]      
+                if  "Projetado" in iep_s_f:
+                    iep_s_f = remove_empty_spaces(new_str[(-1-1)].split("IEP")[-1].split(" "))[0]
             iep_s_f_ = dicio_obj(l_id, iep_s_f)
             iep_arr.append(iep_s_f_)
             
         if "PM Real - PM Projetado" in str(new_str):
             l_id = new_str[0]
-            pm_s = dicio_obj(l_id, new_str[-1])
+            pmr_pmp_s_f_ = new_str[-1].replace("PM Real - PM Projetado", "").replace(" ", "")
+            pm_s = dicio_obj(l_id, pmr_pmp_s_f_)
             
             pm_arr.append(pm_s)
             
         if "Aves Condenadas Total" in str(new_str):
-           avc_t_s_f =  remove_empty_spaces(new_str[1].split("No Aves Condenadas Total"))[-1].replace(" ","")
-           avc_t_arr.append(avc_t_s_f)
+            l_id = new_str[0]
+            
+            if len(new_str) == 2:
+                avc_t_s_f =  remove_empty_spaces(new_str[1].split("No Aves Condenadas Total"))[-1].replace(" ","")
+                
+            if len(new_str) == 3:
+                avc_t_s_f = new_str[-1].replace("No Aves Condenadas Total", "").replace(" ", "")
+                
+            # if len(new_str) == 4:
+            #     print(new_str)
+            avc_t_s_f_ = dicio_obj(l_id, avc_t_s_f)
+            avc_t_arr.append(avc_t_s_f_)
         
         if "PM Real - PM Projetado" in str(new_str):
             pmr_pmp = new_str[-1]
@@ -1261,12 +1297,17 @@ def main():
             dpxr_s_f_ = dicio_obj(l_id, dpxr_s_f)
             dpxr_arr.append(dpxr_s_f_)
             
-
         if "Idade Abate" in str(new_str):
             l_id = new_str[0]
-            idade_abate = remove_empty_spaces(new_str[1].split("Idade Abate")[-1].split(" "))[0].replace(" ", "")
+            if len(new_str) == 2:
+                # print(new_str)
+                pass
+            if len(new_str) == 3:
+                idade_abate = remove_empty_spaces(new_str[1].split("Idade Abate")[-1].split(" "))[0]
+            if len(new_str) == 4:
+                idade_abate = remove_empty_spaces(new_str[2].split("Idade Abate")[-1].split(" "))[0].replace(" ", "")
+                
             idade_abate_ = dicio_obj(l_id, idade_abate)
-            
             idade_abate_arr.append(idade_abate_)
 
         if "Viabilidade" in str(new_str):
@@ -1371,7 +1412,7 @@ def main():
     dpxr_arr_ = processar_dicionarios(id_uni_f, dpxr_arr)
     idade_abate_arr_ = processar_dicionarios(id_uni_f, idade_abate_arr)
     viabilidade_arr_ = processar_dicionarios(id_uni_f, viabilidade_arr)
-    
+    avc_t_arr_ = processar_dicionarios(id_uni_f, avc_t_arr)
     # integrado_arr_f = list(set(integrado_arr))
 
     # print(len(integrado_arr))    
@@ -1425,6 +1466,7 @@ def main():
 
     new_dataFrame["AVALIACAO_CHECK_LIST_KG"] = acl_kg_arr_
     new_dataFrame["AVALIACAO_CHECK_LIST_$"] = acl_real_arr_
+    
     new_dataFrame["AVALIACAO_CHECK_LIST_NOVO"] = avcl_novo_arr_
         
     new_dataFrame["RESULTADO_BRUTO_DO_LOTE_%"] = rbl_percent_arr_
@@ -1463,7 +1505,7 @@ def main():
     
     new_dataFrame["IEP"] = iep_arr_
     new_dataFrame['PM_REAL_PM_PROJETADO'] = pm_arr_
-    new_dataFrame['AVES_CONDENADAS_TOTAL'] = avc_percente_arr_
+    new_dataFrame['AVES_CONDENADAS_TOTAL'] = avc_t_arr_
     new_dataFrame["N_AVES_CONDENADAS_PARCIAL"] = nacp_arr_
     
     new_dataFrame["N_PATAS_CONDENADAS"] = npc_arr_

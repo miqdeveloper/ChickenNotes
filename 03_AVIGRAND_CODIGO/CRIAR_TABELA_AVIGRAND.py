@@ -1,14 +1,22 @@
 from genericpath import exists
-import glob
+import glob, datetime, os
+from datetime import datetime
 from math import nan
 from operator import index
 import pandas as pd
-from warnings import simplefilter
-simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
-
 
 from tqdm import tqdm
 import re
+
+from warnings import simplefilter
+
+simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
+
+def get_date_now():
+    date_now = datetime.now()
+    d = str(date_now.strftime("""_%d_%m_%Y"""))
+    return d
+
 global key_arr
 global arr_tmp 
 
@@ -71,14 +79,18 @@ arr_filter = ["Integrado",
               "% Calo de Pata A",
               "% Arranhaduras",
               "% Papo Cheio", 
-              "% Condenação"
+              "% Condenação",
+              "Centro"
             ]
 
 # print("Qtd. Filtros Disponíveis: ", len(arr_filter))
 # print("LCFD: ", arr_filter.index("Peso Médio"))
 
-file_execel = r'ArquivosCSV/file_csv.csv'
+file_execel = r'Arquivos_Extraidos_CSV/dados_extraidos_avigrand.csv'
 # file_execel = 'ArquivosCSV/file_csv.csv'
+
+dir_s = ["Colunas_Criadas_CSV"]
+
 
 def search_term(name, lines_n):
     
@@ -310,9 +322,17 @@ def separate_():
     
     arr_tmp_2 = []
 
+    centro_arr = []
+    
     df = pd.read_csv(file_execel)    
     new_dataFrame= pd.DataFrame()
     
+    def create_dirs(dirs):
+        """Create directories if they don't exist."""
+        for dir_ in dirs:
+            if not os.path.exists(dir_):
+                os.mkdir(dir_)
+
     def find_dates(text):
         date_pattern = r"\b(0[1-9]|1[0-9]|2[0-9]|3[01])/(0[1-9]|1[0-2])/([0-9]{2})\b"
         return re.findall(date_pattern, text)
@@ -357,7 +377,7 @@ def separate_():
         arr_data_final = []
         for id_unico in id_unic_arr:
             if id_unico not in arr_id:
-                f_l = {'Data': 'nan', 'id': id_unico}
+                f_l = {'Data': "nan", 'id': id_unico}
             else:
                 f_l = arr_temp[arr_id.index(id_unico)]
             arr_data_final.append(f_l)
@@ -367,6 +387,7 @@ def separate_():
 
      #ITERA SOBRE O NOVO DATA FRAME FILTRADO
     
+    create_dirs(dir_s)
     for index, row in df.iterrows():
         line_item = str(row.iloc[0])
 
@@ -576,40 +597,39 @@ def separate_():
                 #GET_Peso Médio
 
                 if arr_filter[23] == item:
-
+                    separate_peso_m_f_ = None
+                    
                     separate_peso_m_f = new_str.split(", ")
 
                     separate_peso_m_f = remove_empty_spaces(separate_peso_m_f)
-
-
-
+                    # print(separate_peso_m_f)
                     
                     
                     if len(separate_peso_m_f) == 3:
 
                         if "GPD" in str(separate_peso_m_f):
 
+                            
                             separate_peso_m_f_ = separate_peso_m_f[1]
-
                             separate_peso_m_f_ = separate_peso_m_f_.replace("Peso Médio ", "").replace("Peso Médio", "")
                             
                             if not separate_peso_m_f_:
-                                separate_peso_m_f_ = nan
-
+                                separate_peso_m_f_ = "nan"
+                               
                             peso_medio_f_arr.append(separate_peso_m_f_)
 
                         # PENSE NUM BAGULHO DOIDO EM
                         if "GPD" not in str(separate_peso_m_f):
                             # real - PESO MEDIO
-                            peso_medio_real_arr.append(separate_peso_m_f[1].replace("Peso Médio","").replace(" ", ""))
+                            peso_med_r =  separate_peso_m_f[1].replace("Peso Médio","").replace(" ", "")
+                            
+                            peso_medio_real_arr.append(peso_med_r)
 
                             # prevaj - PESO MEDIO
                             peso_medio_prevaj_arr.append(separate_peso_m_f[-1].split(" ")[0])
 
                             # diferenca - PESO MEDIO
                             peso_medio_diferenca_arr.append(separate_peso_m_f[-1].split(" ")[1])
-
-
 
 
                     if len(separate_peso_m_f) == 4:
@@ -620,30 +640,28 @@ def separate_():
                         peso_medio_real = (separate_peso_m_f[1].replace("Peso Médio",""))
 
                         if not peso_medio_real:
-                            peso_medio_real = nan
-
+                            peso_medio_real = "nan"
                         peso_medio_real_arr.append(peso_medio_real)
 
                         # prevaj
                         peso_medio_prevaj = separate_peso_m_f[2]
 
                         if not peso_medio_prevaj:
-                            peso_medio_prevaj = nan
+                            peso_medio_prevaj = "nan"
 
                         peso_medio_prevaj_arr.append(peso_medio_prevaj)
 
                         # diferenca
                         peso_medio_diferenca = separate_peso_m_f[3]
+                        
                         if not peso_medio_diferenca:
-                            peso_medio_diferenca = nan
+                            peso_medio_diferenca = "nan"
 
                         peso_medio_diferenca_arr.append(peso_medio_diferenca)
 
                     if len(separate_peso_m_f) == 5:
                         print(separate_peso_m_f)
-                        pass
-                        
-
+                    
                 # GET_GPD
                 if arr_filter[24] == item:
                     separate_gpd = new_str.split(", ")
@@ -1200,7 +1218,6 @@ def separate_():
                         aj_meritocracia_mt_real = aj_meritocracia_mt_separate[-1]                        
                         aj_meritocracia_mt_real_arr.append(aj_meritocracia_mt_real)
                         
-                
                 # GET_Aj Calo Pata A
                 if arr_filter[40] == item:
                     aj_calo_pata_separate = remove_empty_spaces(new_str.split(", "))
@@ -1606,6 +1623,10 @@ def separate_():
                         
                         #Renda Bruta / Ave
                         renda_b_ave_f_ = renda_b_ave[1].replace("Renda Bruta / Ave ","").replace(" Renda Bruta/Ton", "").replace(" ", "")
+
+                        if "RendaBruta/Ave" in  renda_b_ave_f_:
+                            renda_b_ave_f_ = renda_b_ave[2].replace(" ", "")
+                        
                         ave_real_arr.append(renda_b_ave_f_)
                         
                         # Renda Bruta/Ton
@@ -1614,9 +1635,12 @@ def separate_():
                         
                         #  Renda Bruta / m2
                         renda_b_m2_f = renda_b_ave[-1].replace("Renda Bruta / m2 ", "").replace("Renda Bruta / m2", "")
-                        m2_real_arr.append(renda_b_m2_f)
                         
-                        pass
+                        if "Renda Bruta/Ton" in renda_b_m2_f:
+                            renda_b_m2_f = (renda_b_ave[-1].split("Renda Bruta / m2")[-1]).replace(" ", "")
+                        
+                        m2_real_arr.append(renda_b_m2_f)
+
                     if n_c_ == 5:
                         #Renda Bruta / Ave
                         renda_b_ave_f_ = renda_b_ave[1].replace("Renda Bruta / Ave ", "")
@@ -1630,9 +1654,6 @@ def separate_():
                         renda_b_m2_f = renda_b_ave[-1].replace("Renda Bruta / m2 ", "").replace("Renda Bruta / m2", "")
                         m2_real_arr.append(renda_b_m2_f)
 
-                        pass
-                    pass
-                
                 # GET FUNRURAL - Como todos nao tem, temos que atribuir o valor nan mantendo a ordem pra isso foi usado compreesao de lista
                 if arr_filter[48] == item:
                     fun_rural_separate = remove_empty_spaces(new_str.split(", "))
@@ -1655,10 +1676,11 @@ def separate_():
                         # senar_arr.append(senar_separate)
                     
                 if arr_filter[50] == item:
-                    cnt_corrente = remove_empty_spaces(new_str.split(", "))
-                    cnt_corrente = cnt_corrente[1].replace("Conta Corrente Produtor ", "").replace("Conta Corrente Produtor", "")
                     
-                    arr_tmp.append({"id":cnt_corrente[0],"Data":cnt_corrente[1]})
+                    cnt_corrente = remove_empty_spaces(new_str.split(", "))
+                    id_l = (cnt_corrente[0])
+                    cnt_corrente = cnt_corrente[1].replace("Conta Corrente Produtor ", "").replace("Conta Corrente Produtor", "")
+                    arr_tmp.append({"id":id_l,"Data":cnt_corrente})
                     # f = [n for n in len(arr_tmp) if arr_tmp[n] == arr_tmp[n+1]]
                     
                     # conta_corrente.append(cnt_corrente)
@@ -1705,6 +1727,7 @@ def separate_():
                         if nc_2 == 4:
                             # real
                             conv_aliment_real  = (conv_aliment_s[2].split(" "))
+                            conv_aliment_real =  conv_aliment_real[0]                            
 
                             # real_aj
                             conv_aliment_real_aj = conv_aliment_s[2].split(" ")[1]
@@ -1715,10 +1738,10 @@ def separate_():
                             #diferenca
                             conv_aliment_d = conv_aliment_s[2].split(" ")[3]
 
-
                     if n_c_ == 4:
                         # real
                         conv_aliment_real = (conv_aliment_s[1].replace("Conversão Alimentar", "").replace(" ", ""))
+                        
     
                         # real_aj_prev
                         conv_aliment_real_aj_prev_s = conv_aliment_s[2].split(" ")
@@ -1734,7 +1757,7 @@ def separate_():
                         
                     if n_c_ == 5:
                         conv_aliment_real = (conv_aliment_s[1].replace("Conversão Alimentar", "").replace(" ", ""))
-            
+
                         # real AJ
                         conv_aliment_real_aj = conv_aliment_s[2]
 
@@ -1746,8 +1769,8 @@ def separate_():
                     
                     # if n_c_ == 6:
 
-
                     conv_aliment_real_arr.append(conv_aliment_real)
+                    
                     conv_aliment_real_aj_arr.append(conv_aliment_real_aj)
                     conv_aliment_prev_aj_arr.append(conv_aliment_prev_aj)
                     conv_aliment_diferenca_arr.append(conv_aliment_d)
@@ -1763,9 +1786,13 @@ def separate_():
                         #real
                         idad_d_abt_real  =  (remove_empty_spaces(new_str.split(", ")))
                         idad_d_abt_real_f = (idad_d_abt_real[1].replace("Idade de Abate ", ""))
+                        
+                        if "Idade de Abate" in idad_d_abt_real_f:
+                            idad_d_abt_real_f = (idad_d_abt_real[-1].split(" ")[0]).replace(" ", "")
+                            # print(idade_d_abt_s, idad_d_abt_real_f)
                         idade_de_abate_real_arr.append(idad_d_abt_real_f)
                         
-
+                        # print(idad_d_abt_real_f)
                         #PrevAj
                         idad_d_abt_prevaj = idad_d_abt_real[-1].split(" ")
                         idade_de_abate_real_prev_aj_arr.append(idad_d_abt_prevaj[0])
@@ -1787,8 +1814,8 @@ def separate_():
                         idade_de_abate_real_dif_arr.append(idad_d_abt_diferenca)
                         
 
-                    if n_c_  == 5:
-                        pass
+                    # if n_c_  == 5:
+                    #     print(idade_d_abt_s)
                 
                 if arr_filter[54] == item:
                     mrt_s = remove_empty_spaces(new_str.split(", "))
@@ -2052,7 +2079,22 @@ def separate_():
                     percent_codenacao_real_arr.append(p_codenacao_real)
                     percent_codenacao_prev_arr.append(p_codenacao_prev)
                     percent_codenacao_diferenca_arr.append(p_codenacao_diferenca)
-            
+                
+                if arr_filter[59] == item:
+                    centro_ = remove_empty_spaces(new_str.split(", "))
+                    nc_ = len(centro_)
+                    if nc_ == 2:
+                        centro_s = (centro_[-1].split(" "))[1]
+                        centro_s = centro_s.replace(" ", "")
+                        centro_f = centro_s
+                
+                    if nc_ == 3:
+                        centro_s = centro_[1]
+                        centro_s = centro_s.replace("Centro", "").replace(" ", "")
+                        centro_f = centro_s
+                        
+                    centro_arr.append(centro_f)
+                    
     # metodo usando compreessao de lista para FUNRURAL           
     id_para_valor = {item[0]: item[2] for item in funrural_arr}
     funrural_arr_f = [id_para_valor.get(id, 'nan') for id in id_uni]
@@ -2090,8 +2132,7 @@ def separate_():
     # #grava os dados para a nova tabela
     # arr_pedido = list(dict.fromkeys(mod))
     
-    # print("\n", "Key Id:", len(key_arr), "DEBUG ARR:" , len(peso_medio_real_arr), '\n')
-    
+        
     for id in range(len(arr_tmp)):
         try:
             if id+1 == len(arr_tmp):
@@ -2239,7 +2280,7 @@ def separate_():
     new_dataFrame["IDADE_DE_ABATE_PREV_AJ"] = idade_de_abate_real_prev_aj_arr
     new_dataFrame["IDADE_DE_ABATE_DIFERENCA"] = idade_de_abate_real_dif_arr
 
-    new_dataFrame["PESO_MEDIO_REAL"] = peso_medio_real_arr
+    new_dataFrame["PESO_MEDIO_REAL"] = peso_medio_f_arr
     new_dataFrame["PESO_MEDIO_PREV_AJ"] = peso_medio_prevaj_arr 
     new_dataFrame["PESO_MEDIO_DIFERENCA"] =peso_medio_diferenca_arr
 
@@ -2263,11 +2304,10 @@ def separate_():
     new_dataFrame["%_CODENACAO_REAL"] = percent_codenacao_real_arr
     new_dataFrame["%_CODENACAO_PREV"] = percent_codenacao_prev_arr
     new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr 
+    new_dataFrame["CENTRO"] = centro_arr
 
 
-
-
-    new_dataFrame.to_csv("ArquivosCSV/filter_tabela_avigrand.csv", mode="w", index=False)
+    new_dataFrame.to_csv(f"{dir_s[0]}/filter_tabela_avigrand{get_date_now()}.csv", mode="w", index=False)
 
     print("Filtragem Completa")
     print("Arquivo filter_tabela.csv salvo na pasta ArquivosCSV!"+"\n")

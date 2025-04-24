@@ -11,6 +11,10 @@ newPlumberExtract
 *.zip
 *.jpg
 *.png
+*.tif
+*.tiff
+ExtractDataFromImage
+.vscode/
 # C extensions
 *.so
 *.db

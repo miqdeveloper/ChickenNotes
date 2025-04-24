@@ -1,19 +1,26 @@
-from calendar import c
 from collections import OrderedDict
 from glob import glob
-from hmac import new
 from math import e, nan
 from os import remove
+import pprint
 import pandas as pd
-import re, ast
-
+import re, ast, os
+from datetime import datetime
 from warnings import simplefilter
+
+
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
-file_execel = "ArquivosCSV/TABELA_01.csv"
+def create_dirs(dirs):
+    """Create directories if they don't exist."""
+    for dir_ in dirs:
+        if not os.path.exists(dir_):
+            os.mkdir(dir_)
 
-# df_2 = pd.read_csv(file_execel, encoding="utf-8", index_col=0)   
-df = pd.read_csv(file_execel, encoding="utf-8")
+def get_date_now():
+    date_now = datetime.now()
+    d = str(date_now.strftime("""_%d_%m_%Y"""))
+    return d
 
 def remove_last_space(s):
     return re.sub(r' +$', ' ', s).strip()
@@ -112,6 +119,16 @@ def limpar_texto(texto):
     
     
     return padrao
+
+
+file=['Colunas_Criadas_CSV']
+create_dirs(file)
+
+file_execel = "Arquivos_Extraidos_CSV/file_csv.csv"
+
+# df_2 = pd.read_csv(file_execel, encoding="utf-8", index_col=0)   
+df = pd.read_csv(file_execel, encoding="utf-8")
+
     
 id_unic_arr = []
 id_unic_s = []
@@ -195,6 +212,11 @@ valor_liquido_arr = []
 total_dois_arr = []
 
 test_arr = []
+
+tota_one_arr = []
+tota_two_arr = []
+tota_three_arr = []
+
 
 new_dataFrame= pd.DataFrame()
 
@@ -737,8 +759,8 @@ for index, row in df.iterrows():
         total_s = remove_empty_spaces(total_s.replace("Total:", "").split(" "))
         len_total = len(total_s)
         id_l = line_item.replace(".pdf", "").replace(" ", "")
-        # print(id_l, total_s)
-        total_dic = {'data':total_s, 'id':id_l}
+        total_dic = {'Data':total_s, 'id':id_l}
+
         test_arr.append(total_dic)
         
         # if len_total == 1:
@@ -751,7 +773,30 @@ id_unic_arr = list(OrderedDict.fromkeys(id_unic_s))
 # nome_integrado_arr = list(OrderedDict.fromkeys(nome_integrado_arr))
 # name_arr = list(set(nome_integrado_arr))
 
+x = 0
+f = len(test_arr)
 
+for i in range(len(test_arr)):
+    try:
+        x = i+1
+        if x > f:
+            x = f
+            
+        if test_arr[i]['id'] == test_arr[x]['id']:
+            # print(pprint.pprint(test_arr))
+            a_arr.append(test_arr[i])
+        if test_arr[i]['id'] not in a_arr:
+            a_arr.append(test_arr[i])
+
+    except IndexError:
+        continue
+
+a_arr_ = processar_dicionarios(id_unic_arr, a_arr)
+# a_arr__  = a_arr_.append(a_arr_)
+
+tota_one_arr = [list(value)[0] for value in a_arr_]
+tota_two_arr = [list(value)[1] for value in a_arr_]
+tota_three_arr = [list(value)[2] for value in a_arr_]
 
 cms_arr = processar_dicionarios(id_unic_arr, cms_arr)
 custo_fomento_arr = processar_dicionarios(id_unic_arr, custo_fomento_arr)
@@ -761,102 +806,90 @@ q_tec_racao_arr = processar_dicionarios(id_unic_arr, q_tec_racao_arr)
 transporte_frango_vivo_arr = processar_dicionarios(id_unic_arr, transporte_frango_vivo_arr)
 extorno_icms_arr = processar_dicionarios(id_unic_arr, extorno_icms_arr)
 valor_liquido_arr = processar_dicionarios(id_unic_arr, valor_liquido_arr)
+
 # bonificacao_ch_arr = processar_dicionarios(id_unic_arr, bonificacao_ch_p_arr)
 
-x = 0
-f = len(test_arr)
-for i in range(len(test_arr)):
-    x = i+1
-    if x > f:
-        x = f
-        
-    if test_arr[i]['id'] == test_arr[x]['id']:
-        a_arr.append(test_arr[i])
-    if test_arr[i]['id'] not in a_arr:
-        a_arr.append(test_arr[i])
+
 
 # a_arr = list(OrderedDict.fromkeys(a_arr))
-print("Contagem: a_arr", len(a_arr))
-# print(id_unic_arr)
+# print("Contagem: a_arr", len(a_arr))
+# # print(id_unic_arr)
 
         
 print("Contagem: id_unic_arr", len(id_unic_arr))
 # print("Total contagem:", len(cms_arr))
 # Save new_dataFrame
 new_dataFrame["ID_INTEGRAD"] = id_unic_arr
-# new_dataFrame["CHAVE_INTEGRADO"] = key_integrado_arr
-# new_dataFrame["NOME_INTEGRADO"] = nome_integrado_arr
-# new_dataFrame["ALOJAMENTO"] = alojamento_arr
-# new_dataFrame["ABATE"] = abate_arr
-# new_dataFrame["VENCIMENTO"] = vencimento_arr
-# new_dataFrame["INSTALACAO"] = instalacao_arr
-# new_dataFrame["SEXO"] = sexo_arr
-# new_dataFrame["LINHAGEM"] = linhagem_arr
-# new_dataFrame["QUANTIDADE_ALOJADA"] = qtd_alojada_arr
-# new_dataFrame["DATA_DE_EMISSAO"] = dt_emissao_arr
-# new_dataFrame["PREMIX"] = premix_arr
-# new_dataFrame["AVICOLA"] = avicola_arr
-# new_dataFrame["IDADE_MATRIZ"] = idade_matriz_arr
-# new_dataFrame["NUMERO_CAMAS"] = n_camas_arr
+new_dataFrame["CHAVE_INTEGRADO"] = key_integrado_arr
+new_dataFrame["NOME_INTEGRADO"] = nome_integrado_arr
+new_dataFrame["ALOJAMENTO"] = alojamento_arr
+new_dataFrame["ABATE"] = abate_arr
+new_dataFrame["VENCIMENTO"] = vencimento_arr
+new_dataFrame["INSTALACAO"] = instalacao_arr
+new_dataFrame["SEXO"] = sexo_arr
+new_dataFrame["LINHAGEM"] = linhagem_arr
+new_dataFrame["QUANTIDADE_ALOJADA"] = qtd_alojada_arr
+new_dataFrame["DATA_DE_EMISSAO"] = dt_emissao_arr
+new_dataFrame["PREMIX"] = premix_arr
+new_dataFrame["AVICOLA"] = avicola_arr
+new_dataFrame["IDADE_MATRIZ"] = idade_matriz_arr
+new_dataFrame["NUMERO_CAMAS"] = n_camas_arr
 
-# new_dataFrame["TOTAL_ENVIO"] = total_e_arr
-# new_dataFrame["TOTAL_DEVOLUÇÃO"] = total_d_arr
-# new_dataFrame["TOTAL_LIQUIDO"] = total_l_arr
-# new_dataFrame["TOTAL_CONS/FASE"] = total_c_arr
+new_dataFrame["TOTAL_ENVIO"] = total_e_arr
+new_dataFrame["TOTAL_DEVOLUÇÃO"] = total_d_arr
+new_dataFrame["TOTAL_LIQUIDO"] = total_l_arr
+new_dataFrame["TOTAL_CONS/FASE"] = total_c_arr
 
-# new_dataFrame["LIQUIDO"] = liquido_arr
-# new_dataFrame["PESO_MEDIO"] = peso_med_arr
-# new_dataFrame["IDADE_MEDIA"] = idade_med_arr
-# new_dataFrame["MORTALIDADE"] = mortalidade_arr
-# new_dataFrame["CONVERSAO_ALIMENTAR"] = conversao_ali_arr
-# new_dataFrame["CONVERSAO_ALIMENTAR_AJUSTADA"] = conversao_ali_ajustada_arr
-# new_dataFrame["DENSIDADE"] = densidade_arr
-# new_dataFrame["GANHO_DIARIO"] = ganho_diario_arr
-# new_dataFrame["K/CAL"] = kcal_arr
-# new_dataFrame["DIFERENCA/SOBRE_AVES"] = diferenca_sobre_aves_arr
+new_dataFrame["LIQUIDO"] = liquido_arr
+new_dataFrame["PESO_MEDIO"] = peso_med_arr
+new_dataFrame["IDADE_MEDIA"] = idade_med_arr
+new_dataFrame["MORTALIDADE"] = mortalidade_arr
+new_dataFrame["CONVERSAO_ALIMENTAR"] = conversao_ali_arr
+new_dataFrame["CONVERSAO_ALIMENTAR_AJUSTADA"] = conversao_ali_ajustada_arr
+new_dataFrame["DENSIDADE"] = densidade_arr
+new_dataFrame["GANHO_DIARIO"] = ganho_diario_arr
+new_dataFrame["K/CAL"] = kcal_arr
+new_dataFrame["DIFERENCA/SOBRE_AVES"] = diferenca_sobre_aves_arr
 
-# new_dataFrame["C_A_TABELA_I"] = cat_s_tabela_arr
-# new_dataFrame["C_A_TABELA_DIA"] = cat_s_dia_arr
-# new_dataFrame["C_A_TABELA_PS_REAL"] = cat_s_ps_real_arr
+new_dataFrame["C_A_TABELA_I"] = cat_s_tabela_arr
+new_dataFrame["C_A_TABELA_DIA"] = cat_s_dia_arr
+new_dataFrame["C_A_TABELA_PS_REAL"] = cat_s_ps_real_arr
 
-# new_dataFrame["MORTALIDADE_TABELA_II"] = mortalidade_tabela_ii_arr
-# new_dataFrame["MORTALIDADE_TABELA_II_DIA"] = mortalidade_tabela_ii_dia_arr
-# new_dataFrame["MORTALIDADE_TABELA_II_PS_REAL"] = mortalidade_tabela_ii_ps_real_arr
+new_dataFrame["MORTALIDADE_TABELA_II"] = mortalidade_tabela_ii_arr
+new_dataFrame["MORTALIDADE_TABELA_II_DIA"] = mortalidade_tabela_ii_dia_arr
+new_dataFrame["MORTALIDADE_TABELA_II_PS_REAL"] = mortalidade_tabela_ii_ps_real_arr
 
-# new_dataFrame["GPD_TABELA_III"] = gpd_tabela_iii_arr
-# new_dataFrame["GPD_TABELA_III_DIA"] = gpd_tabela_iii_dia_arr
-# new_dataFrame["GPD_TABELA_III_PS_REAL"] = gpd_tabela_iii_ps_real_arr
+new_dataFrame["GPD_TABELA_III"] = gpd_tabela_iii_arr
+new_dataFrame["GPD_TABELA_III_DIA"] = gpd_tabela_iii_dia_arr
+new_dataFrame["GPD_TABELA_III_PS_REAL"] = gpd_tabela_iii_ps_real_arr
 
-# new_dataFrame["TAXA_LIQUIDA"] = taxa_liquida_arr
-# new_dataFrame["TAXA_LIQUIDA_DIA"] = taxa_liquida_dia_arr
-# new_dataFrame["TAXA_LIQUIDA_PS_REAL"] = taxa_liquida_ps_real_arr
-# new_dataFrame["VALOR_POR_CABEÇA"] = valor_por_cabeça_arr
-# new_dataFrame["RET_B_CALC"] = ret_b_calc_arr
-# new_dataFrame["RET_VALOR"] = ret_valor_arr
-# new_dataFrame["CUSTO_FOMENTO"] = custo_fomento_arr
-# new_dataFrame["CUSTO_CARREGAMENTO"] = custo_carregamento_arr_f
-# new_dataFrame["INDUSTRIALIZACAO_RACAO"] = industrializacao_racao_arr_tmp
-# new_dataFrame["QUEBRA_TECNICA_RACAO"] = q_tec_racao_arr
-# new_dataFrame["TRANSPORTE_FRANGO_VIVO"] = transporte_frango_vivo_arr
-# new_dataFrame["EXTORNO_ICMS"] = extorno_icms_arr
+new_dataFrame["TAXA_LIQUIDA"] = taxa_liquida_arr
+new_dataFrame["TAXA_LIQUIDA_DIA"] = taxa_liquida_dia_arr
+new_dataFrame["TAXA_LIQUIDA_PS_REAL"] = taxa_liquida_ps_real_arr
+new_dataFrame["VALOR_POR_CABEÇA"] = valor_por_cabeça_arr
+new_dataFrame["RET_B_CALC"] = ret_b_calc_arr
+new_dataFrame["RET_VALOR"] = ret_valor_arr
+new_dataFrame["CUSTO_FOMENTO"] = custo_fomento_arr
+new_dataFrame["CUSTO_CARREGAMENTO"] = custo_carregamento_arr_f
+new_dataFrame["INDUSTRIALIZACAO_RACAO"] = industrializacao_racao_arr_tmp
+new_dataFrame["QUEBRA_TECNICA_RACAO"] = q_tec_racao_arr
+new_dataFrame["TRANSPORTE_FRANGO_VIVO"] = transporte_frango_vivo_arr
+new_dataFrame["EXTORNO_ICMS"] = extorno_icms_arr
 
-# new_dataFrame["VALOR_BRUTO"] = valor_bruto_arr
-# new_dataFrame["BINIFICACAO_CHECKLIST_%"] = bonificacao_ch_p_arr
-# new_dataFrame["BINIFICACAO_CHECKLIST"] = bonificacao_ch_arr
-# new_dataFrame["BONIFICAÇÃO"] = bonificacao_arr
-# new_dataFrame["DESCONTOS"] = descontos_arr
-# new_dataFrame["IMPOSTO_FUNRURAL"] = imposto_f_arr
-# new_dataFrame["OUTROS_DESCONTOS_DOCUMENTOS"] = odc_arr
-# new_dataFrame["VALOR_LIQUIDO"] = valor_liquido_arr
-# new_dataFrame["CONVERSAO_META_DA_SEMANA"] = cms_arr
-# new_dataFrame["TOTAL_DOIS"] = total_dois_arr
-# new_dataFrame["TOTAL_DOIS"] = a_arr
+new_dataFrame["VALOR_BRUTO"] = valor_bruto_arr
+new_dataFrame["BINIFICACAO_CHECKLIST_%"] = bonificacao_ch_p_arr
+new_dataFrame["BINIFICACAO_CHECKLIST"] = bonificacao_ch_arr
+new_dataFrame["BONIFICAÇÃO"] = bonificacao_arr
+new_dataFrame["DESCONTOS"] = descontos_arr
+new_dataFrame["IMPOSTO_FUNRURAL"] = imposto_f_arr
+new_dataFrame["OUTROS_DESCONTOS_DOCUMENTOS"] = odc_arr
+new_dataFrame["VALOR_LIQUIDO"] = valor_liquido_arr
+new_dataFrame["CONVERSAO_META_DA_SEMANA"] = cms_arr
+new_dataFrame["TOTAL_1"] = tota_one_arr
+new_dataFrame["TOTAL_2"] = tota_two_arr
+new_dataFrame["TOTAL_3"] = tota_three_arr
 
 
-
-# for x_ in a_arr:
-#     if x_['id'] not in id_unic_arr:
-#         print(x_['id'])
 print("Salvando arquivo...")
-new_dataFrame.to_csv(r"ArquivosCSV/avigloria_tabela.csv",  index=False)
+new_dataFrame.to_csv(rf"Colunas_Criadas_CSV/avigloria_tabela_{get_date_now()}.csv",  index=False)
 input("Arquivo salvo com sucesso...")
