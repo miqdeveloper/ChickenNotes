@@ -89,52 +89,68 @@ def run_remove_blank(tif_path: str) -> None:
         print(f"Arquivo {tif_path} não contém texto legível.")
         os.remove(tif_path)  # Remove arquivo se não houver texto
             
-def convert_pdfs_to_tifs(input_dir: str, output_dir: str, resolution: int = 500):
-      """
-      Converte todos os arquivos .pdf em input_dir para arquivos .tif em output_dir.
-      Cada página do PDF é salva como um TIFF separado.
-      
-      :param input_dir: Pasta contendo arquivos PDF de entrada.
-      :param output_dir: Pasta onde os TIFFs serão salvos.
-      :param resolution: DPI usado para rasterização (padrão: 300).
-      """
-      # Garante que o diretório de saída exista
-      os.makedirs(output_dir, exist_ok=True)
+def convert_pdfs_to_tifs(input_dir: str, output_dir: str, pdf_path: str, base_name:str, resolution: int = 350):
+    """
+    Converte todos os arquivos .pdf em input_dir para arquivos .tif em output_dir.
+    Cada página do PDF é salva como um TIFF separado.
+    
+    :param input_dir: Pasta contendo arquivos PDF de entrada.
+    :param output_dir: Pasta onde os TIFFs serão salvos.
+    :param resolution: DPI usado para rasterização (padrão: 300).
+    """
+    # Garante que o diretório de saída exista
+    os.makedirs(output_dir, exist_ok=True)
 
-      # Percorre todos os arquivos da pasta de entrada
-      for filename in os.listdir(input_dir):
-         if not filename.lower().endswith('.pdf'):
-            continue
-
-         pdf_path = os.path.join(input_dir, filename)
-         base_name = os.path.splitext(filename)[0]
-
-         # Abre o PDF com a resolução especificada
-         with Image(filename=pdf_path, resolution=resolution) as pdf:
-            # Itera por cada página do PDF
+        # Abre o PDF com a resolução especificada
+    with Image(filename=pdf_path, resolution=resolution) as pdf:
+        # Itera por cada página do PDF
             for i, page in enumerate(pdf.sequence):
-                  with Image(page) as img:
-                     # Remove canal alfa e define fundo branco
-                     img.background_color = 'white'
-                     img.alpha_channel = 'remove'
+                with Image(page) as img:
+                    # Remove canal alfa e define fundo branco
+                    img.background_color = 'white'
+                    img.alpha_channel = 'remove'
 
-                     # Caminho do TIFF de saída para a página atual
-                     output_filename = f"{base_name}_pg_{i+1}.tif"
-                     output_path = os.path.join(output_dir, output_filename)
+                    # Caminho do TIFF de saída para a página atual
+                    output_filename = f"{base_name}_pg_{i+1}.tif"
+                    output_path = os.path.join(output_dir, output_filename)
 
-                     # Salva a página como TIFF
-                     img.save(filename=output_path)
-                     print("Pdf convertido com sucesso -->", output_filename)
-                     run_remove_blank(output_path)
+                    # Salva a página como TIFF
+                    img.save(filename=output_path)
+                    print("Pdf convertido com sucesso -->", output_filename)
+                    run_remove_blank(output_path)
         #  run_remove_blank(output_path)  # Chama a função para remover o arquivo se não houver texto
          # Chama a função para remover o arquivo se não houver texto
-         
+
+
+ # Processa os PDFs em paralelo usando threads
+
+def convert_thread(input_dir: str, output_dir: str):
+    futures = []
+    
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        
+        for filename in os.listdir(input_dir):
+            if not filename.lower().endswith('.pdf'):
+                continue
+            
+            pdf_path = os.path.join(input_dir, filename)
+            base_name = os.path.splitext(filename)[0]
+        
+            futures.append(executor.submit(convert_pdfs_to_tifs, input_dir, output_dir, pdf_path, base_name))
+        
+            # Aguarda a conclusão de todas as threads
+        for future in as_completed(futures):
+            try:
+                future.result()  # Propaga exceções, se houver
+            except Exception as e:
+                pass
+
 def _process_image(src_path: str, dst_path: str,
                    resize_factor: float,
                    black_point: float,
                    threshold: float,
                    deskew_threshold: float) -> None:
-    """
+    """ 
     Processa uma única imagem TIFF:
     - remove canal alfa e define fundo branco
     - aplica tons de cinza, redimensiona, estica contraste
@@ -251,7 +267,7 @@ def init():
       return
     try:
       print("Convertendo arquivos PDF para TIF...\n")
-      convert_pdfs_to_tifs(pdf_path, images_path, resolution=350)
+      convert_thread(pdf_path, images_path)
       
       print("melhorando a qualidade das imagens TIF...\n")
       batch_process_tifs_threaded(images_path, process_images)
