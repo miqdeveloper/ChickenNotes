@@ -215,13 +215,9 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
     :param output_csv: caminho do CSV de saída (será sobrescrito, se existir)
     """
     records = []
-    # Itera sobre todos os arquivos .tif
-    for fname in os.listdir(input_dir):                               # :contentReference[oaicite:1]{index=1}
-        if not fname.lower().endswith('.tif'):
-            continue
-
-        tif_path = os.path.join(input_dir, fname)
-        # Chama o Tesseract via subprocess com captura de stdout
+    
+    def ocr_call(tif_path: str, fname: str) -> str:
+        
         print("Processando Arquivo --> ", fname)
         proc = subprocess.run(
             [
@@ -253,9 +249,26 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
                 "filename": fname,
                 "text": line
             })
+        return fname
+    
+    # Itera sobre todos os arquivos .tif
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = []
+        for fname in os.listdir(input_dir):                               # :contentReference[oaicite:1]{index=1}
+            if not fname.lower().endswith('.tif'):
+                continue
+            
+            tif_path = os.path.join(input_dir, fname)
+            
+            # Chama o Tesseract via subprocess com captura de stdout
+            futures.append(executor.submit(ocr_call, tif_path, fname))          # :contentReference[oaicite:2]{index=2}
+        
+        # Aguarda a conclusão de todas as threads
+    for future in as_completed(futures):
+        print("Future OCR:", future.result())  # Propaga exceções, se houver
+        # tif_path = os.path.join(input_dir, fname)
 
-    # Cria DataFrame e salva em CSV (sep=';')
-    df = pd.DataFrame(records)                                        
+    df = pd.DataFrame(records)
     df.to_csv(output_csv, index=False, sep=';', mode='w', encoding='utf-8')
     print(f"\n\nArquivo CSV gerado: {output_csv}")
     
