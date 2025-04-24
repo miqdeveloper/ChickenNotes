@@ -189,7 +189,7 @@ def batch_process_tifs_threaded(input_dir: str,
     files = [f for f in os.listdir(input_dir) if f.lower().endswith('.tif')]
 
     # 3. Processamento em pool de threads
-    max_workers = 5
+    max_workers = 10
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         for fname in files:
