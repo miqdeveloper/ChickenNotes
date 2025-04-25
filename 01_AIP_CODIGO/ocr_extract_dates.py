@@ -21,6 +21,21 @@ from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExec
 import subprocess
 import pandas as pd
 
+def clean_files(folder_path):
+    """
+    Deletes all *.tf files in the specified folder without comments.
+    
+    Args:
+        folder_path (str): The path to the folder containing the *.tf files.
+    """
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".tif"):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                os.remove(file_path)
+                print(f"Deleted file: {file_path}")
+            except Exception as e:
+                print(f"Error deleting file {file_path}: {e}")
 
 def normalizar_texto(texto: str) -> str:
     """
@@ -74,7 +89,7 @@ def run_remove_blank(tif_path: str) -> None:
                 "stdout",
                 "-l", "por",
                 "--psm", "3",
-                "--oem", "1",
+                "--oem", "3",
                 "--dpi", "300",
                 "-c", "preserve_interword_spaces=0"
             ],
@@ -127,7 +142,7 @@ def convert_pdfs_to_tifs(input_dir: str, output_dir: str, pdf_path: str, base_na
 def convert_thread(input_dir: str, output_dir: str):
     futures = []
     
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=20) as executor:
         
         for filename in os.listdir(input_dir):
             if not filename.lower().endswith('.pdf'):
@@ -161,8 +176,7 @@ def _process_image(src_path: str, dst_path: str,
         img.background_color = 'white'
         img.alpha_channel = 'remove'                             # -background white -alpha remove :contentReference[oaicite:3]{index=3}
         img.transform_colorspace('gray')                         # -colorspace Gray :contentReference[oaicite:4]{index=4}
-        img.resize(int(img.width * resize_factor),
-                   int(img.height * resize_factor))             # -resize 200% :contentReference[oaicite:5]{index=5}
+        img.resize(int(img.width * resize_factor), int(img.height * resize_factor))# -resize 200% :contentReference[oaicite:5]{index=5}
         img.contrast_stretch(black_point)
         img.morphology(method='erode', kernel='Octagon:1', iterations=1)
         img.despeckle()                                          # -despeckle :contentReference[oaicite:7]{index=7}
@@ -174,7 +188,7 @@ def _process_image(src_path: str, dst_path: str,
 
 def batch_process_tifs_threaded(input_dir: str,
                                 output_dir: str,
-                                resize_factor: float = 2.0,
+                                resize_factor: float = 2.5,
                                 black_point: float = 0.0,
                                 threshold: float = 0.5,
                                 deskew_threshold: float = 40.0) -> None:
@@ -252,7 +266,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
         return fname
     
     # Itera sobre todos os arquivos .tif
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=15) as executor:
         futures = []
         for fname in os.listdir(input_dir):                               # :contentReference[oaicite:1]{index=1}
             if not fname.lower().endswith('.tif'):
@@ -287,7 +301,8 @@ def init():
       
       print("Usando OCR...\n")
       ocr_tifs_to_csv(process_images, os.path.join(csv_f, 'saida.csv'))
-      
+      clean_files(process_images)  # Limpa arquivos TIF processados
+      clean_files(images_path)  # Limpa arquivos TIF processados
     except Exception as err:
         print(f"Erro ao processar os arquivos: {err}")
 
