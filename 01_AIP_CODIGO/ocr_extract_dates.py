@@ -142,7 +142,7 @@ def convert_pdfs_to_tifs(input_dir: str, output_dir: str, pdf_path: str, base_na
 def convert_thread(input_dir: str, output_dir: str):
     futures = []
     
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    with ThreadPoolExecutor(max_workers=25) as executor:
         
         for filename in os.listdir(input_dir):
             if not filename.lower().endswith('.pdf'):
@@ -203,7 +203,7 @@ def batch_process_tifs_threaded(input_dir: str,
     files = [f for f in os.listdir(input_dir) if f.lower().endswith('.tif')]
 
     # 3. Processamento em pool de threads
-    max_workers = 10
+    max_workers = 20  # Número de threads a serem usadas
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         for fname in files:
@@ -240,7 +240,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
                 "stdout",
                 "-l", "por",
                 "--psm", "3",
-                "--oem", "1",
+                "--oem", "3",
                 "--dpi", "1000",
                 "-c", "preserve_interword_spaces=0"
             ],
@@ -266,7 +266,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
         return fname
     
     # Itera sobre todos os arquivos .tif
-    with ThreadPoolExecutor(max_workers=15) as executor:
+    with ThreadPoolExecutor(max_workers=25) as executor:
         futures = []
         for fname in os.listdir(input_dir):                               # :contentReference[oaicite:1]{index=1}
             if not fname.lower().endswith('.tif'):
