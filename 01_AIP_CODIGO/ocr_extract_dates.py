@@ -21,6 +21,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExec
 import subprocess, time
 import pandas as pd
 
+t_i = time.time()
+
 def clean_files(folder_path):
     """
     Deletes all *.tf files in the specified folder without comments.
@@ -328,3 +330,6 @@ def init():
         print(f"Erro ao processar os arquivos: {err}")
 
 init()
+t_e = (t_i - time.time())/60
+
+print("Tempo de execucao -> {t_e:.2f}")
