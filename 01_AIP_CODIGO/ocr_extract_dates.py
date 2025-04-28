@@ -317,10 +317,10 @@ def init():
       return
     try:
       print("Convertendo arquivos PDF para TIF...\n")
-    #   convert_thread(pdf_path, images_path)
+      convert_thread(pdf_path, images_path)
       
       print("melhorando a qualidade das imagens TIF...\n")
-    #   batch_process_tifs_threaded(images_path, process_images)
+      batch_process_tifs_threaded(images_path, process_images)
       
       print("Usando OCR...\n")
       ocr_tifs_to_csv(process_images, os.path.join(csv_f, 'saida.csv'))
