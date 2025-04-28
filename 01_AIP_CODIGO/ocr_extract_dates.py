@@ -1,7 +1,7 @@
 #  tesseract -l por --psm 1 --oem 2 -c preserve_interword_spaces=1 .\624556-5700550547_page-0001.jpg tsv
 #  tesseract -l por --psm 1 --oem 2 --dpi 1000 -c preserve_interword_spaces=1 .\624556-5700550547_page-0003.jpg tsv
 # tesseract -l por+eng+osd --psm 3 --oem 1 --dpi 1000 -c preserve_interword_spaces=0 .\624556-5700550547_page_1.tif  saida txt
-
+#  tesseract  .\937850-5700543975_pg_2.tif -  --psm 0
 # magick mogrify -path processed -format tif -colorspace Gray -resize 200% -contrast-stretch 0% -despeckle -unsharp 1.5x1+0.7+0.02 -threshold 50% -deskew 40% *.tif
 # magick mogrify -format tif *.jpg
 
@@ -12,13 +12,13 @@
 # install winget install procgov
 
 
-import glob
+import glob,time
 from importlib.metadata import files
 import os
 import re
 from wand.image import Image
 from concurrent.futures import ThreadPoolExecutor, as_completed, ProcessPoolExecutor  # gerenciamento de pool de threads :contentReference[oaicite:1]{index=1}
-import subprocess
+import subprocess, time
 import pandas as pd
 
 def clean_files(folder_path):
@@ -82,6 +82,9 @@ process_images = os.path.abspath('process_output')
 csv_f = os.path.abspath('output')
 
 def run_remove_blank(tif_path: str) -> None:
+    
+
+    
     proc = subprocess.run(
             [
                 "tesseract",
@@ -103,7 +106,25 @@ def run_remove_blank(tif_path: str) -> None:
     if not full_text:
         print(f"Arquivo {tif_path} não contém texto legível.")
         os.remove(tif_path)  # Remove arquivo se não houver texto
-            
+    
+    orientation = subprocess.run([
+        "tesseract",
+        tif_path,
+        "-",
+        "--psm", "0"
+    ], stdout=subprocess.PIPE)
+    
+    match = re.search(r'Rotate:\s*(\d+)', orientation.stdout.decode('utf-8'))
+    
+    if match:
+        angle = int(match.group(1))
+    else:
+        raise ValueError("Não foi possível encontrar o valor de Rotate no OSD")
+    # print("Orientação do arquivo: ", orientation.stdout)
+    with Image(filename=tif_path) as img:
+        img.rotate(angle)
+        img.save(filename=tif_path)  # Salva a imagem rotacionada
+        
 def convert_pdfs_to_tifs(input_dir: str, output_dir: str, pdf_path: str, base_name:str, resolution: int = 350):
     """
     Converte todos os arquivos .pdf em input_dir para arquivos .tif em output_dir.
@@ -238,10 +259,10 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
                 "tesseract",
                 tif_path,
                 "stdout",
-                "-l", "por",
+                "-l", "por_lt",
                 "--psm", "3",
-                "--oem", "3",
-                "--dpi", "1000",
+                "--oem", "2",
+                "--dpi", "1150",
                 "-c", "preserve_interword_spaces=0"
             ],
             capture_output=True,
@@ -294,15 +315,15 @@ def init():
       return
     try:
       print("Convertendo arquivos PDF para TIF...\n")
-      convert_thread(pdf_path, images_path)
+    #   convert_thread(pdf_path, images_path)
       
       print("melhorando a qualidade das imagens TIF...\n")
-      batch_process_tifs_threaded(images_path, process_images)
+    #   batch_process_tifs_threaded(images_path, process_images)
       
       print("Usando OCR...\n")
       ocr_tifs_to_csv(process_images, os.path.join(csv_f, 'saida.csv'))
-      clean_files(process_images)  # Limpa arquivos TIF processados
-      clean_files(images_path)  # Limpa arquivos TIF processados
+    #   clean_files(process_images)  # Limpa arquivos TIF processados
+    #   clean_files(images_path)  # Limpa arquivos TIF processados
     except Exception as err:
         print(f"Erro ao processar os arquivos: {err}")
 
