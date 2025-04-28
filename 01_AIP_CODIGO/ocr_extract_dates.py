@@ -330,6 +330,6 @@ def init():
         print(f"Erro ao processar os arquivos: {err}")
 
 init()
-t_e = (t_i - time.time())/60
+t_e = (time.time() - t_i)/60
 
-print("Tempo de execucao -> {t_e:.2f}")
+print(f"Tempo de execucao -> {t_e:.2f}")
