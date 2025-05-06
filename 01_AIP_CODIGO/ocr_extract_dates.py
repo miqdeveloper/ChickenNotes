@@ -11,7 +11,6 @@
 
 # install winget install procgov
 
-
 import glob,time
 from importlib.metadata import files
 import os
@@ -211,7 +210,7 @@ def _process_image(src_path: str, dst_path: str,
 
 def batch_process_tifs_threaded(input_dir: str,
                                 output_dir: str,
-                                resize_factor: float = 2.5,
+                                resize_factor: float = 3,
                                 black_point: float = 0.0,
                                 threshold: float = 0.5,
                                 deskew_threshold: float = 40.0) -> None:
@@ -264,7 +263,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
                 "-l", "por_lt",
                 "--psm", "3",
                 "--oem", "2",
-                "--dpi", "1150",
+                "--dpi", "1840",
                 "-c", "preserve_interword_spaces=0"
             ],
             capture_output=True,
