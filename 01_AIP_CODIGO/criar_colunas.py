@@ -297,7 +297,8 @@ for index, row in df.iterrows():
    if (arr_filter[0] in line_text):
       clifor_s = line_text.split(" ")
       clifor_s= clifor_s[:4]
-   
+      
+      
       clifor_s  = remove_chars(str(remove_empty_spaces(clifor_s)))
       clifor_s = clifor_s.split(", ")
       n_s = len(clifor_s)
@@ -305,16 +306,21 @@ for index, row in df.iterrows():
       clifor_f = clifor_s
       
       if n_s == 1:
-         clifor_f = clifor_s[0]
+         clifor_f = line_text
+         print(clifor_f)
          # print(clifor)
          # print("clifor", row['filename'], clifor)
          
       if n_s == 3:
          clifor_f = clifor_s[1]
+         if clifor_f == "Integrado":
+            clifor_f = clifor_s[2]
          # print(clifor_f)
          
       if n_s == 4:
          clifor_f =  clifor_s[1].strip()
+         if clifor_f == "Integrado":
+            clifor_f = clifor_s[2]
       
       clifor_f_ = {"Data": clifor_f, "id": id_l}
       # p;rint(clifor_f)

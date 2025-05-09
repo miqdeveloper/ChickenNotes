@@ -200,7 +200,7 @@ def _process_image(src_path: str, dst_path: str,
         img.transform_colorspace('gray')                         # -colorspace Gray :contentReference[oaicite:4]{index=4}
         img.resize(int(img.width * resize_factor), int(img.height * resize_factor))# -resize 200% :contentReference[oaicite:5]{index=5}
         img.contrast_stretch(black_point)
-        img.morphology(method='erode', kernel='Octagon:1', iterations=1)
+        img.morphology(method='erode', kernel='Octagon:1', iterations=3)
         img.despeckle()                                          # -despeckle :contentReference[oaicite:7]{index=7}
         img.unsharp_mask(1.5, 1.0, 0.7, 0.02)                    # -unsharp-mask 1.5x1+0.7+0.02 :contentReference[oaicite:8]{index=8}
         img.threshold(threshold)                                 # -threshold 50% :contentReference[oaicite:9]{index=9}
@@ -210,7 +210,7 @@ def _process_image(src_path: str, dst_path: str,
 
 def batch_process_tifs_threaded(input_dir: str,
                                 output_dir: str,
-                                resize_factor: float = 3,
+                                resize_factor: float = 3.5,
                                 black_point: float = 0.0,
                                 threshold: float = 0.5,
                                 deskew_threshold: float = 40.0) -> None:
@@ -225,7 +225,7 @@ def batch_process_tifs_threaded(input_dir: str,
     files = [f for f in os.listdir(input_dir) if f.lower().endswith('.tif')]
 
     # 3. Processamento em pool de threads
-    max_workers = 20  # Número de threads a serem usadas
+    max_workers = 16  # Número de threads a serem usadas
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
         for fname in files:
@@ -263,7 +263,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
                 "-l", "por_lt",
                 "--psm", "3",
                 "--oem", "2",
-                "--dpi", "1840",
+                "--dpi", "2000",
                 "-c", "preserve_interword_spaces=0"
             ],
             capture_output=True,
@@ -288,7 +288,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
         return fname
     
     # Itera sobre todos os arquivos .tif
-    with ThreadPoolExecutor(max_workers=25) as executor:
+    with ThreadPoolExecutor(max_workers=15) as executor:
         futures = []
         for fname in os.listdir(input_dir):                               # :contentReference[oaicite:1]{index=1}
             if not fname.lower().endswith('.tif'):
