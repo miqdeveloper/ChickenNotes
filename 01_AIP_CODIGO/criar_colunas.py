@@ -306,10 +306,12 @@ for index, row in df.iterrows():
       clifor_f = clifor_s
       
       if n_s == 1:
-         clifor_f = line_text
-         print(clifor_f)
+         # DEVIDO AO ARQUIVO PDF NAO ESTAR PADRONIZADO EM RELACAO A QUALIDADE 
+         
+         # print(line_text)
          # print(clifor)
-         # print("clifor", row['filename'], clifor)
+         # print("clifor", row['filename'], line_text)
+         clifor_f = "nan"
          
       if n_s == 3:
          clifor_f = clifor_s[1]
