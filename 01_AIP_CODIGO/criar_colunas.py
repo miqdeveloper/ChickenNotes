@@ -1,8 +1,9 @@
 from hmac import new
+from operator import ne
 import pandas as pd
 from collections import OrderedDict
 from datetime import datetime
-import time 
+import time, re
 
 file_csv = r"C:\Users\Miqueias\Desktop\Projetos\NotasFrangos\01_AIP_CODIGO\output\saida.csv"
 
@@ -245,7 +246,7 @@ def remove_empty_spaces(lst):
     return list(filter(lambda item: item.strip() != '', lst))
 
 def remove_chars(input_str: str) -> str:
-    chars_to_remove = ["[", "\"", "'", "nan", "]", ":", ".pdf", "_","-"]
+    chars_to_remove = ["[", "\"", "'", "nan", "]", ":", ".pdf", "_","-","|",'“', "*", " —"]
     for char in chars_to_remove:
         input_str = input_str.replace(char, "")
     return input_str
@@ -332,14 +333,78 @@ for index, row in df.iterrows():
       clifor_arr.append(clifor_f_)
       
       # clifor_arr.append(clifor)
+   #Pedido
    if (arr_filter[1] in line_text):
-      pass
+      if "Pedido:" in line_text:
+         pedido_s = remove_empty_spaces(remove_chars(line_text).split(" "))[:3]
+         l_n = len(pedido_s)
+         if l_n == 1:
+            pass
+         if l_n == 2:
+            pedido_s = (line_text).replace("Pedido: ", "").replace("Pedido:", "").replace(" ", "")
+            pedido_f = pedido_s
+         if l_n == 3:
+            pedido_s = pedido_s[1]
+            if re.match(r'\d+', pedido_s):
+               pedido_f = pedido_s
+            if not re.match(r'\d+', pedido_s):
+               if re.match(r'\bS7(?:[A-Z]+|\d+)\b', pedido_s):
+                  pedido_f = pedido_s
+               if "Pedido" in pedido_s or "pedido" in pedido_s:
+                  pedido_f = remove_empty_spaces(remove_chars(line_text).split(" "))[2]
+
+         # if l_n == 4:
+         #    print((line_text))
+         #    pass
+         pedido_f = remove_chars(pedido_f)
+         pedido_dic = {"Data": pedido_f, "id": id_l}
+         
+         arr_pedido.append(pedido_dic)
+   #Municipio
    if (arr_filter[2] in line_text):
-      pass
+      municipio_s =  line_text.replace("Técnico","Tecnico").split("Tecnico")
+      municipio_s = municipio_s[0].replace("Município", "Municipio").replace("Municipio", "").replace(":", "").replace(".", "").replace(";", "").strip()
+      municipio_s = remove_chars(municipio_s)
+      municipio_f = {"Data": municipio_s, "id": id_l}
+      arr_municipio.append(municipio_f)
+   #Data Alojamento
    if (arr_filter[3] in line_text):
-      pass
+      dtalj_s = (line_text).replace("Qtde Abatida:", "QtdeAbatida").split("QtdeAbatida")[0]
+      dtalj_s  = remove_chars(dtalj_s.replace("Data Alojamento:"," ").replace("Data Alojamento","").replace("Data Alojamento", "").replace(":", "").replace(".", "").replace(";", "").strip())
+      dtalj_s = remove_empty_spaces(dtalj_s.split(" "))
+      
+      l_n = len(dtalj_s)
+      dtalj_f = dtalj_s
+      if l_n == 1:
+         dtalj_f = dtalj_s[0]
+      if l_n == 2:
+         dtalj_f = dtalj_s[1]
+      if l_n >= 3:
+         if not re.search(r"\d+", dtalj_s[0]):
+            dtalj_f = dtalj_s[1]
+         dtalj_f =  dtalj_s[0]
+      
+      
+      dtalj_f = {
+         "Data": dtalj_f,
+         "id": id_l
+      }
+      arr_data_aloj.append(dtalj_f)
+      # print("dtalj_s", dtalj_f)
+   
+   #Linhagem
    if (arr_filter[4] in line_text):
-      pass
+      linhagem_s = (line_text).replace("Kg/m","---").replace("Ka/m?","---").replace("Ko/m?","---").replace("Ka/m2","---").replace("Ko/mº","---").split("---")
+      linhagem_s = (remove_chars(linhagem_s[0])).replace("Linhagem", "").replace("Linhagem:", "").replace("Linhagem", "").replace(":", "").replace(".", "").replace(";", "").strip().split(" ")
+      linhagem_s = remove_empty_spaces(linhagem_s)
+      linhagem_s_f = (" ".join((linhagem_s[:3])))
+      # linhagem_s_ = linhagem_s[0:3]
+      linhagem_f = {
+         "Data": linhagem_s_f,
+         "id": id_l
+         
+      }
+      arr_linhagem.append(linhagem_f)
    if (arr_filter[5] in line_text):
       pass
    if (arr_filter[6] in line_text):
@@ -358,12 +423,25 @@ for index, row in df.iterrows():
 key_arr =  list(OrderedDict.fromkeys(key_arr))
 print("len key_arr", len(key_arr))
 
+
+print("dbg_arr:", len(arr_data_aloj))
+
+
 clifor_arr = processar_dicionarios(key_arr, clifor_arr)
+arr_pedido = processar_dicionarios(key_arr, arr_pedido)
+arr_municipio = processar_dicionarios(key_arr, arr_municipio)
+arr_data_aloj = processar_dicionarios(key_arr, arr_data_aloj)
+arr_linhagem = processar_dicionarios(key_arr, arr_linhagem)
+
+
 new_dataFrame = pd.DataFrame()
 
 new_dataFrame["CHAVE"] = key_arr 
 new_dataFrame["CLIFOR"] = clifor_arr
-
+new_dataFrame["PEDIDO"] = arr_pedido
+new_dataFrame["MUNICIPIO"] = arr_municipio
+new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
+new_dataFrame["LINHAGEM"] = arr_linhagem
 
 print("Salvando arquivo...")
 try:
