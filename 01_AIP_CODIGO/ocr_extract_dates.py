@@ -210,7 +210,7 @@ def _process_image(src_path: str, dst_path: str,
 
 def batch_process_tifs_threaded(input_dir: str,
                                 output_dir: str,
-                                resize_factor: float = 3.9, #3.5,
+                                resize_factor: float = 4.5, #3.5,
                                 black_point: float = 0.0,
                                 threshold: float = 0.5,
                                 deskew_threshold: float = 40.0) -> None:
@@ -285,7 +285,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
                 "filename": fname,
                 "text": line
             })
-        os.remove(tif_path)  # Remove arquivo após processamento
+        # os.remove(tif_path)  # Remove arquivo após processamento
         return fname
     
     # Itera sobre todos os arquivos .tif

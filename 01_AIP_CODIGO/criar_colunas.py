@@ -1,5 +1,5 @@
 from hmac import new
-from operator import ne
+from operator import le, ne
 import pandas as pd
 from collections import OrderedDict
 from datetime import datetime
@@ -20,7 +20,7 @@ arr_filter = ["Integrado",
               "Área Alojada", 
               "Data Abate", 
               "Categoria",
-              "Técnico",
+              ["Técnico", "Tecnico"],
               "Telefone",
               "E-mail",
               "Tipo Ventilação",
@@ -241,16 +241,14 @@ def get_date_now():
     d = str(date_now.strftime("""_%d_%m_%Y"""))
     return d
 
-
 def remove_empty_spaces(lst):
     return list(filter(lambda item: item.strip() != '', lst))
 
 def remove_chars(input_str: str) -> str:
-    chars_to_remove = ["[", "\"", "'", "nan", "]", ":", ".pdf", "_","-","|",'“', "*", " —"]
+    chars_to_remove = ["[", "\"", "'", "nan", "]", ":", ".pdf", "_","-","|",'“', "*", " —", "/", "*", "-", "—"]
     for char in chars_to_remove:
         input_str = input_str.replace(char, "")
     return input_str
-
 
 def processar_dicionarios(id_unic_arr: list, arr_temp: list) -> list:
         """
@@ -284,8 +282,16 @@ def processar_dicionarios(id_unic_arr: list, arr_temp: list) -> list:
         # resultado = processar_custos_fomento(id_unic_arr, arr_fomento, custo_fomento_arr)
         # print(resultado)  # Saída: ['nan', '2022-01-01', '2023-03-04']
 
+def find_letters(input_str):
+   pattern = r'\b[A-Z\s]+\b'  # Padrão para letras
+   result = re.findall(pattern, input_str)
+   return result
 
-
+def find_numbers(input_str):
+   pattern = r'\b\d+\b'  # Padrão para números
+   result = re.findall(pattern, input_str)
+   return result
+     
 for index, row in df.iterrows():
    line_text = str(row['text'])
    id_l = str(row['filename']).replace("_pg_1.tif", "").replace("_pg_2.tif", "").replace("_pg_3.tif", "").replace("_pg_4.tif", "").strip()
@@ -297,6 +303,7 @@ for index, row in df.iterrows():
    # clifor 
    if (arr_filter[0] in line_text):
       clifor_s = line_text.split(" ")
+      # print(clifor_s)
       clifor_s= clifor_s[:4]
       
       
@@ -405,21 +412,108 @@ for index, row in df.iterrows():
          
       }
       arr_linhagem.append(linhagem_f)
+   
+   #Qtde Alojada
    if (arr_filter[5] in line_text):
-      pass
+      qtda_ = (line_text.replace("Qtde Alojada", "QtdeAlojada").replace(":", "").split("QtdeAlojada"))
+      l_n = len(qtda_)
+      if l_n == 2:
+         qtda_s = remove_empty_spaces((qtda_[-1].split(" ")))
+         qtda_s = (remove_chars(qtda_s[0]))
+         
+      if l_n == 1:
+         # print(qtda_)
+         pass
+      
+      qtda_f  = {
+         "Data": qtda_s, 
+         "id": id_l
+      }
+      arr_quant_alojado.append(qtda_f)
+      
+   # Peso Méd Pintinho: 
    if (arr_filter[6] in line_text):
-      pass
+      pmpe_s = (line_text.split("Aves Faltantes:"))
+      ln_s = len(pmpe_s)
+      if ln_s == 1:
+         pmpe_s = (line_text.replace("Aves Faitantes", "Aves Faltantes").split("Aves Faltantes"))[0]
+         pmpe_s = remove_chars(pmpe_s).replace("Peso Méd Pintinho", "").strip()
+      if ln_s ==  2:
+         pmpe_s = (pmpe_s[0])
+         pmpe_s = (remove_chars(pmpe_s)).replace("Peso Méd Pintinho", "").split()
+         if len(pmpe_s) == 2:
+            pmpe_s = pmpe_s[-1]
+         else: 
+            pmpe_s = (pmpe_s[0])
+      pmpe_f = {
+         "Data": pmpe_s,
+         "id": id_l,
+      }
+      
+      arr_peso_medio.append(pmpe_f)
+   
+   # Área Alojada:
    if (arr_filter[7] in line_text):
-      pass
+      arl_s = remove_chars(line_text).replace("Teiefone", "Telefone").split("Telefone")
+      l_n = len(arl_s)
+      if l_n == 1:
+         print("Área Alojada:", arl_s)
+      if l_n == 2:
+         arl_s = ((arl_s[0]).replace("Área Alojada", "").strip())
+         arl_f = arl_s.split(" ")[-1]
+      
+      arr_area_aloj.append({
+         
+         "id": id_l,
+         "Data": arl_f
+      })
+   
+   #
    if (arr_filter[8] in line_text):
+      print(line_text)
       pass
+
    if (arr_filter[9] in line_text):
       pass
-   if (arr_filter[10] in line_text):
-      pass
    
+   # Técnico
+   if (arr_filter[10][0] in line_text or arr_filter[10][1] in line_text):
+      tecnico_s = remove_empty_spaces(find_letters(remove_chars(line_text)))
+      l_n = len(tecnico_s)
+      if l_n == 1:
+         tecnico_s = tecnico_s[0].replace("Técnico", "Tecnico").split("Tecnico")[-1]
+         tecnico_f = (tecnico_s).replace("Imposto", "").replace("SENAR", "").replace("tmposto", "").replace("FUNRURAL", "").replace("GRI", "")
+      if l_n  == 2:
+         if "Tecnico" in tecnico_s[0]:
+            tecnico_f = (tecnico_s[0].split("Tecnico")[-1]).replace("Imposto", "").replace("SENAR", "").replace("tmposto", "").replace("FUNRURAL", "").replace("GRI", "")
+         else:
+            tecnico_f = (tecnico_s[-1]).replace("Imposto", "").replace("SENAR", "").replace("tmposto", "").replace("FUNRURAL", "").replace("GRI", "")
+      if l_n  >= 3:
+         tecnico_f = (tecnico_s[1]).replace("Credito ou", "").replace("Credito", "").replace("ou", "").replace("Imposto", "").replace("SENAR", "").replace("tmposto", "").replace("FUNRURAL", "").replace("GRI", "")
+      
+      tecnico_f = find_letters(tecnico_f)[0]
+      
+      tecnico_arr.append({
+         "id": id_l,
+         "Data": tecnico_f
+      })
+   
+   # telefone
+   if (arr_filter[11] in line_text):
+      tel_s_ = remove_chars(line_text).split("Telefone")[-1]
+      tel_s_s = find_numbers(tel_s_)   
+      if tel_s_s:
+         if len((tel_s_s[0])) < 5:
+            tel_f = "nan"
+         else:
+            tel_f = tel_s_s[0]
+      
+      telefone_arr.append({
+         "id": id_l,
+         "Data": tel_f
+      })
 
-
+   
 key_arr =  list(OrderedDict.fromkeys(key_arr))
 print("len key_arr", len(key_arr))
 
@@ -428,20 +522,169 @@ print("dbg_arr:", len(arr_data_aloj))
 
 
 clifor_arr = processar_dicionarios(key_arr, clifor_arr)
+tecnico_arr = processar_dicionarios(key_arr, tecnico_arr)
 arr_pedido = processar_dicionarios(key_arr, arr_pedido)
 arr_municipio = processar_dicionarios(key_arr, arr_municipio)
 arr_data_aloj = processar_dicionarios(key_arr, arr_data_aloj)
 arr_linhagem = processar_dicionarios(key_arr, arr_linhagem)
+arr_quant_alojado = processar_dicionarios(key_arr, arr_quant_alojado)
+arr_peso_medio =  processar_dicionarios(key_arr, arr_peso_medio)
+arr_area_aloj = processar_dicionarios(key_arr, arr_area_aloj)
+telefone_arr = processar_dicionarios(key_arr, telefone_arr)
 
 
 new_dataFrame = pd.DataFrame()
 
-new_dataFrame["CHAVE"] = key_arr 
+new_dataFrame["CHAVE"] = key_arr
+new_dataFrame["TECNICO"] = tecnico_arr
 new_dataFrame["CLIFOR"] = clifor_arr
+new_dataFrame["TELEFONE"] = telefone_arr
 new_dataFrame["PEDIDO"] = arr_pedido
 new_dataFrame["MUNICIPIO"] = arr_municipio
 new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
 new_dataFrame["LINHAGEM"] = arr_linhagem
+new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
+new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
+new_dataFrame["AREA_ALOJ"] = arr_area_aloj
+
+  
+   #  new_dataFrame["INTEGRADO"] = name_arr
+
+   
+   #  new_dataFrame["AVIARIO"] = aviario_arr
+   #  new_dataFrame["EMAIL"] = email_arr
+   #  new_dataFrame["T_VENTILACAO"] = t_vent_arr
+   #  new_dataFrame["TIPO_PRODUTO"] = arr_categoria
+   #  new_dataFrame["LINHAGEM"] = arr_linhagem
+   #  new_dataFrame["KG_M2"] = kgm2_arr
+   #  new_dataFrame["MATERIAL_GENETICO"] = material_arr
+   #  new_dataFrame["AVE_M2"] = ave_m2_arr
+   #  new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
+   #  new_dataFrame["DATA_ALOJ"] = arr_data_aloj
+   #  new_dataFrame["QUANT_ABATE"] = qabate_arr
+   #  new_dataFrame["MORTE_TOTAL"] = mort_total_arr
+   #  new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
+   #  new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
+   #  new_dataFrame["DATA_ABATE"] = arr_data_abate
+   #  new_dataFrame["IDADE_ABATE"] = idade_abate_arr
+   #  new_dataFrame["PM_PINTO"] = arr_peso_medio
+   #  new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
+   #  new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
+   #  new_dataFrame["GPD"]=gpd_arr
+   #  new_dataFrame["PESO_TOTAL"] = peso_total_arr
+   #  new_dataFrame["CAAF"] = caaf_arr
+   #  new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
+   #  new_dataFrame["VALOR_KG_FRANGO"] = valor_kg_f_arr
+   #  new_dataFrame["VALOR_KG_RACAO"] = valor_kg_racao_arr
+   #  new_dataFrame["VALOR_DO_PINTO"] = valor_pinto_real_arr
+   #  new_dataFrame["PERCENTUAL_BASICO"] = percentual_basico_arr
+   #  new_dataFrame["KG_CARNE_BASE"] = carne_base_arr
+   #  new_dataFrame["R$_BASE"] = real_base_arr
+    
+    
+   #  new_dataFrame['%_AJ_ESCALA_PROD'] = aj_porcent_arr
+   #  new_dataFrame['KG_AJ_ESCALA_PROD'] = aj_kg_arr
+   #  new_dataFrame["R$_AJ_ESCALA_PROD"] = aj_real_arr
+    
+   #  new_dataFrame["%_SAZONALIDADE"] = aj_sazonalidade_percent_arr
+   #  new_dataFrame["KG_SAZONALIDADE"] = aj_sazonalidade_kg_arr
+   #  new_dataFrame["R$_SAZONALIDADE"] = aj_sazonalidade_real_arr
+    
+   #  new_dataFrame["%_AJ_SEXO_PESO"] = aj_sex_pes_percent_arr
+   #  new_dataFrame["KG_AJ_SEXO_PESO"] = aj_sex_pes_kg_arr
+   #  new_dataFrame["R$_AJ_SEXO_PESO"] = aj_sex_pes_real_arr
+    
+   #  new_dataFrame["%_AJ_IDADE"] = aj_idade_percent_arr
+   #  new_dataFrame["KG_AJ_IDADE"] = aj_idade_kg_arr 
+   #  new_dataFrame["R$_AJ_IDADE"] =  aj_idade_real_arr
+    
+   #  new_dataFrame["%_AJ_MORTALIDADE"] =  aj_mortalidade_percent_arr
+   #  new_dataFrame["KG_AJ_MORTALIDADE"] =  aj_mortalidade_kg_arr
+   #  new_dataFrame["R$_AJ_MORTALIDADE"] =  aj_mortalidade_real_arr
+
+   #  new_dataFrame["%_CONV_ALIMENTAR"] =  aj_conv_alimentar_percent_arr
+   #  new_dataFrame["KG_CONV_ALIMENTAR"] =  aj_conv_alimentar_kg_arr
+   #  new_dataFrame["R$_CONV_ALIMENTAR"] =  aj_conv_alimentar_real_arr
+    
+   #  # new_dataFrame["LOTE"] = arr_pedido # nao usado
+
+   #  new_dataFrame["%_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_percent_arr
+   #  new_dataFrame["KG_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_kg_arr
+   #  new_dataFrame["R$_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_real_arr
+
+   #  new_dataFrame["%_AJ_CALO_PATA_A"] = aj_calo_pata_a_percent_arr
+   #  new_dataFrame["KG_AJ_CALO_PATA_A"] = aj_calo_pata_a_kg_arr
+   #  new_dataFrame["R$_AJ_CALO_PATA_A"] = aj_calo_pata_a_real_arr
+
+   #  new_dataFrame["%_CONDENACOES"] = condenacoes_percent_arr
+   #  new_dataFrame["KG_CONDENACOES"] = condenacoes_kg_arr
+   #  new_dataFrame["R$_CONDENACOES"] = codenacoes_real_arr
+
+   #  new_dataFrame["%_AJ_QUALIDADE_QT"] = aj_qualidade_percent_arr
+   #  new_dataFrame["KG_AJ_QUALIDADE_QT"] = aj_qualidade_kg_arr
+   #  new_dataFrame["R$_AJ_QUALIDADE_QT"] = aj_qualidade_real_arr
+
+   #  new_dataFrame["%_AJ_ESTRUTURAL"] = aj_estrutural_percent_arr
+   #  new_dataFrame["KG_AJ_ESTRUTURAL"] = aj_estrutural_kg_arr
+   #  new_dataFrame["R$_AJ_ESTRUTURAL"] = aj_estrutural_real_arr
+    
+   #  new_dataFrame["%_AJ_PROCEDIMENTOS"] = aj_procedimentos_percent_arr
+   #  new_dataFrame["KG_AJ_PROCEDIMENTOS"] = aj_procedimentos_kg_arr
+   #  new_dataFrame["R$_AJ_PROCEDIMENTOS"] = aj_procedimentos_real_arr
+
+   #  new_dataFrame["%_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_percent_arr
+   #  new_dataFrame["KG_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_kg_arr
+   #  new_dataFrame["R$_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_real_arr
+
+   #  new_dataFrame["%_RESULTADO_LOTE"] = resultado_lote_percent_arr
+   #  new_dataFrame["KG_RESULTADO_LOTE"] = resultado_lote_kg_arr
+   #  new_dataFrame["R$_RESULTADO_LOTE"] = resultado_lote_real_arr
+    
+   #  new_dataFrame["R$_AVE"] = ave_real_arr
+   #  new_dataFrame["R$_TON"] = ton_real_arr
+   #  new_dataFrame["R$_M2"] = m2_real_arr
+   #  new_dataFrame["FUNRURAL"] = funrural_arr_f
+   #  new_dataFrame["SENAR"] = senar_arr
+   #  new_dataFrame["CONTA_CORRENTE"] = conta_corrente_arr
+   #  new_dataFrame["CONTA_VINCULADA"] = conta_vinculada;
+    
+   #  new_dataFrame["CONVERSAO_ALIMENTAR_REAL"] = conv_aliment_real_arr
+   #  new_dataFrame["CONVERSAO_ALIMENTAR_AJ"] = conv_aliment_real_aj_arr
+   #  new_dataFrame["CONVERSAO_ALIMENTAR_PREV_AJ"] = conv_aliment_prev_aj_arr
+   #  new_dataFrame["CONVERSAO_ALIMENTAR_DIFERENCA"] = conv_aliment_diferenca_arr
+    
+   #  # Idade de Abate REAL | PREV aj | DIFERE|
+   #  new_dataFrame["IDADE_DE_ABATE_REAL"] = idade_de_abate_real_arr
+   #  new_dataFrame["IDADE_DE_ABATE_PREV_AJ"] = idade_de_abate_real_prev_aj_arr
+   #  new_dataFrame["IDADE_DE_ABATE_DIFERENCA"] = idade_de_abate_real_dif_arr
+
+   #  new_dataFrame["PESO_MEDIO_REAL"] = peso_medio_f_arr
+   #  new_dataFrame["PESO_MEDIO_PREV_AJ"] = peso_medio_prevaj_arr 
+   #  new_dataFrame["PESO_MEDIO_DIFERENCA"] =peso_medio_diferenca_arr
+
+   #  new_dataFrame["MORTALIDADE_REAL"] = mortalidade_real_arr
+   #  new_dataFrame["MORTALIDADE_REAL_AJ"] = mortalidade_real_aj_arr
+   #  new_dataFrame["MORTALIDADE_PREV_AJ"]  = mortalidade_prev
+   #  new_dataFrame["MORTALIDADE_DIFERENCA"] =  mortalidade_diferenca
+
+   #  new_dataFrame["%_CALO_PATA_REAL"]  =  percent_calo_real_arr
+   #  new_dataFrame["%_CALO_PATA_PREV"] = percent_calo_prev_arr
+   #  new_dataFrame["%_CALO_PATA_REAL_DIFERENCA"]  = percent_calo_dife_arr
+
+   #  new_dataFrame["%_ARRANHADURAS_REAL"]  = percent_arranhaduras_real_arr
+   #  new_dataFrame["%_ARRANHADURAS_PREV_AJ"]  = percent_arranhaduras_prevaj_arr
+   #  new_dataFrame["%_ARRANHADURAS_DIFERENCA"]  = percent_arranhaduras_diferenca_arr
+
+   #  new_dataFrame["%_PAPO_CHEIO_REAL"]  = percent_papo_cheio_real_arr
+   #  new_dataFrame["%_PAPO_CHEIO_PREV"]  = percent_papo_cheio_prev_arr
+   #  new_dataFrame["%_PAPO_CHEIO_DIFERENCA"]  = percent_papo_cheio_diferenca_arr
+    
+   #  new_dataFrame["%_CODENACAO_REAL"] = percent_codenacao_real_arr
+   #  new_dataFrame["%_CODENACAO_PREV"] = percent_codenacao_prev_arr
+   #  new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr 
+   #  new_dataFrame["CENTRO"] = centro_arr
+
+
 
 print("Salvando arquivo...")
 try:
