@@ -2,6 +2,7 @@ from collections import OrderedDict
 from glob import glob
 from math import e, nan
 from os import remove
+from pickletools import pystring
 import pprint
 import pandas as pd
 import re, ast, os
@@ -243,14 +244,21 @@ for index, row in df.iterrows():
         chave_integrado_final = nis_s[1].replace(":", "").split("-")[0].replace(" ", "")
 
         # CHAVE DO INTEGRADO
-        key_integrado_arr.append(chave_integrado_final.replace(" ", ""))
-        nome_integrado_arr.append(nome_integrado_final)
+        chave_integrado_final = chave_integrado_final.replace(" ", "") 
+        key_integrado_arr.append({
+            "id": separe_id_, "Data": chave_integrado_final
+        })
+        
+        # NOME DO INTEGRADO
+        nome_integrado_final_ = {"id": separe_id_, "Data": nome_integrado_final}
+        nome_integrado_arr.append(nome_integrado_final_)
 
     if "Alojamento" in new_string:
         alj_s = (new_string.split("Sexo")[0])
         alj_f = (alj_s.replace("Alojamento: ", "").replace(" ", ""))
         
-        alojamento_arr.append(alj_f)
+        alj_f_ = {"id": separe_id_, "Data": alj_f}
+        alojamento_arr.append(alj_f_)
         
         
     if "Abate" in new_string:
@@ -258,17 +266,20 @@ for index, row in df.iterrows():
         # print(abt_s)
         abt_f = (abt_s.split('Linhagem:')[0].replace(' ', ''))
         abt_f = abt_f.replace('Abate:', '')
-        abate_arr.append(abt_f)
+        abt_f_ = {"id": separe_id_, "Data": abt_f}
+        abate_arr.append(abt_f_)
 
     if "Vencimento" in new_string:
         vncm_s = new_string
         vncm_f = (vncm_s.split('Qtdade.')[0]).replace("Vencimento:", "").replace(" ", "")
-        vencimento_arr.append(vncm_f)
+        vncm_f_ = {"id": separe_id_, "Data": vncm_f}
+        vencimento_arr.append(vncm_f_)
         
     if "Instalacao" in new_string:
         instl_s = new_string
         instl_f = instl_s.replace("Instalacao:", "")
-        instalacao_arr.append(instl_f)
+        instl_f_ = {"id": separe_id_, "Data": instl_f}
+        instalacao_arr.append(instl_f_)
 
     if "Sexo" in new_string:
         sxo_s = new_string
@@ -283,7 +294,8 @@ for index, row in df.iterrows():
             sxo_f = sxo_f_[0].replace(" ", "")
         
     #     # print(sxo_f)
-        sexo_arr.append(sxo_f)
+        sexo_f_ = {"id": separe_id_, "Data": sxo_f}
+        sexo_arr.append(sexo_f_)
 
     if "Linhagem" in new_string:
         
@@ -300,28 +312,33 @@ for index, row in df.iterrows():
         #     pass
         # if nc == 3:
         #     print(lnhg_s)
-        linhagem_arr.append(lnhg_f)
+        lnhg_f_ = {"id": separe_id_, "Data": lnhg_f}
+        linhagem_arr.append(lnhg_f_)
         
     if "Qtdade. Aloja" in new_string:
 
         qtd_alj = (new_string.split("Idade Matriz:")[0])
         qtd_alj_f = qtd_alj.split("Qtdade. Alojada:")[-1].replace(" ", "")
-        qtd_alojada_arr.append(qtd_alj_f)
+        qtd_alj_f_ = {"id": separe_id_, "Data": qtd_alj_f}
+        qtd_alojada_arr.append(qtd_alj_f_)
     
     if "Data Emissão" in new_string or "Data Emissao" in new_string or "Data Emissªo" in new_string :
         de_s_f = new_string.replace("Data Emissão", "Data Emissao").replace("Data Emissao", "Data Emissao").replace("Data Emissªo", "Data Emissao")
         de_s_f = (de_s_f.split("Data Emissao")[-1]).replace(": ", "")
-        dt_emissao_arr.append(de_s_f)
+        de_s_f_ = {"id": separe_id_, "Data": de_s_f}  
+        dt_emissao_arr.append(de_s_f_)
 
     if "Premix" in new_string:
         premix_s = new_string.split("Premix: ")[-1]
         premix_s = premix_s.split("Visitas: ")[0]
-        premix_arr.append(premix_s)
+        premix_s_ = {"id": separe_id_, "Data": premix_s}
+        premix_arr.append(premix_s_)
 
     if "Avícola" in new_string or "Avicola" in new_string or "Av(cid:237)cola" in new_string: 
         # print(new_string)
         avicola_s_f = (new_string.replace("Avícola:", "Avicola:").replace("Av(cid:237)cola", "Avicola").split("Avicola:")[-1])
-        avicola_arr.append(avicola_s_f)
+        avicola_s_f_ = {"id": separe_id_, "Data": avicola_s_f}
+        avicola_arr.append(avicola_s_f_)
     
     if "Idade Matriz" in new_string:
         idmz_s = (new_string.replace("No Camas:", " ").replace(f"N” Camas:", "").replace(f"Nº Camas:", "").split("Idade Matriz")[-1])
@@ -337,8 +354,9 @@ for index, row in df.iterrows():
             # print(idmz_s)
         if not idmz_s:
             idmz_s = None
-
-        idade_matriz_arr.append(idmz_s)
+            
+        idmz_s_ = {"id": separe_id_, "Data": idmz_s}
+        idade_matriz_arr.append(idmz_s_)
 
     if "Camas" in new_string:
 
@@ -351,8 +369,8 @@ for index, row in df.iterrows():
 
         if not n_camas_f:
             n_camas_f = "nan"
-        # print(n_camas_f)
-        n_camas_arr.append(n_camas_f)
+        n_camas_f_ = {"id": separe_id_, "Data": n_camas_f}
+        n_camas_arr.append(n_camas_f_)
     
     if "Total............." in new_string:
         total_s = (new_string)
@@ -371,10 +389,15 @@ for index, row in df.iterrows():
         total_c = total_s[3]
         
         # total_s = total_s.replace("Total.............:", "").replace(" ", "")
-        total_e_arr.append(total_e)
-        total_d_arr.append(total_d)
-        total_l_arr.append(total_l)
-        total_c_arr.append(total_c)
+        total_e_ = {"id": separe_id_, "Data": total_e}
+        total_d_ = {"id": separe_id_, "Data": total_d}
+        total_l_ = {"id": separe_id_, "Data": total_l}
+        total_c_ = {"id": separe_id_, "Data": total_c}
+        
+        total_e_arr.append(total_e_)
+        total_d_arr.append(total_d_)
+        total_l_arr.append(total_l_)
+        total_c_arr.append(total_c_)
         
     # FILTRA O VALOR LIQUIDO
     if "Total Bonif" in new_string:
@@ -385,8 +408,8 @@ for index, row in df.iterrows():
         if "#" in liquido_s:
             liquido_s = liquido_s.replace("####", "nan").replace("###", "nan").replace("#####", "nan").replace("#", "nan")
         #     print(content_line, line_item)
-        
-        liquido_arr.append(liquido_s)
+        liquido_s_ = {"id": separe_id_, "Data": liquido_s}
+        liquido_arr.append(liquido_s_)
     
     if "Peso Médio" in new_string or "Peso Medio" in new_string or "Peso M" in new_string:
         psmedio_s = new_string
@@ -407,8 +430,8 @@ for index, row in df.iterrows():
         
         # psmedio_f = psmedio_f["value"]
         # print(new_string ,psmedio_f["value"])
-        
-        peso_med_arr.append(psmedio_s)
+        psmedio_s_ = {"id": separe_id_, "Data": psmedio_s}
+        peso_med_arr.append(psmedio_s_)
         
     if ("Idade Média" in new_string or "Idade MØdia" in new_string or "Idade Media" in new_string):
         id_m_s_id = new_string        
@@ -416,8 +439,8 @@ for index, row in df.iterrows():
         id_m_s = id_m_s[-1].replace("Idade MØdia", "Idade Media").replace("Idade Média", "Idade Media") 
         id_m_s = id_m_s.split("Idade Media")
         id_m_s = remove_points(id_m_s[-1]).replace(" ", "")
-        
-        idade_med_arr.append(id_m_s)
+        id_m_s_ = {"id": separe_id_, "Data": id_m_s}
+        idade_med_arr.append(id_m_s_)
         
     if "Mortalidade......" in new_string:
         mtd_s = new_string
@@ -426,8 +449,8 @@ for index, row in df.iterrows():
         # print(mtd_s)
         mtd_s = mtd_s.replace(".", "").replace(":", "")
         
-        
-        mortalidade_arr.append(mtd_s)
+        mtd_s_ =  {"id": separe_id_, "Data": mtd_s}
+        mortalidade_arr.append(mtd_s_)
         
     if "Conversão Alimentar...." in new_string or "Conversao Alimentar...." in new_string or "Conversªo Alimentar....." in new_string :
         cns_arr = new_string
@@ -436,22 +459,26 @@ for index, row in df.iterrows():
         cns_arr = cns_arr.replace("Conversªo Alimentar","").replace("Conversão Alimentar", "ConversaoAlimentar").replace("Conversao Alimentar", "ConversaoAlimentar").split("ConversaoAlimentar")
         # print(cns_arr[-1])
         cns_arr_ = str(remove_points(cns_arr[-1])).split(" ")[-1]
-        conversao_ali_arr.append(cns_arr_)
+        cns_arr_s = {"id": separe_id_, "Data": cns_arr_}
+        conversao_ali_arr.append(cns_arr_s)
            
     if "Conversão Alimentar Ajustada" in new_string or "Conversao Alimentar Ajustada:" in new_string or "Conversªo Alimentar Ajustada" in new_string:
         caa_s = new_string.replace("Conversªo Alimentar Ajustada", "Conversao Alimentar Ajustada").replace("Conversão Alimentar Ajustada", "Conversao Alimentar Ajustada")
         caa_s = new_string.split("Conversão Alimentar Ajustada")[-1].split("Conversao Alimentar Ajustada:")[-1]
         caa_s = caa_s.replace(":", "").strip()
         caa_s = separar_numeros(caa_s)
+        caa_s_ = {"id": separe_id_, "Data": caa_s}
         
-        conversao_ali_ajustada_arr.append(caa_s)
+        conversao_ali_ajustada_arr.append(caa_s_)
         
     if "Densidade" in new_string:
         dsn_s = new_string
         dsn_s = dsn_s
         dsn_s = dsn_s.split("Densidade")[-1]
         dsn_s = dsn_s.replace(".", "").replace(":", "").replace(" ", "")
-        densidade_arr.append(dsn_s)
+        dsn_s_ = {"id": separe_id_, "Data": dsn_s}
+        
+        densidade_arr.append(dsn_s_)
     
     if "Ganho Diário" in new_string or "Ganho Diario" in new_string or "Ganho DiÆrio" in new_string or "Ganho Di(cid:237)rio" in new_string:
         
@@ -461,15 +488,16 @@ for index, row in df.iterrows():
         gdar_s = gdar_s.replace("Ganho Diario", "GanhoDiario").split("GanhoDiario")[-1]
         gdar_s = remove_points(gdar_s).replace(" ", "")
         
-        
-        ganho_diario_arr.append(gdar_s)
+        gdar_s_ = {"id": separe_id_, "Data": gdar_s}
+        ganho_diario_arr.append(gdar_s_)
         
     if "K/Cal" in new_string:
         
         kcal_s = new_string
         kcal_s = kcal_s.split("K/Cal")[-1]
         kcal_s = remove_points(kcal_s).replace(" ", "")
-        kcal_arr.append(kcal_s)
+        kcal_s_ = {"id": separe_id_, "Data": kcal_s}
+        kcal_arr.append(kcal_s_)
         
     if "Diferença / Sobra Aves...." in new_string or "Diferenca / Sobra Aves...." in new_string or "Diferença/Sobra Aves...." in new_string or "Diferença/SobraAves...." in new_string or "Diferen(cid:231)a / Sobra Aves" in new_string:
         
@@ -477,8 +505,8 @@ for index, row in df.iterrows():
         dsa_s = dsa_s.replace("Diferença / Sobra Aves", "Diferenca/SobraAves").replace("Diferenca / Sobra Aves", "Diferenca/SobraAves").replace("Diferença/Sobra Aves", "Diferenca/SobraAves").replace("Diferença/SobraAves", "Diferenca/SobraAves").replace("Diferen(cid:231)a / Sobra Aves", "Diferenca/SobraAves")
         dsa_s = dsa_s.split("Diferenca/SobraAves")[-1]
         dsa_s = remove_points(dsa_s).replace(" ", "")
-        
-        diferenca_sobre_aves_arr.append(dsa_s)
+        dsa_s_ = {"id": separe_id_, "Data": dsa_s}
+        diferenca_sobre_aves_arr.append(dsa_s_)
     
     # FILTRA C.A. TABELA I and Dia and PS. REAAL
     if "C.A. Tabela I....." in new_string or "C.A. Tabela I...........:" in new_string or "C.A. Tabela I" in new_string:
@@ -503,10 +531,13 @@ for index, row in df.iterrows():
         #     cat_s = cat_s[0]
         #     print(cat_s)
         #     pass
-    
-        cat_s_tabela_arr.append(cat_s_tabela)
-        cat_s_dia_arr.append(cat_s_dia)
-        cat_s_ps_real_arr.append(cat_s_ps_real)
+        cat_s_tabela_ = {"id": separe_id_, "Data": cat_s_tabela}
+        cat_s_dia_ = {"id": separe_id_, "Data": cat_s_dia}
+        cat_s_ps_real_ = {"id": separe_id_, "Data": cat_s_ps_real}
+        
+        cat_s_tabela_arr.append(cat_s_tabela_)
+        cat_s_dia_arr.append(cat_s_dia_)
+        cat_s_ps_real_arr.append(cat_s_ps_real_)
             
         # print(cat_s)
 
@@ -539,10 +570,14 @@ for index, row in df.iterrows():
             
             # Mortalidade Tabela II ps real
             mrt_t_s_real = "nan"
-            
-        mortalidade_tabela_ii_dia_arr.append(mrt_t_s_d)
-        mortalidade_tabela_ii_arr.append(mrt_t_s_f)
-        mortalidade_tabela_ii_ps_real_arr.append(mrt_t_s_real)
+        
+        mrt_t_s_d_ = {"id": separe_id_, "Data": mrt_t_s_d}
+        mrt_t_s_f_ = {"id": separe_id_, "Data": mrt_t_s_f}
+        mrt_t_s_real_ = {"id": separe_id_, "Data": mrt_t_s_real}
+        
+        mortalidade_tabela_ii_dia_arr.append(mrt_t_s_d_)
+        mortalidade_tabela_ii_arr.append(mrt_t_s_f_)
+        mortalidade_tabela_ii_ps_real_arr.append(mrt_t_s_real_)
         
     if "G.P.D. Tabela III" in new_string:
         gpd_t_ii_f = None
@@ -572,10 +607,14 @@ for index, row in df.iterrows():
             gpd_t_ii_dia_f = "nan"
             #G.P.D. Tabela III PS. REAL
             gpd_t_ii_ps_real_f = "nan"
+            
+        gpd_t_ii_f_ = {"id": separe_id_, "Data": gpd_t_ii_f}
+        gpd_t_ii_dia_f_ = {"id": separe_id_, "Data": gpd_t_ii_dia_f}
+        gpd_t_ii_ps_real_f_  = {"id": separe_id_, "Data": gpd_t_ii_ps_real_f}
         
-        gpd_tabela_iii_arr.append(gpd_t_ii_f)
-        gpd_tabela_iii_dia_arr.append(gpd_t_ii_dia_f)
-        gpd_tabela_iii_ps_real_arr.append(gpd_t_ii_ps_real_f)
+        gpd_tabela_iii_arr.append(gpd_t_ii_f_)
+        gpd_tabela_iii_dia_arr.append(gpd_t_ii_dia_f_)
+        gpd_tabela_iii_ps_real_arr.append(gpd_t_ii_ps_real_f_)
         
         # Taxa Liquida - DIA - PS REAL
     if "Taxa Liquida" in new_string:
@@ -596,16 +635,21 @@ for index, row in df.iterrows():
             taxa_liq_dia_f = "nan"
             taxa_liq_ps_real_f = "nan"
         
-        taxa_liquida_arr.append(taxa_liq_f)
-        taxa_liquida_dia_arr.append(taxa_liq_dia_f)
-        taxa_liquida_ps_real_arr.append(taxa_liq_ps_real_f)
+        taxa_liq_f_ = {"id": separe_id_, "Data": taxa_liq_f}
+        taxa_liq_dia_f_ = {"id": separe_id_, "Data": taxa_liq_dia_f}
+        taxa_liq_ps_real_f_ = {"id": separe_id_, "Data": taxa_liq_ps_real_f}
+        
+        taxa_liquida_arr.append(taxa_liq_f_)
+        taxa_liquida_dia_arr.append(taxa_liq_dia_f_)
+        taxa_liquida_ps_real_arr.append(taxa_liq_ps_real_f_)
         
     if "Valor Por cabeça..." in new_string or "Valor Por cabeca..." in new_string or "Valor Por cabe(cid:231)a..." in new_string:
         vlr_pr_cb = (new_string)
         vlr_pr_cb = vlr_pr_cb.replace("Valor Por cabeça", "Valor Por cabeça").replace("Valor Por cabeca", "Valor Por cabeça").replace("Valor Por cabe(cid:231)a", "Valor Por cabeça")
         vlr_pr_cb =  vlr_pr_cb.split("Valor Por cabeça")[-1]
         vlr_pr_cb = vlr_pr_cb.replace(".", "").replace(":", "").replace(" ", "")
-        valor_por_cabeça_arr.append(vlr_pr_cb)
+        vlr_pr_cb_  = {"id": separe_id_, "Data": vlr_pr_cb}
+        valor_por_cabeça_arr.append(vlr_pr_cb_)
         
         # ret. - B.calc. - valor
     if "Ret." in new_string:
@@ -622,8 +666,11 @@ for index, row in df.iterrows():
         #Valor
         ret_valor_f = ret_b_calc_s[-1]
         
-        ret_b_calc_arr.append(ret_b_calc_f)
-        ret_valor_arr.append(ret_valor_f)
+        ret_b_calc_f_ = {"id": separe_id_, "Data": ret_b_calc_f}
+        ret_valor_f_ = {"id": separe_id_, "Data": ret_valor_f}
+        
+        ret_b_calc_arr.append(ret_b_calc_f_)
+        ret_valor_arr.append(ret_valor_f_)
         
     if "CUSTO FOMENTO" in new_string:
         custo_fomento_s = (new_string.split("|")[0])
@@ -671,38 +718,48 @@ for index, row in df.iterrows():
         id_l = line_item.replace(".pdf", "")
         vl_b = new_string.split("|")[-1]
         vl_b = vl_b.replace("Valor Bruto", "").replace(":", "").replace(".", "").replace(" ", "")
-        valor_bruto_arr.append(vl_b)
+        vl_b_ = {"id": id_l, "Data": vl_b}
+        valor_bruto_arr.append(vl_b_)
         # print({'id': id_l, 'data':new_string})
         
     if "Bonificação Checklist" in new_string or "bonificação Checklist" in new_string  or "Bonifica(cid:231)ªo Checklist....." in new_string or "Bonificacao Checklist..." in new_string:
         bonif_checklist = new_string.split("|")[-1]
         bonif_checklist = bonif_checklist.replace("Bonificacao Checklist...", "").replace("Bonifica(cid:231)ªo Checklist", "").replace("Bonificação Checklist", "").replace(":", "").replace(".", "").split(" ")
         bonif_checklist = remove_empty_spaces(bonif_checklist)
+        bonif_checklist_f = bonif_checklist[1]
+        bonif_checklist_d = bonif_checklist[0]
+        
         # id_l = line_item.replace(".pdf", "")
-        # bnf_s = {"Data": bonif_checklist[1], "id": id_l}
-        bonificacao_ch_arr.append(bonif_checklist[1])
-        bonificacao_ch_p_arr.append(bonif_checklist[0])
+        bnf_s_ = {"Data": bonif_checklist_f, "id": id_l}
+        bnf_s_d = {"Data": bonif_checklist_d, "id": id_l}
+        
+        bonificacao_ch_arr.append(bnf_s_)
+        bonificacao_ch_p_arr.append(bnf_s_d)
         
     if "Bonificação....." in new_string or "bonificação....." in new_string  or "Bonifica(cid:231)ªo....." in new_string or "Bonificacao....." in new_string:
         
         bnf_s = new_string.split("|")[-1]
         bnf_s = bnf_s.replace("Bonificação.....", "").replace("bonificação.....", "").replace("Bonifica(cid:231)ªo.....", "").replace("Bonificacao.....", "").replace(":", "").replace(".", "").replace(" ", "")
-        bonificacao_arr.append(bnf_s)
+        bnf_s_ = {"Data": bnf_s, "id": id_l}
+        bonificacao_arr.append(bnf_s_)
     
     if "Descontos......" in new_string:
         descontos_s = new_string.split("|")[-1]
         descontos_s = descontos_s.replace("Descontos", "").replace(":", "").replace(".", "").replace(" ", "")
-        descontos_arr.append(descontos_s)
+        descontos_s_ = {"Data": descontos_s, "id": id_l}
+        descontos_arr.append(descontos_s_)
 
     if "Imposto (FunRural)....." in new_string:
         imposto_f = new_string.split("|")[-1]
         imposto_f = imposto_f.replace("Imposto (FunRural)", "").replace(":", "").replace(".", "").replace(" ", "")
-        imposto_f_arr.append(imposto_f)
+        imposto_f_ = {"Data": imposto_f, "id": id_l}
+        imposto_f_arr.append(imposto_f_)
         
     if "Outros Descontos (Documentos).." in new_string:
         odc_s = new_string.split("|")[-1]
         odc_s = odc_s.replace("Outros Descontos (Documentos)..:", "").replace(" ", "")
-        odc_arr.append(odc_s)
+        odc_s_ = {"Data": odc_s, "id": id_l}
+        odc_arr.append(odc_s_)
         
     if "Valor Líquido.." in new_string or "Valor L(cid:237)quido...." in new_string or "Valor Liquido...." in new_string:
         valor_l = new_string.split("|")[-1]
@@ -792,12 +849,14 @@ for i in range(len(test_arr)):
         continue
 
 a_arr_ = processar_dicionarios(id_unic_arr, a_arr)
+# print(a_arr_)
 # a_arr__  = a_arr_.append(a_arr_)
 
 tota_one_arr = [list(value)[0] for value in a_arr_]
 tota_two_arr = [list(value)[1] for value in a_arr_]
 tota_three_arr = [list(value)[2] for value in a_arr_]
 
+# Padronize todos os arrays de dicionários ANTES de criar o DataFrame
 cms_arr = processar_dicionarios(id_unic_arr, cms_arr)
 custo_fomento_arr = processar_dicionarios(id_unic_arr, custo_fomento_arr)
 custo_carregamento_arr_f = processar_dicionarios(id_unic_arr, custo_carregamento_arr_tmp)
@@ -806,20 +865,69 @@ q_tec_racao_arr = processar_dicionarios(id_unic_arr, q_tec_racao_arr)
 transporte_frango_vivo_arr = processar_dicionarios(id_unic_arr, transporte_frango_vivo_arr)
 extorno_icms_arr = processar_dicionarios(id_unic_arr, extorno_icms_arr)
 valor_liquido_arr = processar_dicionarios(id_unic_arr, valor_liquido_arr)
+nome_integrado_arr = processar_dicionarios(id_unic_arr, nome_integrado_arr)
+key_integrado_arr = processar_dicionarios(id_unic_arr, key_integrado_arr)
+alojamento_arr = processar_dicionarios(id_unic_arr, alojamento_arr)
+abate_arr = processar_dicionarios(id_unic_arr, abate_arr)
+vencimento_arr = processar_dicionarios(id_unic_arr, vencimento_arr)
+instalacao_arr = processar_dicionarios(id_unic_arr, instalacao_arr)
+sexo_arr = processar_dicionarios(id_unic_arr, sexo_arr)
+linhagem_arr = processar_dicionarios(id_unic_arr, linhagem_arr)
+qtd_alojada_arr = processar_dicionarios(id_unic_arr, qtd_alojada_arr)
+dt_emissao_arr = processar_dicionarios(id_unic_arr, dt_emissao_arr)
+premix_arr = processar_dicionarios(id_unic_arr, premix_arr)
+avicola_arr = processar_dicionarios(id_unic_arr, avicola_arr)
+idade_matriz_arr = processar_dicionarios(id_unic_arr, idade_matriz_arr)
+n_camas_arr = processar_dicionarios(id_unic_arr, n_camas_arr)
+total_e_arr = processar_dicionarios(id_unic_arr, total_e_arr)
+total_c_arr = processar_dicionarios(id_unic_arr, total_c_arr)
+total_d_arr = processar_dicionarios(id_unic_arr, total_d_arr)
+total_l_arr = processar_dicionarios(id_unic_arr, total_l_arr)
+liquido_arr = processar_dicionarios(id_unic_arr, liquido_arr)
+peso_med_arr = processar_dicionarios(id_unic_arr, peso_med_arr)
+idade_med_arr = processar_dicionarios(id_unic_arr, idade_med_arr)
+mortalidade_arr = processar_dicionarios(id_unic_arr, mortalidade_arr)
+conversao_ali_arr = processar_dicionarios(id_unic_arr, conversao_ali_arr)
+densidade_arr = processar_dicionarios(id_unic_arr, densidade_arr)
+ganho_diario_arr = processar_dicionarios(id_unic_arr, ganho_diario_arr)
+kcal_arr = processar_dicionarios(id_unic_arr, kcal_arr)
+diferenca_sobre_aves_arr = processar_dicionarios(id_unic_arr, diferenca_sobre_aves_arr)
+cat_s_tabela_arr = processar_dicionarios(id_unic_arr, cat_s_tabela_arr)
+cat_s_dia_arr = processar_dicionarios(id_unic_arr, cat_s_dia_arr)
+cat_s_ps_real_arr =  processar_dicionarios(id_unic_arr, cat_s_ps_real_arr)
+mortalidade_tabela_ii_arr =  processar_dicionarios(id_unic_arr, mortalidade_tabela_ii_arr)
+mortalidade_tabela_ii_dia_arr =  processar_dicionarios(id_unic_arr, mortalidade_tabela_ii_dia_arr)
+mortalidade_tabela_ii_ps_real_arr  =  processar_dicionarios(id_unic_arr, mortalidade_tabela_ii_ps_real_arr)
+gpd_tabela_iii_arr =  processar_dicionarios(id_unic_arr, gpd_tabela_iii_arr)
+gpd_tabela_iii_dia_arr =  processar_dicionarios(id_unic_arr, gpd_tabela_iii_dia_arr)
+gpd_tabela_iii_ps_real_arr =  processar_dicionarios(id_unic_arr, gpd_tabela_iii_ps_real_arr)
+taxa_liquida_arr =  processar_dicionarios(id_unic_arr, taxa_liquida_arr)
+taxa_liquida_dia_arr =  processar_dicionarios(id_unic_arr, taxa_liquida_dia_arr)
+taxa_liquida_ps_real_arr =  processar_dicionarios(id_unic_arr, taxa_liquida_ps_real_arr)
+valor_por_cabeça_arr =  processar_dicionarios(id_unic_arr, valor_por_cabeça_arr)
+ret_b_calc_arr =  processar_dicionarios(id_unic_arr, ret_b_calc_arr)
+ret_valor_arr =  processar_dicionarios(id_unic_arr, ret_valor_arr)
+valor_bruto_arr = processar_dicionarios(id_unic_arr, valor_bruto_arr)
+bonificacao_ch_p_arr = processar_dicionarios(id_unic_arr, bonificacao_ch_p_arr)
+bonificacao_ch_arr = processar_dicionarios(id_unic_arr, bonificacao_ch_arr)
+bonificacao_arr = processar_dicionarios(id_unic_arr, bonificacao_arr)
+descontos_arr = processar_dicionarios(id_unic_arr, descontos_arr)
+imposto_f_arr = processar_dicionarios(id_unic_arr, imposto_f_arr)
+odc_arr = processar_dicionarios(id_unic_arr, odc_arr)
+conversao_ali_ajustada_arr = processar_dicionarios(id_unic_arr, conversao_ali_ajustada_arr)
 
-# bonificacao_ch_arr = processar_dicionarios(id_unic_arr, bonificacao_ch_p_arr)
+# 
+# ganho_diario_arr
 
+# Não aplique processar_dicionarios para arrays simples (listas de valores)
 
-
-# a_arr = list(OrderedDict.fromkeys(a_arr))
-# print("Contagem: a_arr", len(a_arr))
-# # print(id_unic_arr)
-
-        
 print("Contagem: id_unic_arr", len(id_unic_arr))
 # print("Total contagem:", len(cms_arr))
 # Save new_dataFrame
+
+
 new_dataFrame["ID_INTEGRAD"] = id_unic_arr
+
 new_dataFrame["CHAVE_INTEGRADO"] = key_integrado_arr
 new_dataFrame["NOME_INTEGRADO"] = nome_integrado_arr
 new_dataFrame["ALOJAMENTO"] = alojamento_arr
@@ -834,12 +942,10 @@ new_dataFrame["PREMIX"] = premix_arr
 new_dataFrame["AVICOLA"] = avicola_arr
 new_dataFrame["IDADE_MATRIZ"] = idade_matriz_arr
 new_dataFrame["NUMERO_CAMAS"] = n_camas_arr
-
 new_dataFrame["TOTAL_ENVIO"] = total_e_arr
 new_dataFrame["TOTAL_DEVOLUÇÃO"] = total_d_arr
 new_dataFrame["TOTAL_LIQUIDO"] = total_l_arr
 new_dataFrame["TOTAL_CONS/FASE"] = total_c_arr
-
 new_dataFrame["LIQUIDO"] = liquido_arr
 new_dataFrame["PESO_MEDIO"] = peso_med_arr
 new_dataFrame["IDADE_MEDIA"] = idade_med_arr
@@ -850,19 +956,15 @@ new_dataFrame["DENSIDADE"] = densidade_arr
 new_dataFrame["GANHO_DIARIO"] = ganho_diario_arr
 new_dataFrame["K/CAL"] = kcal_arr
 new_dataFrame["DIFERENCA/SOBRE_AVES"] = diferenca_sobre_aves_arr
-
 new_dataFrame["C_A_TABELA_I"] = cat_s_tabela_arr
 new_dataFrame["C_A_TABELA_DIA"] = cat_s_dia_arr
 new_dataFrame["C_A_TABELA_PS_REAL"] = cat_s_ps_real_arr
-
 new_dataFrame["MORTALIDADE_TABELA_II"] = mortalidade_tabela_ii_arr
 new_dataFrame["MORTALIDADE_TABELA_II_DIA"] = mortalidade_tabela_ii_dia_arr
 new_dataFrame["MORTALIDADE_TABELA_II_PS_REAL"] = mortalidade_tabela_ii_ps_real_arr
-
 new_dataFrame["GPD_TABELA_III"] = gpd_tabela_iii_arr
 new_dataFrame["GPD_TABELA_III_DIA"] = gpd_tabela_iii_dia_arr
 new_dataFrame["GPD_TABELA_III_PS_REAL"] = gpd_tabela_iii_ps_real_arr
-
 new_dataFrame["TAXA_LIQUIDA"] = taxa_liquida_arr
 new_dataFrame["TAXA_LIQUIDA_DIA"] = taxa_liquida_dia_arr
 new_dataFrame["TAXA_LIQUIDA_PS_REAL"] = taxa_liquida_ps_real_arr
@@ -875,7 +977,6 @@ new_dataFrame["INDUSTRIALIZACAO_RACAO"] = industrializacao_racao_arr_tmp
 new_dataFrame["QUEBRA_TECNICA_RACAO"] = q_tec_racao_arr
 new_dataFrame["TRANSPORTE_FRANGO_VIVO"] = transporte_frango_vivo_arr
 new_dataFrame["EXTORNO_ICMS"] = extorno_icms_arr
-
 new_dataFrame["VALOR_BRUTO"] = valor_bruto_arr
 new_dataFrame["BINIFICACAO_CHECKLIST_%"] = bonificacao_ch_p_arr
 new_dataFrame["BINIFICACAO_CHECKLIST"] = bonificacao_ch_arr
@@ -883,8 +984,10 @@ new_dataFrame["BONIFICAÇÃO"] = bonificacao_arr
 new_dataFrame["DESCONTOS"] = descontos_arr
 new_dataFrame["IMPOSTO_FUNRURAL"] = imposto_f_arr
 new_dataFrame["OUTROS_DESCONTOS_DOCUMENTOS"] = odc_arr
+
 new_dataFrame["VALOR_LIQUIDO"] = valor_liquido_arr
 new_dataFrame["CONVERSAO_META_DA_SEMANA"] = cms_arr
+
 new_dataFrame["TOTAL_1"] = tota_one_arr
 new_dataFrame["TOTAL_2"] = tota_two_arr
 new_dataFrame["TOTAL_3"] = tota_three_arr
