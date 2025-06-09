@@ -61,7 +61,7 @@ def converter_para_float(numero_str):
     #ITERA SOBRE O NOVO DATA FRAME FILTRADO
     
 def filter_pattern(text: str) -> str:
-    pattern = r'^\d+-\d+$'
+    pattern = re.compile(r'^(?:[A-Za-z]-)?\d+-\d+$')
     return '\n'.join(line.strip() for line in text.splitlines() if re.match(pattern, line.strip()))
 
 def adicionar_espacos(texto):
