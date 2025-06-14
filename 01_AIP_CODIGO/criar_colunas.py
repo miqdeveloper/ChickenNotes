@@ -1,5 +1,3 @@
-from hmac import new
-from operator import le, ne
 import pandas as pd
 from collections import OrderedDict
 from datetime import datetime
@@ -24,7 +22,7 @@ arr_filter = ["Integrado",
               "Telefone",
               "E-mail",
               "Tipo Ventilação",
-              "Kg/m2",
+              ["Kg/m2", "Ka/m?", "Ko/m?", "Ka/m2", "Ko/mº"],
               "Material",
               "Aves/m2",
               "Qtde Abatida",
@@ -245,7 +243,7 @@ def remove_empty_spaces(lst):
     return list(filter(lambda item: item.strip() != '', lst))
 
 def remove_chars(input_str: str) -> str:
-    chars_to_remove = ["[", "\"", "'", "nan", "]", ":", ".pdf", "_","-","|",'“', "*", " —", "/", "*", "-", "—"]
+    chars_to_remove = ["[", "\"", "'", "nan", "]", ":", ".pdf", "_","-","|",'“', "*", " —", "/", "*", "-", "—", "º", "?"]
     for char in chars_to_remove:
         input_str = input_str.replace(char, "")
     return input_str
@@ -291,6 +289,10 @@ def find_numbers(input_str):
    pattern = r'\b\d+\b'  # Padrão para números
    result = re.findall(pattern, input_str)
    return result
+
+def find_dates(text):
+   date_pattern = r"\b(0[1-9]|1[0-9]|2[0-9]|3[01])/(0[1-9]|1[0-2])/([0-9]{2})\b"
+   return re.findall(date_pattern, text)
      
 for index, row in df.iterrows():
    line_text = str(row['text'])
@@ -468,13 +470,29 @@ for index, row in df.iterrows():
          "Data": arl_f
       })
    
-   #
+   #Data Abate
    if (arr_filter[8] in line_text):
-      print(line_text)
-      pass
-
+      dta_b = (line_text)
+      dta_b_s_d = (dta_b.split("Pintos Chegados Mortos")[0])
+      if find_dates(dta_b.split("Pintos Chegados Mortos")[0]):
+         dta_b_s_f = dta_b_s_d.split("Data Abate")[-1].replace(":", "").replace("Data Abate", "").replace(":", "")
+      
+         dta_b_f = {
+            "id": id_l,
+            "Data": dta_b_s_f
+         }
+         arr_data_abate.append(dta_b_f)
+   
+   # Categoria
    if (arr_filter[9] in line_text):
-      pass
+      ctg_ = (find_letters(line_text.split("Categoria")[-1]))[0]
+      ctg_ =  remove_empty_spaces(ctg_.split(" "))
+      ctg_s = (" ".join(ctg_[:2]))
+      ctg_f = {
+         "Data": ctg_s,
+         "id": id_l
+      }
+      arr_categoria.append(ctg_f)
    
    # Técnico
    if (arr_filter[10][0] in line_text or arr_filter[10][1] in line_text):
@@ -512,8 +530,65 @@ for index, row in df.iterrows():
          "id": id_l,
          "Data": tel_f
       })
-
    
+   # E-mail
+   if (arr_filter[12] in line_text):
+      e_mail = (line_text.split("E-mail")[-1]).replace(":", "").replace("Renda", ";").replace("Imposto", ";").replace("imposto", ";").replace("Repasses",  ";").split(";")
+      e_mail = e_mail[0].strip()
+      e_mail_f = e_mail.replace(" ", "")
+      if not e_mail_f or e_mail_f == "":
+         e_mail_f = "nan"
+         
+      email_f = {
+         "id": id_l,
+         "Data": e_mail_f
+      }
+      email_arr.append(email_f)
+   
+   # Tipo Ventilação 
+   if (arr_filter[13] in line_text):
+      tvl_s = line_text.replace("Tipo Ventilação:", "")
+      tvl_s = remove_empty_spaces(remove_chars(tvl_s).split(" "))
+      tvl_s = " ".join(tvl_s[:2]).replace("Repasses", "").replace("Renda", "").replace("Imposto", "")
+      tvl_s_ = {
+         "id": id_l,
+         "Data": tvl_s
+      }
+      t_vent_arr.append(tvl_s_)
+      
+   #  Kg/m?
+   if (arr_filter[14][0] in line_text  or arr_filter[14][1] in line_text  or arr_filter[14][2] in line_text or "Linhagem" in line_text):
+      pattern = re.compile(r'^(?:\d{1,3}(?:,\d{3})+|\d+,\d{2})$')
+      kg_m = (remove_chars(line_text))
+      kg_m = kg_m.replace("Kgm", "").replace("Kom", "").replace("Kam", "")
+      
+      kg_m = remove_empty_spaces((kg_m).split(" "))
+      
+      nc = len(kg_m)
+      kg_m = (kg_m[4:]) 
+      kg_m = kg_m[0].strip()
+      if (pattern.findall(kg_m)):
+         kg_m =  kg_m
+      else:
+         if pattern.findall(kg_m):
+            print(kg_m)
+      kgm2_arr.append({
+         "id": id_l,
+         "Data": kg_m
+      })
+   
+   if (arr_filter[15] in line_text):
+      pass
+   if (arr_filter[16] in line_text):
+      pass
+   if (arr_filter[17] in line_text):
+      pass
+   if (arr_filter[18] in line_text):
+      pass
+   if (arr_filter[19] in line_text):
+      pass
+   if (arr_filter[20] in line_text):
+      pass
 key_arr =  list(OrderedDict.fromkeys(key_arr))
 print("len key_arr", len(key_arr))
 
@@ -531,32 +606,42 @@ arr_quant_alojado = processar_dicionarios(key_arr, arr_quant_alojado)
 arr_peso_medio =  processar_dicionarios(key_arr, arr_peso_medio)
 arr_area_aloj = processar_dicionarios(key_arr, arr_area_aloj)
 telefone_arr = processar_dicionarios(key_arr, telefone_arr)
+arr_data_abate = processar_dicionarios(key_arr, arr_data_abate)
+arr_categoria = processar_dicionarios(key_arr, arr_categoria)
+email_arr = processar_dicionarios(key_arr, email_arr)
+t_vent_arr = processar_dicionarios(key_arr, t_vent_arr)
+kgm2_arr = processar_dicionarios(key_arr, kgm2_arr)
+
 
 
 new_dataFrame = pd.DataFrame()
 
 new_dataFrame["CHAVE"] = key_arr
-new_dataFrame["TECNICO"] = tecnico_arr
-new_dataFrame["CLIFOR"] = clifor_arr
-new_dataFrame["TELEFONE"] = telefone_arr
-new_dataFrame["PEDIDO"] = arr_pedido
-new_dataFrame["MUNICIPIO"] = arr_municipio
-new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
-new_dataFrame["LINHAGEM"] = arr_linhagem
-new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
-new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
-new_dataFrame["AREA_ALOJ"] = arr_area_aloj
+# new_dataFrame["TECNICO"] = tecnico_arr
+# new_dataFrame["CLIFOR"] = clifor_arr
+# new_dataFrame["TELEFONE"] = telefone_arr
+# new_dataFrame["PEDIDO"] = arr_pedido
+# new_dataFrame["MUNICIPIO"] = arr_municipio
+# new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
+# new_dataFrame["LINHAGEM"] = arr_linhagem
+# new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
+# new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
+# new_dataFrame["AREA_ALOJ"] = arr_area_aloj
+# new_dataFrame["DATA_ABATE"] = arr_data_abate
+# new_dataFrame["TIPO_PRODUTO"] = arr_categoria
+# new_dataFrame["EMAIL"] = email_arr
+# new_dataFrame["T_VENTILACAO"] = t_vent_arr
+new_dataFrame["KG_M2"] = kgm2_arr
+
+
+
 
   
    #  new_dataFrame["INTEGRADO"] = name_arr
 
    
    #  new_dataFrame["AVIARIO"] = aviario_arr
-   #  new_dataFrame["EMAIL"] = email_arr
-   #  new_dataFrame["T_VENTILACAO"] = t_vent_arr
-   #  new_dataFrame["TIPO_PRODUTO"] = arr_categoria
    #  new_dataFrame["LINHAGEM"] = arr_linhagem
-   #  new_dataFrame["KG_M2"] = kgm2_arr
    #  new_dataFrame["MATERIAL_GENETICO"] = material_arr
    #  new_dataFrame["AVE_M2"] = ave_m2_arr
    #  new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
@@ -565,7 +650,6 @@ new_dataFrame["AREA_ALOJ"] = arr_area_aloj
    #  new_dataFrame["MORTE_TOTAL"] = mort_total_arr
    #  new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
    #  new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
-   #  new_dataFrame["DATA_ABATE"] = arr_data_abate
    #  new_dataFrame["IDADE_ABATE"] = idade_abate_arr
    #  new_dataFrame["PM_PINTO"] = arr_peso_medio
    #  new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
