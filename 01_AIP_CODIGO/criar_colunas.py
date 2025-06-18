@@ -26,7 +26,7 @@ arr_filter = ["Integrado",
               "Material",
               "Aves/m2",
               "Qtde Abatida",
-              "Mort. Tota",
+              "Mort. Total",
               "Qtde Mortos",
               "Qtde Eliminados",
               "Idade Abate",
@@ -566,27 +566,101 @@ for index, row in df.iterrows():
       
       nc = len(kg_m)
       kg_m = (kg_m[4:]) 
-      kg_m = kg_m[0].strip()
-      if (pattern.findall(kg_m)):
-         kg_m =  kg_m
+      nc_ = len(kg_m)
+      if nc_ == 1:
+         kg_m_f = kg_m[0]
+         
+      if nc_ >= 2:
+         if pattern.findall(kg_m[0]):
+            kg_m_f =  kg_m[0]
+         else:
+            if pattern.findall(kg_m[1]):
+               kg_m_f = (kg_m[1])
+            else:
+               if pattern.findall(kg_m[2]):
+                  kg_m_f = (kg_m[2])
+               else:
+                  kg_m_f = "nan"
+      if pattern.findall(kg_m_f):
+         kg_m_f = kg_m_f.strip()
       else:
-         if pattern.findall(kg_m):
-            print(kg_m)
+         kg_m_f = "nan"
+      #    if pattern.findall(kg_m):
+      #       print(kg_m)
       kgm2_arr.append({
          "id": id_l,
-         "Data": kg_m
+         "Data": kg_m_f
       })
    
+   # Material
    if (arr_filter[15] in line_text):
-      pass
-   if (arr_filter[16] in line_text):
-      pass
+      patern_ = ""
+      if (find_letters(line_text.split("Aves/m")[0])):
+         material_s = (line_text.split("Aves/m")[0])
+         material_s = remove_empty_spaces(material_s.split("Material"))
+         nc_ = len(material_s)
+         if nc_ == 1:
+            material_f = material_s[0].replace(":",  "")
+         else:
+            material_f = "nan"
+            
+         material_arr.append({
+            "id": id_l,
+            "Data": material_f
+         })
+      #   
+   # Aves/m2
+   if (arr_filter[16] in line_text or "Aves/m" in line_text):
+      aves_ = remove_chars(line_text.split("Aves/m")[-1])
+      aves_ = remove_empty_spaces(aves_.split(" "))[0]
+      if find_numbers(aves_):
+        if "," in aves_:
+            aves_f = aves_
+      
+      ave_m2_arr.append({
+         "id": id_l,
+         "Data": aves_f
+      })
+   
+   # Qtde Abatida
    if (arr_filter[17] in line_text):
-      pass
+      qtde_a_ = (line_text.split("Qtde Abatida")[-1].replace(":", ""))
+      qtde_a = remove_empty_spaces(qtde_a_.split(" "))
+      nc_ = len(qtde_a)
+      if nc_ == 1:
+         qtde_a_f = qtde_a[0]
+      if nc_ >= 2:
+         if "." in (qtde_a[0]):
+            qtde_a_f = qtde_a[0]
+         else:
+           qtde_a_f = "nan"
+      
+      qabate_arr.append({
+         "id": id_l,
+         "Data": qtde_a_f
+      })
+   
+   # Mort. Tota
    if (arr_filter[18] in line_text):
-      pass
+      mort_total_s = (line_text.split("Mort. Total")[-1].replace(":", ""))
+      mort_total_s = remove_empty_spaces(mort_total_s.split(" "))
+      mort_total_f = mort_total_s[0]
+      mort_total_arr.append({
+         "id": id_l,
+         "Data": mort_total_f
+      })
+
+   # Qtde Mortos
    if (arr_filter[19] in line_text):
-      pass
+      qtde_m_s  =  line_text.split("Qtde Mortos")
+      qtde_m_s  = remove_empty_spaces(qtde_m_s[-1].replace(":", "").split(" "))
+      qtde_m_s_f = qtde_m_s[0]
+      quant_mortes_arr.append({
+         "id": id_l,
+         "Data": qtde_m_s_f
+      })
+   
+      
    if (arr_filter[20] in line_text):
       pass
 key_arr =  list(OrderedDict.fromkeys(key_arr))
@@ -611,27 +685,38 @@ arr_categoria = processar_dicionarios(key_arr, arr_categoria)
 email_arr = processar_dicionarios(key_arr, email_arr)
 t_vent_arr = processar_dicionarios(key_arr, t_vent_arr)
 kgm2_arr = processar_dicionarios(key_arr, kgm2_arr)
+material_arr = processar_dicionarios(key_arr, material_arr)
+ave_m2_arr = processar_dicionarios(key_arr, ave_m2_arr)
+qabate_arr = processar_dicionarios(key_arr, qabate_arr)
+mort_total_arr = processar_dicionarios(key_arr, mort_total_arr)
+quant_mortes_arr = processar_dicionarios(key_arr, quant_mortes_arr)
 
 
 
 new_dataFrame = pd.DataFrame()
 
 new_dataFrame["CHAVE"] = key_arr
-# new_dataFrame["TECNICO"] = tecnico_arr
-# new_dataFrame["CLIFOR"] = clifor_arr
-# new_dataFrame["TELEFONE"] = telefone_arr
-# new_dataFrame["PEDIDO"] = arr_pedido
-# new_dataFrame["MUNICIPIO"] = arr_municipio
-# new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
-# new_dataFrame["LINHAGEM"] = arr_linhagem
-# new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
-# new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
-# new_dataFrame["AREA_ALOJ"] = arr_area_aloj
-# new_dataFrame["DATA_ABATE"] = arr_data_abate
-# new_dataFrame["TIPO_PRODUTO"] = arr_categoria
-# new_dataFrame["EMAIL"] = email_arr
-# new_dataFrame["T_VENTILACAO"] = t_vent_arr
+new_dataFrame["TECNICO"] = tecnico_arr
+new_dataFrame["CLIFOR"] = clifor_arr
+new_dataFrame["TELEFONE"] = telefone_arr
+new_dataFrame["PEDIDO"] = arr_pedido
+new_dataFrame["MUNICIPIO"] = arr_municipio
+new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
+new_dataFrame["LINHAGEM"] = arr_linhagem
+new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
+new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
+new_dataFrame["AREA_ALOJ"] = arr_area_aloj
+new_dataFrame["DATA_ABATE"] = arr_data_abate
+new_dataFrame["TIPO_PRODUTO"] = arr_categoria
+new_dataFrame["EMAIL"] = email_arr
+new_dataFrame["T_VENTILACAO"] = t_vent_arr
 new_dataFrame["KG_M2"] = kgm2_arr
+new_dataFrame["MATERIAL_GENETICO"] = material_arr
+new_dataFrame["AVE_M2"] = ave_m2_arr
+new_dataFrame["QUANT_ABATE"] = qabate_arr
+new_dataFrame["MORTE_TOTAL"] = mort_total_arr
+new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
+
 
 
 
@@ -642,13 +727,8 @@ new_dataFrame["KG_M2"] = kgm2_arr
    
    #  new_dataFrame["AVIARIO"] = aviario_arr
    #  new_dataFrame["LINHAGEM"] = arr_linhagem
-   #  new_dataFrame["MATERIAL_GENETICO"] = material_arr
-   #  new_dataFrame["AVE_M2"] = ave_m2_arr
    #  new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
    #  new_dataFrame["DATA_ALOJ"] = arr_data_aloj
-   #  new_dataFrame["QUANT_ABATE"] = qabate_arr
-   #  new_dataFrame["MORTE_TOTAL"] = mort_total_arr
-   #  new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
    #  new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
    #  new_dataFrame["IDADE_ABATE"] = idade_abate_arr
    #  new_dataFrame["PM_PINTO"] = arr_peso_medio
