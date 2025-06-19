@@ -660,8 +660,8 @@ for index, row in df.iterrows():
          "Data": qtde_m_s_f
       })
    
-      
    if (arr_filter[20] in line_text):
+      print(arr_filter[20])
       pass
 key_arr =  list(OrderedDict.fromkeys(key_arr))
 print("len key_arr", len(key_arr))
