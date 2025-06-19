@@ -3,7 +3,7 @@ from collections import OrderedDict
 from datetime import datetime
 import time, re
 
-file_csv = r"C:\Users\Miqueias\Desktop\Projetos\NotasFrangos\01_AIP_CODIGO\output\saida.csv"
+file_csv = r"output/saida.csv"
 
 df = pd.read_csv(file_csv, sep=";", encoding="utf-8")
 
