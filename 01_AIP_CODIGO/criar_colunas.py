@@ -39,7 +39,7 @@ arr_filter = ["Integrado",
               "CAAF",
               ["Ração Consumida", "Racão Consumida", "Racao Consumida"],
               "Valor do Frango Vivo por Kg em R$",
-              "Instalações No",
+              "Instalações N",
               "Valor da Ração por Kg em R$",
               "Valor do Pinto em R$",
               "Percentual Basico",
@@ -812,7 +812,7 @@ for index, row in df.iterrows():
    # 
    if (arr_filter[29] in line_text):
       # print(arr_filter[29])
-      pass
+
    if (arr_filter[30] in line_text):
       pass
    if (arr_filter[31] in line_text):
