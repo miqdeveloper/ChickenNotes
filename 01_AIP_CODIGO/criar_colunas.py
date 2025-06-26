@@ -236,6 +236,8 @@ arr_tmp_2 = []
 
 centro_arr = []
 
+instalacoes_n_arr = []
+
 def get_date_now():
     date_now = datetime.now()
     d = str(date_now.strftime("""_%d_%m_%Y"""))
@@ -809,10 +811,18 @@ for index, row in df.iterrows():
          "id": id_l,
          "Data": vfvkr_s,
       })
-   # 
+   
+   # Instalações N
    if (arr_filter[29] in line_text):
-      # print(arr_filter[29])
-
+      inst_l_s = (line_text).split(":")[1]
+      inst_l_s = (inst_l_s).replace("E-mail", "").replace("E-mait", "").replace(".", "").replace("E-mail", "")
+      
+      instalacoes_n_arr.append({
+         "id": id_l,
+         "Data": inst_l_s,
+      })
+      # print(inst_l_s)
+   # 
    if (arr_filter[30] in line_text):
       pass
    if (arr_filter[31] in line_text):
@@ -856,6 +866,7 @@ peso_total_arr =   processar_dicionarios(key_arr, peso_total_arr)
 caaf_arr = processar_dicionarios(key_arr, caaf_arr)
 racao_c_arr =  processar_dicionarios(key_arr, racao_c_arr)
 valor_kg_f_arr = processar_dicionarios(key_arr, valor_kg_f_arr)
+instalacoes_n_arr = processar_dicionarios(key_arr, instalacoes_n_arr)
 
 
 
@@ -863,37 +874,36 @@ valor_kg_f_arr = processar_dicionarios(key_arr, valor_kg_f_arr)
 new_dataFrame = pd.DataFrame()
 
 new_dataFrame["CHAVE"] = key_arr
-# new_dataFrame["TECNICO"] = tecnico_arr
-# new_dataFrame["CLIFOR"] = clifor_arr
-# new_dataFrame["TELEFONE"] = telefone_arr
-# new_dataFrame["PEDIDO"] = arr_pedido
-# new_dataFrame["MUNICIPIO"] = arr_municipio
-# new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
-# new_dataFrame["LINHAGEM"] = arr_linhagem
-# new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
-# new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
-# new_dataFrame["AREA_ALOJ"] = arr_area_aloj
-# new_dataFrame["DATA_ABATE"] = arr_data_abate
-# new_dataFrame["TIPO_PRODUTO"] = arr_categoria
-# new_dataFrame["EMAIL"] = email_arr
-# new_dataFrame["T_VENTILACAO"] = t_vent_arr
-# new_dataFrame["KG_M2"] = kgm2_arr
-# new_dataFrame["MATERIAL_GENETICO"] = material_arr
-# new_dataFrame["AVE_M2"] = ave_m2_arr
-# new_dataFrame["QUANT_ABATE"] = qabate_arr
-# new_dataFrame["MORTE_TOTAL"] = mort_total_arr
-# new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
-# new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
-# new_dataFrame["IDADE_ABATE"] = idade_abate_arr
-# new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
-# new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
-# new_dataFrame["GPD"]=gpd_arr
-# new_dataFrame["PESO_TOTAL"] = peso_total_arr
-# new_dataFrame["CAAF"] = caaf_arr
-# new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
-# new_dataFrame["VALOR_KG_FRANGO"] = valor_kg_f_arr
-
-
+new_dataFrame["TECNICO"] = tecnico_arr
+new_dataFrame["CLIFOR"] = clifor_arr
+new_dataFrame["TELEFONE"] = telefone_arr
+new_dataFrame["PEDIDO"] = arr_pedido
+new_dataFrame["MUNICIPIO"] = arr_municipio
+new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
+new_dataFrame["LINHAGEM"] = arr_linhagem
+new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
+new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
+new_dataFrame["AREA_ALOJ"] = arr_area_aloj
+new_dataFrame["DATA_ABATE"] = arr_data_abate
+new_dataFrame["TIPO_PRODUTO"] = arr_categoria
+new_dataFrame["EMAIL"] = email_arr
+new_dataFrame["T_VENTILACAO"] = t_vent_arr
+new_dataFrame["KG_M2"] = kgm2_arr
+new_dataFrame["MATERIAL_GENETICO"] = material_arr
+new_dataFrame["AVE_M2"] = ave_m2_arr
+new_dataFrame["QUANT_ABATE"] = qabate_arr
+new_dataFrame["MORTE_TOTAL"] = mort_total_arr
+new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
+new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
+new_dataFrame["IDADE_ABATE"] = idade_abate_arr
+new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
+new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
+new_dataFrame["GPD"]=gpd_arr
+new_dataFrame["PESO_TOTAL"] = peso_total_arr
+new_dataFrame["CAAF"] = caaf_arr
+new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
+new_dataFrame["VALOR_KG_FRANGO"] = valor_kg_f_arr
+new_dataFrame["INSTALACOES_N"] = instalacoes_n_arr
 
 
 
