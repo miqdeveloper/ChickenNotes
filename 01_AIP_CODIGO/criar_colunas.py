@@ -458,12 +458,13 @@ for index, row in df.iterrows():
       
       arr_peso_medio.append(pmpe_f)
    
-   # Área Alojada:
+   # Área Alojada: - revisar n2
    if (arr_filter[7] in line_text):
       arl_s = remove_chars(line_text).replace("Teiefone", "Telefone").split("Telefone")
       l_n = len(arl_s)
       if l_n == 1:
-         print("Área Alojada:", arl_s)
+         # print("Área Alojada:", arl_s)
+         pass
       if l_n == 2:
          arl_s = ((arl_s[0]).replace("Área Alojada", "").strip())
          arl_f = arl_s.split(" ")[-1]
@@ -619,11 +620,11 @@ for index, row in df.iterrows():
       aves_ = remove_empty_spaces(aves_.split(" "))[0]
       if find_numbers(aves_):
         if "," in aves_:
-            aves_f = aves_
+            aves_ = aves_
       
       ave_m2_arr.append({
          "id": id_l,
-         "Data": aves_f
+         "Data": aves_
       })
    
    # Qtde Abatida
@@ -801,17 +802,20 @@ for index, row in df.iterrows():
    # Valor do Frango Vivo por Kg em R$
    if (arr_filter[28] in line_text):
       vfvkr_s = remove_chars(line_text.replace("Valor do Frango Vivo por Kg em R$", "").replace(":", "")).split(" ")
-      vfvkr_s = remove_empty_spaces(vfvkr_s)[0]
-      if re.match(r'\d+\,\d+', vfvkr_s):
-         vfvkr_s = vfvkr_s
-      else:
-         vfvkr_s = "nan"
       
+      vfvkr_s = remove_empty_spaces(vfvkr_s)
+      nc_ = len(vfvkr_s)
+      if  nc_ >= 1:
+         if re.match(r'\d+\,\d+', vfvkr_s[0]):
+            vfvkr_s = vfvkr_s
+         else:
+            vfvkr_s = "nan"
+         
       valor_kg_f_arr.append({
-         "id": id_l,
-         "Data": vfvkr_s,
-      })
-   
+            "id": id_l,
+            "Data": vfvkr_s,
+         })
+      
    # Instalações N
    if (arr_filter[29] in line_text):
       inst_l_s = (line_text).split(":")[1]
