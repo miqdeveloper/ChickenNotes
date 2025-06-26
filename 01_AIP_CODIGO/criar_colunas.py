@@ -1,3 +1,5 @@
+from ast import Or
+from traceback import print_tb
 import pandas as pd
 from collections import OrderedDict
 from datetime import datetime
@@ -31,11 +33,11 @@ arr_filter = ["Integrado",
               "Qtde Eliminados",
               "Idade Abate",
               "Aves Faltantes",
-              "Peso Médio",
+              ["Peso Médio","Peso Medio", "Peso Médio"],
               "GPD",
               "Peso Total",
               "CAAF",
-              "Ração Consumida",
+              ["Ração Consumida", "Racão Consumida", "Racao Consumida"],
               "Valor do Frango Vivo por Kg em R$",
               "Instalações No",
               "Valor da Ração por Kg em R$",
@@ -294,7 +296,7 @@ def find_dates(text):
    date_pattern = r"\b(0[1-9]|1[0-9]|2[0-9]|3[01])/(0[1-9]|1[0-2])/([0-9]{2})\b"
    return re.findall(date_pattern, text)
      
-for index, row in df.iterrows():
+for index, row in df.iterrows(): 
    line_text = str(row['text'])
    id_l = str(row['filename']).replace("_pg_1.tif", "").replace("_pg_2.tif", "").replace("_pg_3.tif", "").replace("_pg_4.tif", "").strip()
    # get chave unica
@@ -660,9 +662,164 @@ for index, row in df.iterrows():
          "Data": qtde_m_s_f
       })
    
+   # Qtde Eliminados
    if (arr_filter[20] in line_text):
-      print(arr_filter[20])
+      qtde_eli = (line_text.split("Qtde Eliminados")[-1]).replace(":", "").split(" ")
+      qtde_eli =  remove_empty_spaces(qtde_eli)[0]
+      quant_eliminados_arr.append({
+         "id": id_l,
+         "Data": qtde_eli
+      })
+      
+   # Idade Abate
+   if (arr_filter[21] in line_text):
+      idade_abate_s = line_text.split("Mortos Transporte")[0]
+      idade_abate_s = idade_abate_s.replace("Idade Abate:", "").split(" ")
+      idade_abate_s = remove_empty_spaces(idade_abate_s)[0]
+      idade_abate_arr.append({
+         "id": id_l,
+         "Data": idade_abate_s
+      })
+   
+   # Aves Faltantes
+   if (arr_filter[22] in line_text):
+      aves_f = remove_empty_spaces(line_text.split("Aves Faltantes")[-1].replace(":", "").split(" "))[0]
+      aves_faltantes_arr.append({
+         "id": id_l,
+         "Data": aves_f
+      })
+      
+   # Peso Médio - revisar 
+   if (arr_filter[23][0] in line_text) or (arr_filter[23][1] in line_text ) or (arr_filter[23][2] in line_text):
+      pm_medio_s = remove_empty_spaces((line_text).replace("Peso Médio", "Peso Medio").split("Peso Medio"))
+      # if id_l == "637217-5700549664":
+      #    print(pm_medio_s)
+         
+      nc_ = len(pm_medio_s)
+      # pm_medio_f = pm_medio_s
+      if nc_ == 1:
+         if "," in pm_medio_s[0]:
+            pm_medio_s  = remove_empty_spaces(pm_medio_s[0].replace(":", "").split(" "))
+            pm_medio_s =(pm_medio_s[0])
+         else:
+            pm_medio_s  = "nan"
+         # pm_medio_s_ = line_text
+      if nc_ == 2:
+         # pm_medio_s = "nan"
+         if find_numbers(pm_medio_s[0].replace(":", "")):
+            if "," in (remove_empty_spaces(pm_medio_s[0].replace(":", "").split(" "))[0]):
+               pm_medio_s = (remove_empty_spaces(pm_medio_s[0].replace(":", "").split(" "))[0])
+            else:
+               pm_medio_s = "nan"
+         else:
+            if  "," in (pm_medio_s[1].replace(":", "")):
+               pm_medio_s = remove_empty_spaces(pm_medio_s[1].replace(":", "").split(" "))[0]
+            else:
+               pm_medio_s = "nan"
+      
+      
+      peso_medio_f_arr.append({
+         "id": id_l,
+         "Data": pm_medio_s
+      })
+            
+      # print(pm_medio_f)
+   
+   # GPD
+   if (arr_filter[24] in line_text):
+      gpd_a = line_text.split("GPD")[-1].replace(":", "")
+      gpd_a = remove_empty_spaces(gpd_a.split(" "))
+      if ',' in gpd_a[0]:
+         gpd_a = remove_chars(gpd_a[0])
+      else:
+         gpd_a = "nan"
+      
+      gpd_arr.append({
+         "id":id_l,
+         "Data": gpd_a
+      })
+
+   # Peso Total
+   if (arr_filter[25] in line_text):
+      peso_total_s  = remove_empty_spaces(remove_chars(line_text.replace("Peso Total", "").replace(":", "")).split(" "))
+      peso_total_s = peso_total_s[0]
+      if re.match(r'\d+\.\d+', peso_total_s):
+         peso_total_s = (peso_total_s)
+      else:
+         if re.match(r'\d+\,\d+', peso_total_s):
+           peso_total_s = peso_total_s
+         else:
+            peso_total_s  = "nan"
+   
+      peso_total_arr.append({
+         "id":id_l,
+         "Data": peso_total_s,
+      })
+   
+    #  
+   
+   # CAAF
+   if (arr_filter[26] in line_text):
+      caff_s = line_text.split("CAAF")[-1].replace(":", "")
+      if "," in line_text:
+         caff_s =  (remove_empty_spaces(caff_s.split(" ")))[0]
+         
+         if re.match(r'\d+\,\d+', caff_s):
+            caff_s = caff_s
+         else: 
+            caff_s = "nan"
+      else:
+         caff_s = "nan"
+         
+      caaf_arr.append({
+         "id": id_l,
+         "Data": caff_s,
+      })
+      
+   # Ração Consumida
+   if (arr_filter[27][0] in line_text) or (arr_filter[27][1] in line_text) or (arr_filter[27][2] in line_text):
+      rac_con_s = str(remove_chars(line_text.split("Consumida")[-1]))
+      rac_con_s = remove_empty_spaces(rac_con_s.split(" "))[0]
+
+      # print(rac_con_s)
+      if (re.match(r'\d+\.\d+', rac_con_s) or re.match(r'\d+\,\d+', rac_con_s)):
+         rac_con_s = (rac_con_s.split(" ")[0])
+      else:
+         rac_con_s = remove_empty_spaces(str(remove_chars(line_text.split("Consumida")[-1])).split(" ") )
+         if "." == rac_con_s[0]:
+            rac_con_s = rac_con_s[1]
+         else: 
+            rac_con_s = rac_con_s[0]
+      
+      racao_c_arr.append({
+         "id": id_l,
+         "Data": rac_con_s,
+      })
+      
+   # Valor do Frango Vivo por Kg em R$
+   if (arr_filter[28] in line_text):
+      vfvkr_s = remove_chars(line_text.replace("Valor do Frango Vivo por Kg em R$", "").replace(":", "")).split(" ")
+      vfvkr_s = remove_empty_spaces(vfvkr_s)[0]
+      if re.match(r'\d+\,\d+', vfvkr_s):
+         vfvkr_s = vfvkr_s
+      else:
+         vfvkr_s = "nan"
+      
+      valor_kg_f_arr.append({
+         "id": id_l,
+         "Data": vfvkr_s,
+      })
+   # 
+   if (arr_filter[29] in line_text):
+      # print(arr_filter[29])
       pass
+   if (arr_filter[30] in line_text):
+      pass
+   if (arr_filter[31] in line_text):
+      pass
+   if (arr_filter[32] in line_text):
+      pass
+
 key_arr =  list(OrderedDict.fromkeys(key_arr))
 print("len key_arr", len(key_arr))
 
@@ -690,32 +847,52 @@ ave_m2_arr = processar_dicionarios(key_arr, ave_m2_arr)
 qabate_arr = processar_dicionarios(key_arr, qabate_arr)
 mort_total_arr = processar_dicionarios(key_arr, mort_total_arr)
 quant_mortes_arr = processar_dicionarios(key_arr, quant_mortes_arr)
+quant_eliminados_arr = processar_dicionarios(key_arr, quant_eliminados_arr)
+idade_abate_arr = processar_dicionarios(key_arr, idade_abate_arr)
+aves_faltantes_arr = processar_dicionarios(key_arr, aves_faltantes_arr)
+peso_medio_f_arr = processar_dicionarios(key_arr, peso_medio_f_arr)
+gpd_arr = processar_dicionarios(key_arr, gpd_arr)
+peso_total_arr =   processar_dicionarios(key_arr, peso_total_arr)
+caaf_arr = processar_dicionarios(key_arr, caaf_arr)
+racao_c_arr =  processar_dicionarios(key_arr, racao_c_arr)
+valor_kg_f_arr = processar_dicionarios(key_arr, valor_kg_f_arr)
+
 
 
 
 new_dataFrame = pd.DataFrame()
 
 new_dataFrame["CHAVE"] = key_arr
-new_dataFrame["TECNICO"] = tecnico_arr
-new_dataFrame["CLIFOR"] = clifor_arr
-new_dataFrame["TELEFONE"] = telefone_arr
-new_dataFrame["PEDIDO"] = arr_pedido
-new_dataFrame["MUNICIPIO"] = arr_municipio
-new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
-new_dataFrame["LINHAGEM"] = arr_linhagem
-new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
-new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
-new_dataFrame["AREA_ALOJ"] = arr_area_aloj
-new_dataFrame["DATA_ABATE"] = arr_data_abate
-new_dataFrame["TIPO_PRODUTO"] = arr_categoria
-new_dataFrame["EMAIL"] = email_arr
-new_dataFrame["T_VENTILACAO"] = t_vent_arr
-new_dataFrame["KG_M2"] = kgm2_arr
-new_dataFrame["MATERIAL_GENETICO"] = material_arr
-new_dataFrame["AVE_M2"] = ave_m2_arr
-new_dataFrame["QUANT_ABATE"] = qabate_arr
-new_dataFrame["MORTE_TOTAL"] = mort_total_arr
-new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
+# new_dataFrame["TECNICO"] = tecnico_arr
+# new_dataFrame["CLIFOR"] = clifor_arr
+# new_dataFrame["TELEFONE"] = telefone_arr
+# new_dataFrame["PEDIDO"] = arr_pedido
+# new_dataFrame["MUNICIPIO"] = arr_municipio
+# new_dataFrame["DATA_ALOJAMENTO"] = arr_data_aloj
+# new_dataFrame["LINHAGEM"] = arr_linhagem
+# new_dataFrame["QTD_ALOJADA"] = arr_quant_alojado
+# new_dataFrame["PESO_MED_PINTO"] = arr_peso_medio
+# new_dataFrame["AREA_ALOJ"] = arr_area_aloj
+# new_dataFrame["DATA_ABATE"] = arr_data_abate
+# new_dataFrame["TIPO_PRODUTO"] = arr_categoria
+# new_dataFrame["EMAIL"] = email_arr
+# new_dataFrame["T_VENTILACAO"] = t_vent_arr
+# new_dataFrame["KG_M2"] = kgm2_arr
+# new_dataFrame["MATERIAL_GENETICO"] = material_arr
+# new_dataFrame["AVE_M2"] = ave_m2_arr
+# new_dataFrame["QUANT_ABATE"] = qabate_arr
+# new_dataFrame["MORTE_TOTAL"] = mort_total_arr
+# new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
+# new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
+# new_dataFrame["IDADE_ABATE"] = idade_abate_arr
+# new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
+# new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
+# new_dataFrame["GPD"]=gpd_arr
+# new_dataFrame["PESO_TOTAL"] = peso_total_arr
+# new_dataFrame["CAAF"] = caaf_arr
+# new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
+# new_dataFrame["VALOR_KG_FRANGO"] = valor_kg_f_arr
+
 
 
 
@@ -729,16 +906,7 @@ new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
    #  new_dataFrame["LINHAGEM"] = arr_linhagem
    #  new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
    #  new_dataFrame["DATA_ALOJ"] = arr_data_aloj
-   #  new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
-   #  new_dataFrame["IDADE_ABATE"] = idade_abate_arr
    #  new_dataFrame["PM_PINTO"] = arr_peso_medio
-   #  new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
-   #  new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
-   #  new_dataFrame["GPD"]=gpd_arr
-   #  new_dataFrame["PESO_TOTAL"] = peso_total_arr
-   #  new_dataFrame["CAAF"] = caaf_arr
-   #  new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
-   #  new_dataFrame["VALOR_KG_FRANGO"] = valor_kg_f_arr
    #  new_dataFrame["VALOR_KG_RACAO"] = valor_kg_racao_arr
    #  new_dataFrame["VALOR_DO_PINTO"] = valor_pinto_real_arr
    #  new_dataFrame["PERCENTUAL_BASICO"] = percentual_basico_arr
@@ -856,4 +1024,6 @@ try:
    print("Arquivo salvo com sucesso!")
 except Exception as err:
    print("Erro ao salvar arquivo: ", err)
-   
+
+
+# git add .\criar_colunas.py; git commit -m "correcao"; git push
