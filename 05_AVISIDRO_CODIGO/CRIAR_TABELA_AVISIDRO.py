@@ -220,7 +220,6 @@ def main():
         new_str = re.sub(r"\[|\]", "", line_item)
         new_str = remove_empty_spaces(remove_chars(new_str).split(", "))
        
-        # print(new_str)
         len_newStr = len(new_str)
 
         if find_number_id(new_str[0]):
@@ -236,23 +235,18 @@ def main():
             if n_c == 1:
                 id_ = new_str[0]
                 id_ = re.sub(r'\d+$', '', id_)
-                # print(id_)
+
                 line = (df.loc[(index+2)])
-                # print(remove_chars(line).split(", "))
-                # print(line)
-                # print(separe_id)
 
             if n_c == 2:
                 id_ =  new_str[1]
                 id_ = re.sub(r'\d+$', '', id_)
                 line = (df.loc[(index+2)])
-                # print(remove_chars(line).split(", "))
 
             if n_c == 3:
                 id_ = new_str[1]
                 line = (df.loc[(index+2)])
-                # print(remove_chars(line).split(", "))
-                # print(id_)
+
                 
             if n_c == 4:
                 print("tem no 4: ", new_str)
@@ -286,7 +280,6 @@ def main():
                 integrado_nome_arr.append(idl_name)
             
         if "Endereço" in str(new_str):
-                # print(endereco_f)
             l_id = (new_str[0])
             endereco_f = (new_str[1].replace(" Técnico ", ", ").replace("Endereço ", ""))
             endereco_f = endereco_f.split(", ")[0]
@@ -396,7 +389,7 @@ def main():
             car_f_ = dicio_obj(l_id, car_f)
             car_arr.append(car_f_)
           
-        if "Conv. Real Ajustada" in str(new_str):
+        if "Co nv. Real Ajustada" in str(new_str):
             l_id = new_str[0]
             
             cra_f =new_str[1].replace("Pc Condenações - Real", ", ").split(", ")[0].replace("Conv. Real Ajustada", "").replace(" ", "")
@@ -418,7 +411,6 @@ def main():
             pf_arr.append(pf_f)
             
         if "VRac - Vlr das Rações" in str(new_str):
-            # print(new_str)
             l_id = new_str[0]
             
             vrac_f = new_str[1].replace("% Kg R$ R$/Cab", "").replace("VRac - Vlr das Rações", "").replace(" ", "")
@@ -426,16 +418,19 @@ def main():
             
             vrac_f = dicio_obj(l_id, vrac_f)
             vrac_arr.append(vrac_f)
-            
+         
         if "Percentual Básico de Partilha" in str(new_str) or "Percentual Basico de Partilha" in str(new_str):
 
             pbp_sep = remove_empty_spaces(new_str)
-            n_c = len(pbp_sep)
             
+            n_c = len(pbp_sep)
             pbp_sep = remove_empty_spaces(pbp_sep[1].replace("Percentual Básico de Partilha", "").split(" "))
             l_id = new_str[0]
             
-
+            pbp_sep_r_s = "NAN"
+            
+            # if n_c == 1:
+                
             if n_c == 2:
                 # # %
                 pbp_sep_s = (new_str[1].replace("Percentual Básico de Partilha ", "").split(" "))
@@ -451,7 +446,6 @@ def main():
                 pbp_sep_r = (new_str[1].replace("Percentual Básico de Partilha ", "").split(" "))
                 pbp_sep_r_s = (pbp_sep_r[2])
                 
-
             if n_c == 3:
                  # # %
                 pbp_sep_s2 = (new_str[1].replace("Percentual Básico de Partilha ", "").split(" "))
@@ -462,8 +456,8 @@ def main():
 
                 # # $
                 pbp_sep_r_s = pbp_sep_s2[2]
+                
             
-
             if n_c == 4:
                 # # %
                 pbp_sep_s3 = new_str[1].replace("Percentual Básico de Partilha ", "")
@@ -473,6 +467,7 @@ def main():
                 # Se caso der b.o preste ATENCAO TOTAL n_c
 
                 n_c = (new_str[2].split(" "))
+                
                 pbp_sep_k_s2 = (new_str[2].split(" "))
 
                 if len(n_c) == 2:
@@ -483,11 +478,14 @@ def main():
 
                 if "Percentual Básico de Partilha" in pbp_sep_s3:                    
                     pbp_sep_s = (new_str[2].split(" ")[0])
-
-            
-            
-
+    
+                # # # $
+                if pbp_sep_r_s == "NAN":
+                    pbp_sep_r_s = new_str[2].split(" ")[-1]
+                    
+                
             # # %
+            
             pbp_sep_s_ = dicio_obj(id_l, pbp_sep_s)
             pbp_percente_arr.append(pbp_sep_s_)
 
@@ -495,21 +493,25 @@ def main():
             pbp_sep_k_s__ = dicio_obj(id_l, pbp_sep_k_s_)
             pbp_kg_arr.append(pbp_sep_k_s__)
             
-            # # $
+            # # # $
             pbp_sep_r_s_ = dicio_obj(id_l, pbp_sep_r_s)
             pbp_real_arr.append(pbp_sep_r_s_)
             
             # print("Quant. itens: ", len(pbp_real_arr))
-
+        # OK
         if "Avaliação Conversão" in str(new_str):
             avc_f = remove_empty_spaces(new_str[1].replace("Avaliação Conversão", "").split(" "))
+            
             l_id = new_str[0]
             n_c = len(avc_f)
-
+            avc_percent_f = "NAN_P"
+            avc_kg_f = "NAN_P"
+            avc_real_f = "NAN_P"
+                
             if n_c == 3:
                 # # %
                 avc_percent_f=(avc_f[0])
-
+                
                  # # kg
                 avc_kg_f=(avc_f[1])
            
@@ -527,25 +529,45 @@ def main():
                  # # $
                 avc_real_f=(avc_f[2])
             
+            
+            if "NAN_P" in (avc_percent_f) or "NAN_P" in (avc_kg_f) or "NAN_P" in (avc_real_f):
+                n_c_c = len(new_str)
+                if n_c_c == 4:
+                    avc_percent_f   = new_str[1].replace("Avaliação Conversão", "")
+                    if not avc_percent_f:
+                        avc_percent_f = (new_str[2].split(" "))[0]
+                        avc_kg_f = (new_str[2].split(" "))[1]
+                        avc_real_f = (new_str[2].split(" ")[-1])
+                        
+                    # print(id_l, avc_percent_f, len(new_str))
+                    
+                    
             # d_j = {"id":l_id, "Data":avc_percent_f}
            
-            
             # avc_percent_f = dicio_obj(l_id, avc_percent_f)
+            
             d_j = dicio_obj(l_id, avc_percent_f)
+            
             avc_kg_f_ = dicio_obj(l_id, avc_kg_f)
+            
             avc_real_f_ = dicio_obj(l_id, avc_real_f)
             
             avc_percente_arr.append(d_j)
             
             avc_kg_arr.append(avc_kg_f_)           
             avc_real_arr.append(avc_real_f_)
-            
+        
+        #OK
         if "Avaliação Condenação" in str(new_str):
             acd_s = remove_empty_spaces(new_str[1].replace("Avaliação Condenação", "").split(" "))
             l_id = new_str[0]
             
             n_c = len(acd_s)
 
+            acd_p_f = "NAN_P"
+            acd_kg_f = "NAN_P"
+            acd_r_f = "NAN_P"
+            
             if n_c == 3:
             # # %           
                 acd_p_f = acd_s[0]
@@ -566,20 +588,59 @@ def main():
                 # # $
                 acd_r_f = acd_s[2]
             
+            
+            
+            if acd_p_f == "NAN_P" or acd_kg_f == "NAN_P" or acd_r_f == "NAN_P":
+                # %
+                
+                if len(new_str) == 4:
+                    acd_p_f = (new_str[1].replace("Avaliação Condenação", "").strip())
+                    if acd_p_f == "":
+                        acd_p_f = (new_str[2]).split( )
+                        acd_p_f = (acd_p_f[0])
+                        
+                    acd_kg_f = new_str[2].split(" ")
+                    
+                    if len(acd_kg_f) == 3:
+                        # Kg
+                        acd_kg_f = acd_kg_f[1]
+                        
+                        # $
+                        acd_r_f = new_str[2].split(" ")[-1]
+                        
+                    if len(acd_kg_f) == 2:
+                        
+                        # Kg
+                        acd_kg_f = acd_kg_f[0]
+                        
+                        # $
+                        acd_r_f = new_str[2].split(" ")[-1]
+                        
+                    # caso de erro - volte aqui e leia o codigo
+                    # if len(acd_kg_f_) == 1:
+                    #     pass
+
+
             acd_p_f_ = dicio_obj(l_id, acd_p_f)
             acd_kg_f_= dicio_obj(l_id, acd_kg_f)
             acd_r_f_= dicio_obj(l_id, acd_r_f)
-            
+              
+
             acd_percent_arr.append(acd_p_f_)
             # # kg
+
             acd_kg_arr.append(acd_kg_f_)
             # # $
             acd_real_arr.append(acd_r_f_)
             
-        if "Avaliação Calo de Patas" in str(new_str):
+        # OK 
+        if "Avaliação Calo de Patas" in str(new_str) or "Avaliaçao Calo de Patas" in str(new_str):
             
             acp_sep = remove_empty_spaces(new_str[1].replace("Avaliação Calo de Patas", "").split(" "))
             l_id = new_str[0]
+            acp_p_f = "NAN_P"
+            acp_kg_f = "NAN_P"
+            acp_r_f = "NAN_P"
             
             nc_ = (len(acp_sep))
             if nc_ == 3:
@@ -603,7 +664,35 @@ def main():
 
                 # $
                 acp_r_f  = acp_sep[2]
-                           
+            
+            if acp_p_f == "NAN_P":
+                # %
+                acp_p_f = new_str[1].replace("Avaliação Calo de Patas", "").strip()
+                if acp_p_f == "":
+                    acp_p_f  = (new_str[2].split(" "))[0]
+                
+                # kg AND # $
+                n_c_c = len(new_str)
+                if n_c_c == 4:
+                    if len(new_str[2].split(" ")) == 2:
+                        # Kg
+                        acp_kg_f = (new_str[2].split(" "))[0]
+                        
+                        # $
+                        acp_r_f = (new_str[2].split(" "))[1]
+                        
+                    if len(new_str[2].split(" ")) == 3:
+                        # Kg
+                        acp_kg_f = (new_str[2].split(" "))[1]
+                        
+                        # $
+                        acp_r_f = (new_str[2].split(" "))[2]
+                        
+                        
+                
+                
+            # if nc_ == 5:
+            #     print(new_str)          
             # %
             acp_p_f_ = dicio_obj(l_id, acp_p_f)
             acp_percent_arr.append(acp_p_f_)
@@ -613,7 +702,8 @@ def main():
             # # $
             acp_r_f_ = dicio_obj(l_id, acp_r_f)
             acp_real_arr.append(acp_r_f_)
-            
+        
+        # OK
         if "Avaliação Check-List" in str(new_str):
             avcl_n = "nan"
             avc_cl_separate = new_str
@@ -731,8 +821,10 @@ def main():
             # if n_c1 == 5:
             #     print(new_str)
             #     pass
+            
             if not avcl_n:
                 avcl_n = nan
+                
             avcl_n_ = dicio_obj(l_id, avcl_n)
             acl_percent_ = dicio_obj(l_id, acl_percent)
             acl_kg_f_ = dicio_obj(l_id, acl_kg_f)
@@ -743,13 +835,17 @@ def main():
             acl_kg_arr.append(acl_kg_f_)
             acl_real_arr.append(acl_r_f_)
         
+        # OK
         if "Resultado Bruto do Lote" in str(new_str):
             rbl_s = remove_empty_spaces(new_str[1].replace("Resultado Bruto do Lote", "").split(" "))
             
             l_id = new_str[0]
             
             n_c1 = len(rbl_s)
-
+            rbl_p_f= "NAN_P"
+            rbl_s_kg= "NAN_P"
+            rbl_s_r = "NAN_P"
+            
             if n_c1 == 3:
                 # # %
                 rbl_p_f = rbl_s[0]
@@ -771,7 +867,18 @@ def main():
 
                 #  # $
                 rbl_s_r = (rbl_s[2])
-
+            
+            if "NAN_P"  in  rbl_p_f:
+                if  find_numbers(new_str[1]):
+                    rbl_p_f = new_str[1].replace("Resultado Bruto do Lote", "").strip()
+                    rbl_s_kg = new_str[2].split(" ")[0]
+                    rbl_s_r = new_str[2].split(" ")[1]
+                else:
+                    rbl_p_f = remove_empty_spaces(new_str[2].split(" "))[0]
+                    rbl_s_kg = new_str[2].split(" ")[1]
+                    rbl_s_r = remove_empty_spaces(new_str[2].split(" "))[2]
+                    
+                    
             rbl_p_f_ = dicio_obj(l_id, rbl_p_f)
             rbl_s_kg_ = dicio_obj(l_id, rbl_s_kg)
             rbl_s_r_ = dicio_obj(l_id, rbl_s_r)
@@ -780,9 +887,11 @@ def main():
             rbl_percent_arr.append(rbl_p_f_)
             rbl_kg_arr.append(rbl_s_kg_)
             rbl_real_arr.append(rbl_s_r_)
-        
+        # OK
         if "Valor Renda Bruta" in str(new_str):
             l_id = new_str[0]
+            
+            vrb_f  = "nan"
             
             vrb_s = remove_empty_spaces(new_str[1].replace("Valor Renda Bruta", "").split(" "))
             n_c = len(vrb_s)
@@ -793,24 +902,33 @@ def main():
             if n_c == 2:
                 vrb_f = (vrb_s[0])         
             
+            if n_c == 3:
+                vrb_f = new_str
+                print(vrb_f)
+            
             vrb_f_ = dicio_obj(l_id, vrb_f)
             vrb_arr.append(vrb_f_)
-            
+            # OK
+        # OK
         if "Valor Total a Depositar" in str(new_str):
             vtd_s = remove_empty_spaces(new_str[1].replace("Valor Total a Depositar", "").split(" "))
             l_id = new_str[0]
             n_c = len(vtd_s)
             
+            vtd_f= "NAN_P"
             if n_c == 1:
                 vtd_f = vtd_s[0]
                 
             if n_c == 2:
                 vtd_f = vtd_s[0]
-                
+            
+            if "NAN_P" in vtd_f:
+                vtd_f  = (new_str[2]) 
             
             vtd_f_ = dicio_obj(l_id, vtd_f)
             vtd_arr.append(vtd_f_)
-            
+        
+        # OK    
         if "Valor NF" in str(new_str):
             l_id = new_str[0]
             
@@ -818,16 +936,24 @@ def main():
             n_c1 = len(new_str)
             l_id = new_str[0]
             
-
             if n_c1 == 2:
-                
                 nf_f_s = remove_empty_spaces(new_str[1].split("Valor NF"))[0].split(" ")
                 nf_f_s = remove_empty_spaces(nf_f_s)
                 nf_f_s = nf_f_s[0]
-
+                
+            if n_c1 == 3:
+                nf_f_s = (new_str[1].replace("Valor NF", "").replace(" ", ""))
+                if not nf_f_s:
+                    nf_f_s = (new_str[-1].replace(" ", ""))
+            
+            if n_c1 == 4:
+                nf_f_s = (new_str[2]).replace(" ", "")
+                
             nf_f_s_ = dicio_obj(id_l, nf_f_s)
+            
             vnf_arr.append(nf_f_s_)
 
+        # ok
         if "Dist Km" in str(new_str):
             l_id = new_str[0]
             dk_s = remove_empty_spaces(new_str)[1]
@@ -842,7 +968,8 @@ def main():
             # dkm_f = dk_s[0]
             dk_s_f_ = dicio_obj(l_id, dk_s_f)
             dkm_arr.append(dk_s_f_)
-            
+        
+        # OK
         if "Área disp" in str(new_str):
             l_id = new_str[0]
             
@@ -852,7 +979,8 @@ def main():
             
             adp_f_ = dicio_obj(l_id, adp_f)
             adp_arr.append(adp_f_)
-            
+        
+        # Ok
         if "Qtde Alojada" in str(new_str):
             l_id = new_str[0]
             qa_s_f = (new_str[1].split("Data Acerto do Lote")[0].split("Qtde Alojada")[-1])
@@ -876,19 +1004,26 @@ def main():
 
             dal_s_f_ = dicio_obj(l_id, dal_s_f)
             dal_arr.append(dal_s_f_)
+            
 
         if "Qtde Abatida" and "Data Acerto do Lote" in str(new_str):
             l_id = new_str[0]
             n_c = len(new_str)
+            qabt_f = "nan"
+            
             if n_c == 2:
                 qabt_f = new_str[1].split("Qtde Abatida")[-1].replace(" ", "")
 
             if n_c == 3:
                 qabt_f = new_str[-1].replace(" ", "").replace("QtdeAbatida", "")            
             
+            if n_c == 4:
+                qabt_f = (new_str[-1]).replace("Qtde Abatida", "").strip()
+                
             qabt_f_ = dicio_obj(l_id, str(qabt_f))
             qabt_arr.append(qabt_f_)
-        
+
+
         if "Peso Médio Alojado" in str(new_str):
             l_id = new_str[0]
             pma_s_f = (new_str[1].split("Peso Médio Alojado")[-1].split("Data Média Abate")[0]).replace(" ", "")
@@ -953,14 +1088,17 @@ def main():
                 pass
             
             if n_c_ == 3:
-                # print(remove_chars_s_points(line_item))
-                # hmabt_f = s_d[0])
-                pass
-            # if n_c_ == 4:
-            #     pass
+                hmabt_f = (remove_chars_s_points(line_item)).split(", ")
+                nc_ = len(hmabt_f)
+                if nc_ == 4:
+                    hmabt_f = (hmabt_f[2].replace("Hora média Abate:", "").replace(" ", "").replace("RaçãoConsumida:",  ""))
+                if nc_ == 5:
+                    hmabt_f = (new_str[2].replace("Hora média Abate:", "")).replace("Hora média Abate", "")
+                
             # if n_c_ == 5:
-            #     # print(line_item)
+            #     print(line_item)
             #     pass
+            
             hmabt_f_ = dicio_obj(l_id, hmabt_f)
             homa_arr.append(hmabt_f_)
             
@@ -1317,7 +1455,6 @@ def main():
             #     print(new_str)
             if n_c == 3:
                 vbd_f = remove_empty_spaces(new_str[-1].replace("Viabilidade", "").split(" "))[-1]
-                
 
             if n_c == 4:
                 vbd_f = (new_str[-1].split("Viabilidade")[1].replace(" ", ""))
@@ -1327,12 +1464,10 @@ def main():
             vbd_f_ = dicio_obj(l_id, vbd_f)
             viabilidade_arr.append(vbd_f_)
     
-    # integrado_id_arr = remover_duplicatas(integrado_id_arr)
-    # integrado_nome_arr = [x.split("-")[2] for x in integrado_arr_f ]
-            
-    # print(len(integrado_nome_arr))
+    
 
     id_uni_f = remover_duplicatas(id_uni)
+    
     integrado_id_arr = processar_dicionarios(id_uni_f ,integrado_arr)
     integrado_nome_arr =  processar_dicionarios(id_uni_f, integrado_nome_arr)
     endereco_arr_ = processar_dicionarios(id_uni_f, endereco_arr)
@@ -1413,11 +1548,8 @@ def main():
     idade_abate_arr_ = processar_dicionarios(id_uni_f, idade_abate_arr)
     viabilidade_arr_ = processar_dicionarios(id_uni_f, viabilidade_arr)
     avc_t_arr_ = processar_dicionarios(id_uni_f, avc_t_arr)
+    
     # integrado_arr_f = list(set(integrado_arr))
-
-    # print(len(integrado_arr))    
-    # print(len(id_uni_f))
-    # print(len(municipio_arr))
 
     # print('depois:', len(integrado_arr_f))
     
@@ -1463,10 +1595,8 @@ def main():
     new_dataFrame["AVALIACAO_CALO_DE_PATAS_$"] = acp_real_arr_
     
     new_dataFrame["AVALIACAO_CHECK_LIST_%"] = acl_percent_arr_
-
     new_dataFrame["AVALIACAO_CHECK_LIST_KG"] = acl_kg_arr_
     new_dataFrame["AVALIACAO_CHECK_LIST_$"] = acl_real_arr_
-    
     new_dataFrame["AVALIACAO_CHECK_LIST_NOVO"] = avcl_novo_arr_
         
     new_dataFrame["RESULTADO_BRUTO_DO_LOTE_%"] = rbl_percent_arr_
@@ -1484,21 +1614,28 @@ def main():
     new_dataFrame["QTDE_ALOJADA"] = qa_arr_
     
     new_dataFrame["DATA_ACERTO_DO_LOTE"] = dal_arr_
+   
+
     new_dataFrame["QTDE_ABATIDA"] = qabt_arr_
+    
     new_dataFrame["PESO_MEDIO_ALOJADO"] = pma_arr_
     new_dataFrame["DATA_MEDIA_ABATE"] = dtma_arr_d_
     new_dataFrame["PESO_RECEBIDO"] = prbd_arr_
+    
     new_dataFrame['HORA_MEDIA_ABATE'] = homa_arr_
     
-    new_dataFrame['RACAO_CONSUMIDA'] = rcsmd_arr_
-     
-    new_dataFrame['PESO_MEDIO_REAL'] = pmrl_arr_
     
+    new_dataFrame['RACAO_CONSUMIDA'] = rcsmd_arr_
+    
+    
+    new_dataFrame['PESO_MEDIO_REAL'] = pmrl_arr_
     
     new_dataFrame['TIPO_PRODUTO'] = tpo_arr_
     new_dataFrame["GPD"] = gpd_arr_
     
     new_dataFrame["PESO_MEDIO_PROJETADO"] = pmpj_arr_
+    
+    
     
     new_dataFrame["AJS_PESO_PINTO"] = ajs_pp_arr_
     new_dataFrame["IEE"] = iee_arr_
@@ -1525,9 +1662,7 @@ def main():
 
     # lista_c = [(va, id) for id, va in zip(dc_pr_arr, id_uni_f)]
 
-    # print(homa_arr[-1] , id_uni_f)[])
 
-    # print(df_2)
     print("Salvando arquivo...")
     new_dataFrame.to_csv(f"{file[0]}/avisidro_tabela{get_date_now()}.csv", mode="w", index=False)
     input("Arquivo salvo com sucesso...")
