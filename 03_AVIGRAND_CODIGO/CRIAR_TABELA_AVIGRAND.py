@@ -80,7 +80,9 @@ arr_filter = ["Integrado",
               "% Arranhaduras",
               "% Papo Cheio", 
               "% Condenação",
-              "Centro"
+              "Centro",
+              "Renda Líquida/"
+            
             ]
 
 # print("Qtd. Filtros Disponíveis: ", len(arr_filter))
@@ -311,6 +313,8 @@ def separate_():
     percent_codenacao_prev_arr = []
     percent_codenacao_diferenca_arr = []
 
+    renda_liquida_ave_arr = []
+    
 
     mod = []
     mod_2 = []
@@ -332,7 +336,8 @@ def separate_():
         for dir_ in dirs:
             if not os.path.exists(dir_):
                 os.mkdir(dir_)
-
+# PDF_Extrair_
+# PDF_Arquivo_
     def find_dates(text):
         date_pattern = r"\b(0[1-9]|1[0-9]|2[0-9]|3[01])/(0[1-9]|1[0-2])/([0-9]{2})\b"
         return re.findall(date_pattern, text)
@@ -346,7 +351,7 @@ def separate_():
         return result
     
     def find_letters(input_str):
-        pattern = r'\b[A-Za-z\s]+\b'  # Padrão para letras
+        pattern = r'\b[A-Z]+\b'  # Padrão para letras
         result = re.findall(pattern, input_str)
         return result
     
@@ -2094,6 +2099,20 @@ def separate_():
                         centro_f = centro_s
                         
                     centro_arr.append(centro_f)
+                
+                if arr_filter[60] == item:
+                    rdl_a = new_str.split(", ")[1]
+                    id_ = id_l
+                    
+                    if find_numbers(rdl_a):
+                        rdl_a = (rdl_a.replace("Renda Líquida/Ave", "")).strip()
+                    else:
+                        rdl_a = (new_str.split(", ")[2]).strip()
+                        
+                    
+                    rdl_a_f = {"id": id_, "Data": rdl_a}
+                    renda_liquida_ave_arr.append(rdl_a_f)
+                    
                     
     # metodo usando compreessao de lista para FUNRURAL           
     id_para_valor = {item[0]: item[2] for item in funrural_arr}
@@ -2165,6 +2184,8 @@ def separate_():
     conta_corrente_arr = processar_dicionarios(key_arr, conta_corrente_arr)
     conta_vinculada = processar_dicionarios(key_arr, conta_vinculada)
     senar_arr =  processar_dicionarios(key_arr, senar_arr)
+    renda_liquida_ave_arr = processar_dicionarios(key_arr, renda_liquida_ave_arr)
+    
     
     new_dataFrame["CHAVE"] = key_arr
     new_dataFrame["CLIFOR"] =  clifor_arr
@@ -2305,6 +2326,8 @@ def separate_():
     new_dataFrame["%_CODENACAO_PREV"] = percent_codenacao_prev_arr
     new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr 
     new_dataFrame["CENTRO"] = centro_arr
+    new_dataFrame["RENDA_LIQUIDA_AVE"] = renda_liquida_ave_arr
+    
 
 
     new_dataFrame.to_csv(f"{dir_s[0]}/filter_tabela_avigrand{get_date_now()}.csv", mode="w", index=False)
