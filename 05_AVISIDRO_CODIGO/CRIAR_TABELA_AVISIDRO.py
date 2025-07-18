@@ -389,7 +389,7 @@ def main():
             car_f_ = dicio_obj(l_id, car_f)
             car_arr.append(car_f_)
           
-        if "Co nv. Real Ajustada" in str(new_str):
+        if "Conv. Real Ajustada" in str(new_str):
             l_id = new_str[0]
             
             cra_f =new_str[1].replace("Pc Condenações - Real", ", ").split(", ")[0].replace("Conv. Real Ajustada", "").replace(" ", "")
@@ -530,7 +530,7 @@ def main():
                 avc_real_f=(avc_f[2])
             
             
-            if "NAN_P" in (avc_percent_f) or "NAN_P" in (avc_kg_f) or "NAN_P" in (avc_real_f):
+            if "NAN_P" in avc_percent_f or "NAN_P" in avc_kg_f or "NAN_P" in avc_real_f:
                 n_c_c = len(new_str)
                 if n_c_c == 4:
                     avc_percent_f   = new_str[1].replace("Avaliação Conversão", "")
@@ -540,8 +540,11 @@ def main():
                         avc_real_f = (new_str[2].split(" ")[-1])
                         
                     # print(id_l, avc_percent_f, len(new_str))
-                    
-                    
+            if "NAN_P" in avc_kg_f:
+                avc_kg_f = (new_str[2].split(" "))[1]
+                
+            if "NAN_P" in avc_real_f:
+                avc_real_f = (new_str[2].split(" "))[-1]
             # d_j = {"id":l_id, "Data":avc_percent_f}
            
             # avc_percent_f = dicio_obj(l_id, avc_percent_f)
@@ -1554,111 +1557,81 @@ def main():
     # print('depois:', len(integrado_arr_f))
     
     new_dataFrame["CHAVE"] = id_uni_f
-    
-    new_dataFrame["CLIFFOR"] = integrado_id_arr
-    new_dataFrame["INTEGRADO_NOME"] = integrado_nome_arr
-    new_dataFrame["ENDEREÇO"] = endereco_arr_
+
+    new_dataFrame["CLIFOR"] = integrado_id_arr
+    new_dataFrame["INTEGRADO"] = integrado_nome_arr
+    new_dataFrame["ENDERECO"] = endereco_arr_
     new_dataFrame["MUNICIPIO"] = municipio_arr_
     new_dataFrame["CPF/CGC"] = cgc_arr_
     new_dataFrame["LOTE"] = lote_arr_
-    new_dataFrame["DATA_MEDIA_ALOJTO"] = dtma_arr_
-    new_dataFrame["HORA_MEDIA_ALOJTO"] = hma_arr_
-    new_dataFrame["AREA_ALOJADA"] = aa_arr_
+    new_dataFrame["DATA_ALOJ"] = dtma_arr_
+    new_dataFrame["HORA_ALOJ"] = hma_arr_
+    new_dataFrame["AREA_ALOJ"] = aa_arr_
     new_dataFrame["SEXO"] = sexo_arr_
     new_dataFrame["LINHAGEM"] = linhagem_arr_
     new_dataFrame["AJS_LNHG"] = ajs_lnhg_arr_
-    new_dataFrame["PREV_SEMANAL_DE_CONV"] = psc_arr_
-    new_dataFrame["CONV_AJUSTADA_PREV"] = cap_arr_
-    
-    new_dataFrame["CONV_ALIMENTAR_REAL"] = car_arr_
-    
-    new_dataFrame["CONV_REAL_AJUSTADA"] = cra_arr_
-
-    new_dataFrame["DIFCA_PREVXREAL"] = dp_arr_
-    new_dataFrame["PF_PRECO_DO_KG_DO_FRANGO"] = pf_arr_
-    new_dataFrame["VRAC_VLR_DAS_RACOES"] = vrac_arr_
-    
-    new_dataFrame["PERCENTUAL_BASICO_DE_PARTILHA_%"] = pbp_percente_arr_
-    new_dataFrame["PERCENTUAL_BASICO_DE_PARTILHA_KG"] = pbp_kg_arr_
-    new_dataFrame["PERCENTUAL_BASICO_DE_PARTILHA_$"] = pbp_real_arr_
-    
-    new_dataFrame["AVALIACAO_CONVERSAO_%"] = avc_percente_arr_
-    new_dataFrame["AVALIACAO_CONVERSAO_KG"] = avc_kg_arr_
-    new_dataFrame["AVALIACAO_CONVERSAO_$"] = avc_real_arr_
-
-    new_dataFrame["AVALIACAO_CONDENACAO_%"] = acd_percent_arr_
-    new_dataFrame["AVALIACAO_CONDENACAO_KG"] = acd_kg_arr_
-    new_dataFrame["AVALIACAO_CONDENACAO_$"] = acd_real_arr_
-    
-    new_dataFrame["AVALIACAO_CALO_DE_PATAS_%"] = acp_percent_arr_
-    new_dataFrame["AVALIACAO_CALO_DE_PATAS_KG"] = acp_kg_arr_
-    new_dataFrame["AVALIACAO_CALO_DE_PATAS_$"] = acp_real_arr_
-    
-    new_dataFrame["AVALIACAO_CHECK_LIST_%"] = acl_percent_arr_
-    new_dataFrame["AVALIACAO_CHECK_LIST_KG"] = acl_kg_arr_
-    new_dataFrame["AVALIACAO_CHECK_LIST_$"] = acl_real_arr_
-    new_dataFrame["AVALIACAO_CHECK_LIST_NOVO"] = avcl_novo_arr_
-        
-    new_dataFrame["RESULTADO_BRUTO_DO_LOTE_%"] = rbl_percent_arr_
-    new_dataFrame["RESULTADO_BRUTO_DO_LOTE_KG"] = rbl_kg_arr_
-    new_dataFrame["RESULTADO_BRUTO_DO_LOTE_$"] = rbl_real_arr_
-    
-    new_dataFrame["VALOR_RENDA_BRUTA_CREDITO"] = vrb_arr_
-    
-    new_dataFrame["VALOR_NF"] = vnf_arr_
-    new_dataFrame["VALOR_TOTAL_A_DEPOSITAR"] = vtd_arr_
-    
+    new_dataFrame["PREV_SEM_CONV"] = psc_arr_
+    new_dataFrame["CONV_AJUS_PREV"] = cap_arr_
+    new_dataFrame["CONV_ALIM_REAL"] = car_arr_
+    new_dataFrame["CONV_REAL_AJUS"] = cra_arr_
+    new_dataFrame["DIF_PREV_REAL"] = dp_arr_
+    new_dataFrame["PRECO_FRANGO"] = pf_arr_
+    new_dataFrame["VALOR_RACAO"] = vrac_arr_
+    new_dataFrame["%_PARTILHA"] = pbp_percente_arr_
+    new_dataFrame["KG_PARTILHA"] = pbp_kg_arr_
+    new_dataFrame["$PARTILHA"] = pbp_real_arr_
+    new_dataFrame["%CONVERSAO"] = avc_percente_arr_
+    new_dataFrame["KG_CONVERSAO"] = avc_kg_arr_
+    new_dataFrame["$CONVERSAO"] = avc_real_arr_
+    new_dataFrame["%CONDENACAO"] = acd_percent_arr_
+    new_dataFrame["KG_CONDENACAO"] = acd_kg_arr_
+    new_dataFrame["$CONDENACAO"] = acd_real_arr_
+    new_dataFrame["%CALO_DE_PATA"] = acp_percent_arr_
+    new_dataFrame["KG_CALO_DE_PATA"] = acp_kg_arr_
+    new_dataFrame["$CALO_DE_PATA"] = acp_real_arr_
+    new_dataFrame["%CHECK_LIST"] = acl_percent_arr_
+    new_dataFrame["KG_CHECK_LIST"] = acl_kg_arr_
+    new_dataFrame["$CHECK_LIST"] = acl_real_arr_
+    new_dataFrame["A_CHECK_LIST_NOVO"] = avcl_novo_arr_
+    new_dataFrame["%BRUTO_LOTE"] = rbl_percent_arr_
+    new_dataFrame["KG_BRUTO_LOTE"] = rbl_kg_arr_
+    new_dataFrame["$BRUTO_LOTE"] = rbl_real_arr_
+    new_dataFrame["V_RENDA_BRUTA_CREDITO"] = vrb_arr_
+    new_dataFrame["V_NF"] = vnf_arr_
+    new_dataFrame["V_TOTAL_A_DEPOSITAR"] = vtd_arr_
     new_dataFrame["DIST_KM"] = dkm_arr_
     new_dataFrame["AREA_DISP"] = adp_arr_
-    
-    new_dataFrame["QTDE_ALOJADA"] = qa_arr_
-    
-    new_dataFrame["DATA_ACERTO_DO_LOTE"] = dal_arr_
-   
-
-    new_dataFrame["QTDE_ABATIDA"] = qabt_arr_
-    
+    new_dataFrame["QTDE_ALOJADO"] = qa_arr_
+    new_dataFrame["DATA_ACERTO"] = dal_arr_
+    new_dataFrame["QTDE_ABATE"] = qabt_arr_
     new_dataFrame["PESO_MEDIO_ALOJADO"] = pma_arr_
-    new_dataFrame["DATA_MEDIA_ABATE"] = dtma_arr_d_
+    new_dataFrame["DATA_ABATE"] = dtma_arr_d_
     new_dataFrame["PESO_RECEBIDO"] = prbd_arr_
-    
-    new_dataFrame['HORA_MEDIA_ABATE'] = homa_arr_
-    
-    
-    new_dataFrame['RACAO_CONSUMIDA'] = rcsmd_arr_
-    
-    
-    new_dataFrame['PESO_MEDIO_REAL'] = pmrl_arr_
-    
-    new_dataFrame['TIPO_PRODUTO'] = tpo_arr_
+    new_dataFrame["HORA_ABATE"] = homa_arr_
+    new_dataFrame["RACAO_CONSUMIDA"] = rcsmd_arr_    
+    new_dataFrame["PESO_MEDIO_REAL"] = pmrl_arr_
+    new_dataFrame["TIPO_PRODUTO"] = tpo_arr_
     new_dataFrame["GPD"] = gpd_arr_
-    
-    new_dataFrame["PESO_MEDIO_PROJETADO"] = pmpj_arr_
-    
-    
-    
+    new_dataFrame["PM_PROJ"] = pmpj_arr_
     new_dataFrame["AJS_PESO_PINTO"] = ajs_pp_arr_
     new_dataFrame["IEE"] = iee_arr_
-    
     new_dataFrame["IEP"] = iep_arr_
-    new_dataFrame['PM_REAL_PM_PROJETADO'] = pm_arr_
-    new_dataFrame['AVES_CONDENADAS_TOTAL'] = avc_t_arr_
-    new_dataFrame["N_AVES_CONDENADAS_PARCIAL"] = nacp_arr_
-    
-    new_dataFrame["N_PATAS_CONDENADAS"] = npc_arr_
-    new_dataFrame["PC_CODENACOES_PREVISTO"] = pcp_arr_
-    
-    new_dataFrame["PC_CALO_DE_PATA_PREVISTO"] = pcpp_arr_
-    
-    new_dataFrame["MORT_PREV"] = mrt_prv_arr_
-    new_dataFrame["PC_CODENACOES_REAL"] = pcrl_arr_
-    new_dataFrame["PC_CALO_DE_PATA_REAL"] = pcpr_arr_
-    new_dataFrame["MORT_REAL"] = mr_arr_
+    new_dataFrame["PM_REAL"] = pm_arr_
+    new_dataFrame["N_AVES_CONDENA_T"] = avc_t_arr_
+    new_dataFrame["N_AVES_CONDENA_P"] = nacp_arr_
+    new_dataFrame["N_PATAS_CONDENA"] = npc_arr_
+    new_dataFrame["PC_COND_PREV"] = pcp_arr_   
+    new_dataFrame["PC_CALO_PATA_PREV"] = pcpp_arr_
+    new_dataFrame["MORTALIDADE_PREV"] = mrt_prv_arr_
+    new_dataFrame["PC_COND_REAL"] = pcrl_arr_
+    new_dataFrame["PC_CALO_PATA_REAL"] = pcpr_arr_
+    new_dataFrame["MORTALIDADE_REAL"] = mr_arr_
     new_dataFrame["DIFCA_COND_PREV_REAL"] = dc_pr_arr_
     new_dataFrame["DIFCA_CALO_PATA_PREV_REAL"] = dcp_pr_arr_
     new_dataFrame["DIFCA_PREV_X_REAL"] = dpxr_arr_
     new_dataFrame["IDADE_ABATE"] = idade_abate_arr_
     new_dataFrame["VIABILIDADE"] = viabilidade_arr_
+
 
     # lista_c = [(va, id) for id, va in zip(dc_pr_arr, id_uni_f)]
 
