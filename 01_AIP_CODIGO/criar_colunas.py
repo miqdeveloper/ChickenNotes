@@ -1014,20 +1014,64 @@ for index, row in df.iterrows():
     # Aj Sazonalidade: % - kg - Real
     if arr_filter[34] in line_text:
       nums = re.findall(r"[\d.,]+", line_text)
-      
+
       # % 
       aj_saz_percent =  nums[0]
       
       #  kg 
+      aj_saz_kg =  nums[1]
       
       # Real
+      aj_saz_real =  nums[2]
       
+      aj_sazonalidade_percent_arr.append({"id": id_l, "Data": aj_saz_percent})
+      aj_sazonalidade_kg_arr.append({"id": id_l, "Data": aj_saz_kg})
+      aj_sazonalidade_real_arr.append({"Data": aj_saz_real, "id": id_l})
+      
+    #   Aj Sexo e Peso 
     if arr_filter[35] in line_text:
-        pass
+        aj_sex_p_s = (remove_empty_spaces(remove_chars(line_text).replace("Aj Sexo e Peso", "").replace(":", "").split(" ")))
+        aj_sex_p_s = aj_sex_p_s[0:3]
+        
+        # %
+        aj_sex_p_s_percent = aj_sex_p_s[0]
+        
+        # kg
+        aj_sex_p_s_kg = aj_sex_p_s[1]
+        
+        # real
+        aj_sex_p_s_real = aj_sex_p_s[2]
+        
+        aj_sex_pes_percent_arr.append({"id": id_l, "Data": aj_sex_p_s_percent})
+        aj_sex_pes_kg_arr.append({"id": id_l, "Data": aj_sex_p_s_kg})
+        aj_sex_pes_real_arr.append({"id": id_l, "Data": aj_sex_p_s_real})
+    
+    # Aj Idade
     if arr_filter[36] in line_text:
-        pass
+        aj_idade_s =  (remove_empty_spaces(remove_chars(line_text).replace("Aj Idade", "").replace(":", "").split(" ")))
+        
+        aj_idade_s_percent = aj_idade_s[0]
+        aj_idade_s_kg = aj_idade_s[1]
+        aj_idade_s_real = aj_idade_s[2]
+        
+        aj_idade_percent_arr.append({"id": id_l, "Data": aj_idade_s_percent})
+        aj_idade_kg_arr.append({"id": id_l, "Data": aj_idade_s_kg})
+        aj_idade_real_arr.append({"Data": aj_idade_s_real, "id": id_l})
+    
+    # Aj Mortalidade
     if arr_filter[37] in line_text:
-        pass
+        aj_mortalidade_s = remove_empty_spaces(remove_chars(line_text).replace("Aj Mortalidade", "").split(" "))
+        aj_mortalidade_s =  aj_mortalidade_s[0:3]
+        
+        aj_mortalidade_percent = aj_mortalidade_s[0]
+        aj_mortalidade_kg = aj_mortalidade_s[1]
+        aj_mortalidade_real = aj_mortalidade_s[2]
+        
+        aj_mortalidade_percent_arr.append({"id": id_l, "Data": aj_mortalidade_percent})
+        aj_mortalidade_kg_arr.append({"id": id_l, "Data": aj_mortalidade_kg})
+        aj_mortalidade_real_arr.append({"id": id_l, "Data": aj_mortalidade_real}) 
+        
+        
     if arr_filter[38] in line_text:
         pass
     if arr_filter[39] in line_text:
@@ -1084,6 +1128,22 @@ percentual_basico_arr = processar_dicionarios(key_arr, percentual_basico_arr)
 aj_porcent_arr = processar_dicionarios(key_arr, aj_porcent_arr)
 aj_kg_arr = processar_dicionarios(key_arr, aj_kg_arr)
 aj_real_arr = processar_dicionarios(key_arr, aj_real_arr)
+aj_sazonalidade_percent_arr = processar_dicionarios(key_arr, aj_sazonalidade_percent_arr)
+aj_sazonalidade_kg_arr = processar_dicionarios(key_arr, aj_sazonalidade_kg_arr)
+aj_sazonalidade_real_arr = processar_dicionarios(key_arr, aj_sazonalidade_real_arr)
+
+aj_sex_pes_percent_arr = processar_dicionarios(key_arr, aj_sex_pes_percent_arr)
+aj_sex_pes_kg_arr = processar_dicionarios(key_arr, aj_sex_pes_kg_arr)
+aj_sex_pes_real_arr = processar_dicionarios(key_arr, aj_sex_pes_real_arr)
+
+aj_idade_percent_arr = processar_dicionarios(key_arr, aj_idade_percent_arr)
+aj_idade_kg_arr = processar_dicionarios(key_arr, aj_idade_kg_arr)
+aj_idade_real_arr = processar_dicionarios(key_arr, aj_idade_real_arr)                                     
+
+aj_mortalidade_percent_arr = processar_dicionarios(key_arr, aj_mortalidade_percent_arr)
+aj_mortalidade_kg_arr = processar_dicionarios(key_arr, aj_mortalidade_kg_arr)
+aj_mortalidade_real_arr = processar_dicionarios(key_arr, aj_mortalidade_real_arr)
+
 
 new_dataFrame = pd.DataFrame()
 
@@ -1128,30 +1188,30 @@ new_dataFrame["R$_AJ_ESCALA_PROD"] = aj_real_arr
 
 # new_dataFrame["AVIARIO"] = aviario_arr
 
-#  new_dataFrame["LINHAGEM"] = arr_linhagem
-#  new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
+new_dataFrame["LINHAGEM"] = arr_linhagem
+new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
 
-#  new_dataFrame["DATA_ALOJ"] = arr_data_aloj
-#  new_dataFrame["PM_PINTO"] = arr_peso_medio
-#  new_dataFrame["KG_CARNE_BASE"] = carne_base_arr
-#  new_dataFrame["R$_BASE"] = real_base_arr
+# new_dataFrame["DATA_ALOJ"] = arr_data_aloj
+# new_dataFrame["PM_PINTO"] = arr_peso_medio
+# # new_dataFrame["KG_CARNE_BASE"] = carne_base_arr
+# new_dataFrame["R$_BASE"] = real_base_arr
 
 
-#  new_dataFrame["%_SAZONALIDADE"] = aj_sazonalidade_percent_arr
-#  new_dataFrame["KG_SAZONALIDADE"] = aj_sazonalidade_kg_arr
-#  new_dataFrame["R$_SAZONALIDADE"] = aj_sazonalidade_real_arr
+new_dataFrame["%_SAZONALIDADE"] = aj_sazonalidade_percent_arr
+new_dataFrame["KG_SAZONALIDADE"] = aj_sazonalidade_kg_arr
+new_dataFrame["R$_SAZONALIDADE"] = aj_sazonalidade_real_arr
 
-#  new_dataFrame["%_AJ_SEXO_PESO"] = aj_sex_pes_percent_arr
-#  new_dataFrame["KG_AJ_SEXO_PESO"] = aj_sex_pes_kg_arr
-#  new_dataFrame["R$_AJ_SEXO_PESO"] = aj_sex_pes_real_arr
+new_dataFrame["%_AJ_SEXO_PESO"] = aj_sex_pes_percent_arr
+new_dataFrame["KG_AJ_SEXO_PESO"] = aj_sex_pes_kg_arr
+new_dataFrame["R$_AJ_SEXO_PESO"] = aj_sex_pes_real_arr
 
-#  new_dataFrame["%_AJ_IDADE"] = aj_idade_percent_arr
-#  new_dataFrame["KG_AJ_IDADE"] = aj_idade_kg_arr
-#  new_dataFrame["R$_AJ_IDADE"] =  aj_idade_real_arr
+new_dataFrame["%_AJ_IDADE"] = aj_idade_percent_arr
+new_dataFrame["KG_AJ_IDADE"] = aj_idade_kg_arr
+new_dataFrame["R$_AJ_IDADE"] =  aj_idade_real_arr
 
-#  new_dataFrame["%_AJ_MORTALIDADE"] =  aj_mortalidade_percent_arr
-#  new_dataFrame["KG_AJ_MORTALIDADE"] =  aj_mortalidade_kg_arr
-#  new_dataFrame["R$_AJ_MORTALIDADE"] =  aj_mortalidade_real_arr
+new_dataFrame["%_AJ_MORTALIDADE"] =  aj_mortalidade_percent_arr
+new_dataFrame["KG_AJ_MORTALIDADE"] =  aj_mortalidade_kg_arr
+new_dataFrame["R$_AJ_MORTALIDADE"] =  aj_mortalidade_real_arr
 
 #  new_dataFrame["%_CONV_ALIMENTAR"] =  aj_conv_alimentar_percent_arr
 #  new_dataFrame["KG_CONV_ALIMENTAR"] =  aj_conv_alimentar_kg_arr
