@@ -416,8 +416,10 @@ def separate_():
                     
                     # # get name integrado
                     name_integrado = find_letters(separate_str[-1].replace("Integrado ", ""))
+                    name_integrado = ('  '.join(name_integrado))
                     if name_integrado:
-                        name_arr.append(name_integrado[0])
+                        # print(name_integrado)
+                        name_arr.append(name_integrado)
                         
                 # Get_PEDIDO/LOTE                
                 if arr_filter[1] == item:
