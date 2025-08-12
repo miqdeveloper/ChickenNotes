@@ -222,6 +222,7 @@ percent_codenacao_real_arr = []
 percent_codenacao_prev_arr = []
 percent_codenacao_diferenca_arr = []
 
+condenacoes_real_arr_ = []
 
 mod = []
 mod_2 = []
@@ -274,6 +275,9 @@ def remove_chars(input_str: str) -> str:
         input_str = input_str.replace(char, "")
     return input_str
 
+
+def validate_number_decimal(value: str) -> bool:
+    return bool(re.match(r"^(?=.*,\d)", value))  # Verifica se contém vírgula seguida de dígitos
 
 def processar_dicionarios(id_unic_arr: list, arr_temp: list) -> list:
     """
@@ -1010,78 +1014,211 @@ for index, row in df.iterrows():
 
         # Real
         aj_real_arr.append({"Data": aj_real, "id": id_l})
-    
+
     # Aj Sazonalidade: % - kg - Real
     if arr_filter[34] in line_text:
-      nums = re.findall(r"[\d.,]+", line_text)
+        nums = re.findall(r"[\d.,]+", line_text)
 
-      # % 
-      aj_saz_percent =  nums[0]
-      
-      #  kg 
-      aj_saz_kg =  nums[1]
-      
-      # Real
-      aj_saz_real =  nums[2]
-      
-      aj_sazonalidade_percent_arr.append({"id": id_l, "Data": aj_saz_percent})
-      aj_sazonalidade_kg_arr.append({"id": id_l, "Data": aj_saz_kg})
-      aj_sazonalidade_real_arr.append({"Data": aj_saz_real, "id": id_l})
-      
-    #   Aj Sexo e Peso 
+        # %
+        aj_saz_percent = nums[0]
+
+        #  kg
+        aj_saz_kg = nums[1]
+
+        # Real
+        aj_saz_real = nums[2]
+
+        aj_sazonalidade_percent_arr.append({"id": id_l, "Data": aj_saz_percent})
+        aj_sazonalidade_kg_arr.append({"id": id_l, "Data": aj_saz_kg})
+        aj_sazonalidade_real_arr.append({"Data": aj_saz_real, "id": id_l})
+
+    #   Aj Sexo e Peso
     if arr_filter[35] in line_text:
-        aj_sex_p_s = (remove_empty_spaces(remove_chars(line_text).replace("Aj Sexo e Peso", "").replace(":", "").split(" ")))
+        aj_sex_p_s = remove_empty_spaces(
+            remove_chars(line_text)
+            .replace("Aj Sexo e Peso", "")
+            .replace(":", "")
+            .split(" ")
+        )
         aj_sex_p_s = aj_sex_p_s[0:3]
-        
+
         # %
         aj_sex_p_s_percent = aj_sex_p_s[0]
-        
+
         # kg
         aj_sex_p_s_kg = aj_sex_p_s[1]
-        
+
         # real
         aj_sex_p_s_real = aj_sex_p_s[2]
-        
+
         aj_sex_pes_percent_arr.append({"id": id_l, "Data": aj_sex_p_s_percent})
         aj_sex_pes_kg_arr.append({"id": id_l, "Data": aj_sex_p_s_kg})
         aj_sex_pes_real_arr.append({"id": id_l, "Data": aj_sex_p_s_real})
-    
+
     # Aj Idade
     if arr_filter[36] in line_text:
-        aj_idade_s =  (remove_empty_spaces(remove_chars(line_text).replace("Aj Idade", "").replace(":", "").split(" ")))
-        
+        aj_idade_s = remove_empty_spaces(
+            remove_chars(line_text).replace("Aj Idade", "").replace(":", "").split(" ")
+        )
+
         aj_idade_s_percent = aj_idade_s[0]
         aj_idade_s_kg = aj_idade_s[1]
         aj_idade_s_real = aj_idade_s[2]
-        
+
         aj_idade_percent_arr.append({"id": id_l, "Data": aj_idade_s_percent})
         aj_idade_kg_arr.append({"id": id_l, "Data": aj_idade_s_kg})
         aj_idade_real_arr.append({"Data": aj_idade_s_real, "id": id_l})
-    
+
     # Aj Mortalidade
     if arr_filter[37] in line_text:
-        aj_mortalidade_s = remove_empty_spaces(remove_chars(line_text).replace("Aj Mortalidade", "").split(" "))
-        aj_mortalidade_s =  aj_mortalidade_s[0:3]
-        
+        aj_mortalidade_s = remove_empty_spaces(
+            remove_chars(line_text).replace("Aj Mortalidade", "").split(" ")
+        )
+        aj_mortalidade_s = aj_mortalidade_s[0:3]
+
         aj_mortalidade_percent = aj_mortalidade_s[0]
         aj_mortalidade_kg = aj_mortalidade_s[1]
         aj_mortalidade_real = aj_mortalidade_s[2]
-        
+
         aj_mortalidade_percent_arr.append({"id": id_l, "Data": aj_mortalidade_percent})
         aj_mortalidade_kg_arr.append({"id": id_l, "Data": aj_mortalidade_kg})
-        aj_mortalidade_real_arr.append({"id": id_l, "Data": aj_mortalidade_real}) 
-        
-        
+        aj_mortalidade_real_arr.append({"id": id_l, "Data": aj_mortalidade_real})
+
+        # Aj Conv Alimentar
+    
+    #  aj conv alimentar
     if arr_filter[38] in line_text:
-        pass
+        aj_conv_alimentar_percent_s = remove_empty_spaces(
+            line_text.replace("Aj Conv Alimentar", "").replace(":", "").split(" ")
+        )
+        aj_conv_alimentar_percent_s = aj_conv_alimentar_percent_s[0:4]
+        
+        if re.match(r"^(?=.*,\d)", aj_conv_alimentar_percent_s[0]):
+            
+            aj_conv_alimentar_real_f =  aj_conv_alimentar_percent_s[2]
+            aj_conv_alimentar_kg_f = aj_conv_alimentar_percent_s[1]
+            
+            aj_conv_alimentar_percent_f = aj_conv_alimentar_percent_s[0]
+            
+        else:
+           
+            aj_conv_alimentar_percent_s_ = aj_conv_alimentar_percent_s[0].replace(
+                "'", ","
+            )
+            
+            if re.match(r"^(?=.*,\d)", aj_conv_alimentar_percent_s_):
+
+                # aj_conv_alimentar_kg_f = aj_conv_alimentar_percent_s[0]
+                 
+                aj_conv_alimentar_percent_f = aj_conv_alimentar_percent_s_
+            
+            else:
+                aj_conv_alimentar_percent_s  = (aj_conv_alimentar_percent_s[1])
+                aj_conv_alimentar_kg_f = aj_conv_alimentar_percent_s[2]
+                aj_conv_alimentar_real_f =  aj_conv_alimentar_percent_s[3]
+                
+                
+                
+        aj_conv_alimentar_percent_arr.append(
+            {"id": id_l, "Data": aj_conv_alimentar_percent_f}
+        )
+        
+        aj_conv_alimentar_kg_arr.append(
+            {"id": id_l, "Data": aj_conv_alimentar_kg_f}
+        )
+        
+        aj_conv_alimentar_real_arr.append(
+            {"id": id_l, "Data": aj_conv_alimentar_real_f}
+        )
+        
+        
+        # Aj Meritocracia
+    
+    # aj meritocracia % - kg - Real
     if arr_filter[39] in line_text:
-        pass
+        aj_meritocracia_percent_s = remove_empty_spaces(line_text.replace("Aj Meritocracia", "").replace(":", "").replace("(MT)", "").replace("%", "").split(" "))
+        aj_meritocracia_percent_s = aj_meritocracia_percent_s[0:3]
+        
+        # % 
+        aj_meritocracia_percent_s_f = aj_meritocracia_percent_s[0]
+        
+        
+        #kg 
+        aj_meritocracia_kg_s_f = aj_meritocracia_percent_s[1]
+        
+        # $$
+        aj_meritocracia_real_s_f = aj_meritocracia_percent_s[2]
+        
+        aj_meritocracia_mt_percent_arr.append({"id": id_l, "Data": aj_meritocracia_percent_s_f})
+        aj_meritocracia_mt_kg_arr.append({"id": id_l, "Data": aj_meritocracia_kg_s_f})
+        aj_meritocracia_mt_real_arr.append({"id": id_l, "Data": aj_meritocracia_real_s_f})
+    
+    # Aj Calo Pata A % - kg - Real
     if arr_filter[40] in line_text:
-        pass
+        
+        aj_calo_p_s_ = (line_text).replace("Aj Calo Pata A", "").replace(":", "").split(" ")
+        aj_calo_p_s = remove_empty_spaces(aj_calo_p_s_)[0:4]
+        
+
+        # %%
+        aj_calo_p_f = aj_calo_p_s[0]
+        
+        
+        # kg
+        aj_calo_kg_s = aj_calo_p_s[1]
+        
+        # $$
+        aj_calo_real_s = aj_calo_p_s[2]
+        
+        if not validate_number_decimal(aj_calo_p_f):
+            aj_calo_p_f = aj_calo_p_s[1]
+            aj_calo_kg_s = aj_calo_p_s[2]
+            aj_calo_real_s = aj_calo_p_s[3]
+        
+        aj_calo_pata_a_percent_arr.append({"id": id_l, "Data": aj_calo_p_f})
+        aj_calo_pata_a_kg_arr.append({"id": id_l, "Data": aj_calo_kg_s})
+        aj_calo_pata_a_real_arr.append({"id": id_l, "Data": aj_calo_real_s})
+
+    # Aj Condenações
     if arr_filter[41] in line_text:
-        pass
+        aj_condenacoes_s = (line_text).replace("Aj Condenações", "").replace(":", "").split(" ")
+        aj_condenacoes_s = remove_empty_spaces(aj_condenacoes_s)[0:4]
+        
+        # %%
+        aj_condenacoes_percent_s =  aj_condenacoes_s[0]
+
+        
+        # kg
+        aj_condenacoes_kg_s = aj_condenacoes_s[1]
+        
+        # $$
+        aj_condenacoes_real_s  =  aj_condenacoes_s[2]
+        
+        if not validate_number_decimal(aj_condenacoes_percent_s):
+            aj_condenacoes_percent_s =  aj_condenacoes_s[1]
+            aj_condenacoes_kg_s = aj_condenacoes_kg_s[2]
+            aj_condenacoes_real_s  =  aj_condenacoes_s[3]
+            
+        condenacoes_percent_arr.append({"id": id_l, "Data": aj_condenacoes_percent_s})
+        condenacoes_kg_arr.append({"id": id_l, "Data": aj_condenacoes_kg_s})
+        condenacoes_real_arr_.append({"id": id_l, "Data": aj_condenacoes_real_s})    
+    
+    # Aj Qualidade
     if arr_filter[42] in line_text:
-        pass
+        aj_qualidade_s = (line_text).replace("Aj Qualidade (QT)", "").replace(":", "").split(" ")
+        aj_qualidade_s = remove_empty_spaces(aj_qualidade_s[:5])
+        
+        if not validate_number_decimal(aj_qualidade_s[0]):
+            aj_qualidade_percent_s =  aj_qualidade_s[1]
+            aj_qualidade_kg_s = aj_qualidade_s[2]
+            aj_qualidade_real_s = aj_qualidade_s[3]
+            # print("aj_qualidade_s:", aj_qualidade_s)
+        
+        # print(aj_qualidade_s)
+        aj_qualidade_percent_s =  aj_qualidade_s[0]
+        aj_qualidade_kg_s = aj_qualidade_s[1]
+        aj_qualidade_real_s = aj_qualidade_s[2]
+        
     if arr_filter[43] in line_text:
         pass
 
@@ -1128,6 +1265,7 @@ percentual_basico_arr = processar_dicionarios(key_arr, percentual_basico_arr)
 aj_porcent_arr = processar_dicionarios(key_arr, aj_porcent_arr)
 aj_kg_arr = processar_dicionarios(key_arr, aj_kg_arr)
 aj_real_arr = processar_dicionarios(key_arr, aj_real_arr)
+
 aj_sazonalidade_percent_arr = processar_dicionarios(key_arr, aj_sazonalidade_percent_arr)
 aj_sazonalidade_kg_arr = processar_dicionarios(key_arr, aj_sazonalidade_kg_arr)
 aj_sazonalidade_real_arr = processar_dicionarios(key_arr, aj_sazonalidade_real_arr)
@@ -1138,11 +1276,27 @@ aj_sex_pes_real_arr = processar_dicionarios(key_arr, aj_sex_pes_real_arr)
 
 aj_idade_percent_arr = processar_dicionarios(key_arr, aj_idade_percent_arr)
 aj_idade_kg_arr = processar_dicionarios(key_arr, aj_idade_kg_arr)
-aj_idade_real_arr = processar_dicionarios(key_arr, aj_idade_real_arr)                                     
+aj_idade_real_arr = processar_dicionarios(key_arr, aj_idade_real_arr)
 
 aj_mortalidade_percent_arr = processar_dicionarios(key_arr, aj_mortalidade_percent_arr)
 aj_mortalidade_kg_arr = processar_dicionarios(key_arr, aj_mortalidade_kg_arr)
 aj_mortalidade_real_arr = processar_dicionarios(key_arr, aj_mortalidade_real_arr)
+
+aj_conv_alimentar_percent_arr = processar_dicionarios(key_arr, aj_conv_alimentar_percent_arr)
+aj_conv_alimentar_kg_arr = processar_dicionarios(key_arr, aj_conv_alimentar_kg_arr)
+aj_conv_alimentar_real_arr = processar_dicionarios(key_arr, aj_conv_alimentar_real_arr)
+
+aj_meritocracia_mt_percent_arr = processar_dicionarios(key_arr, aj_meritocracia_mt_percent_arr)
+aj_meritocracia_mt_kg_arr = processar_dicionarios(key_arr, aj_meritocracia_mt_kg_arr)
+aj_meritocracia_mt_real_arr = processar_dicionarios(key_arr, aj_meritocracia_mt_real_arr)
+
+aj_calo_pata_a_percent_arr = processar_dicionarios(key_arr, aj_calo_pata_a_percent_arr)
+aj_calo_pata_a_kg_arr = processar_dicionarios(key_arr, aj_calo_pata_a_kg_arr)
+aj_calo_pata_a_real_arr = processar_dicionarios(key_arr, aj_calo_pata_a_real_arr)
+
+condenacoes_percent_arr = processar_dicionarios(key_arr, condenacoes_percent_arr)
+condenacoes_kg_arr_ = processar_dicionarios(key_arr, condenacoes_kg_arr)
+condenacoes_real_arr = processar_dicionarios(key_arr, condenacoes_real_arr_)
 
 
 new_dataFrame = pd.DataFrame()
@@ -1172,7 +1326,7 @@ new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
 new_dataFrame["IDADE_ABATE"] = idade_abate_arr
 new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
 new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
-new_dataFrame["GPD"]=gpd_arr
+new_dataFrame["GPD"] = gpd_arr
 new_dataFrame["PESO_TOTAL"] = peso_total_arr
 new_dataFrame["CAAF"] = caaf_arr
 new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
@@ -1207,29 +1361,29 @@ new_dataFrame["R$_AJ_SEXO_PESO"] = aj_sex_pes_real_arr
 
 new_dataFrame["%_AJ_IDADE"] = aj_idade_percent_arr
 new_dataFrame["KG_AJ_IDADE"] = aj_idade_kg_arr
-new_dataFrame["R$_AJ_IDADE"] =  aj_idade_real_arr
+new_dataFrame["R$_AJ_IDADE"] = aj_idade_real_arr
 
-new_dataFrame["%_AJ_MORTALIDADE"] =  aj_mortalidade_percent_arr
-new_dataFrame["KG_AJ_MORTALIDADE"] =  aj_mortalidade_kg_arr
-new_dataFrame["R$_AJ_MORTALIDADE"] =  aj_mortalidade_real_arr
+new_dataFrame["%_AJ_MORTALIDADE"] = aj_mortalidade_percent_arr
+new_dataFrame["KG_AJ_MORTALIDADE"] = aj_mortalidade_kg_arr
+new_dataFrame["R$_AJ_MORTALIDADE"] = aj_mortalidade_real_arr
 
-#  new_dataFrame["%_CONV_ALIMENTAR"] =  aj_conv_alimentar_percent_arr
-#  new_dataFrame["KG_CONV_ALIMENTAR"] =  aj_conv_alimentar_kg_arr
-#  new_dataFrame["R$_CONV_ALIMENTAR"] =  aj_conv_alimentar_real_arr
+new_dataFrame["%_CONV_ALIMENTAR"] = aj_conv_alimentar_percent_arr
+new_dataFrame["KG_CONV_ALIMENTAR"] = aj_conv_alimentar_kg_arr
+new_dataFrame["R$_CONV_ALIMENTAR"] = aj_conv_alimentar_real_arr
 
 #  # new_dataFrame["LOTE"] = arr_pedido # nao usado
 
-#  new_dataFrame["%_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_percent_arr
-#  new_dataFrame["KG_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_kg_arr
-#  new_dataFrame["R$_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_real_arr
+new_dataFrame["%_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_percent_arr
+new_dataFrame["KG_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_kg_arr
+new_dataFrame["R$_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_real_arr
 
-#  new_dataFrame["%_AJ_CALO_PATA_A"] = aj_calo_pata_a_percent_arr
-#  new_dataFrame["KG_AJ_CALO_PATA_A"] = aj_calo_pata_a_kg_arr
-#  new_dataFrame["R$_AJ_CALO_PATA_A"] = aj_calo_pata_a_real_arr
+new_dataFrame["%_AJ_CALO_PATA_A"] = aj_calo_pata_a_percent_arr
+new_dataFrame["KG_AJ_CALO_PATA_A"] = aj_calo_pata_a_kg_arr
+new_dataFrame["R$_AJ_CALO_PATA_A"] = aj_calo_pata_a_real_arr
 
-#  new_dataFrame["%_CONDENACOES"] = condenacoes_percent_arr
-#  new_dataFrame["KG_CONDENACOES"] = condenacoes_kg_arr
-#  new_dataFrame["R$_CONDENACOES"] = codenacoes_real_arr
+new_dataFrame["%_CONDENACOES"] = condenacoes_percent_arr
+new_dataFrame["KG_CONDENACOES"] = condenacoes_kg_arr_
+new_dataFrame["R$_CONDENACOES"] = condenacoes_real_arr
 
 #  new_dataFrame["%_AJ_QUALIDADE_QT"] = aj_qualidade_percent_arr
 #  new_dataFrame["KG_AJ_QUALIDADE_QT"] = aj_qualidade_kg_arr
@@ -1252,7 +1406,7 @@ new_dataFrame["R$_AJ_MORTALIDADE"] =  aj_mortalidade_real_arr
 #  new_dataFrame["R$_RESULTADO_LOTE"] = resultado_lote_real_arr
 
 #  new_dataFrame["R$_AVE"] = ave_real_arr
-#  new_dataFrame["R$_TON"] = ton_real_arr
+#  new_dataFrame["R$_TON"] = ton_real_arr21
 #  new_dataFrame["R$_M2"] = m2_real_arr
 #  new_dataFrame["FUNRURAL"] = funrural_arr_f
 #  new_dataFrame["SENAR"] = senar_arr
