@@ -839,6 +839,9 @@ for index, row in df.iterrows():
         
         calo_pata_arr.append({'Data': calo_pata_f, 'id':id_l})
         # print(id_l, calo_pata)
+        
+    if "CALO DE PATA" in new_string or "Calo de Pata" in new_string or "Calo de Pata:" in new_string:
+        print(new_string) 
 
 a_arr = []
 
