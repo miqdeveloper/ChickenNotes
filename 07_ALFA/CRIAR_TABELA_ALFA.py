@@ -648,11 +648,13 @@ for index, row in df.iterrows():
         nd_s = remove_empty_spaces(
             (line_string).replace("Número Documento...:", "").split(" ")
         )[0]
+        
         ded_s = line_string.replace("Data Emissão Doc", "").strip()
         ded_s = ded_s.replace(":", "").replace(".", "").split(" ")[3]
         
         
         ded_s_arr.append({"id": id_l, "Data": ded_s})
+        
         numeric_document_arr.append({"id": id_l, "Data": nd_s})
 
 
@@ -763,6 +765,7 @@ rec_prod_arr = processar_dicionarios(id_unic_arr, rec_prod_arr)
 rec_liq_arr = processar_dicionarios(id_unic_arr, rec_liq_arr)
 rec_head_arr = processar_dicionarios(id_unic_arr, rec_head_arr)
 ded_s_arr = processar_dicionarios(id_unic_arr, ded_s_arr)
+numeric_document_arr = processar_dicionarios(id_unic_arr, numeric_document_arr)
 
 
 # Não aplique processar_dicionarios para arrays simples (listas de valores)
