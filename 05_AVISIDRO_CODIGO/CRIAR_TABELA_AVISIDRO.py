@@ -903,11 +903,10 @@ def main():
                 vrb_f = (vrb_s[0])
                 
             if n_c == 2:
-                vrb_f = (vrb_s[0])         
+                vrb_f = (vrb_s[0])
             
-            if n_c == 3:
-                vrb_f = new_str
-                print(vrb_f)
+            if "nan" in vrb_f:
+                vrb_f = new_str[2]
             
             vrb_f_ = dicio_obj(l_id, vrb_f)
             vrb_arr.append(vrb_f_)
@@ -1557,7 +1556,7 @@ def main():
     # print('depois:', len(integrado_arr_f))
     
     new_dataFrame["CHAVE"] = id_uni_f
-
+    
     new_dataFrame["CLIFOR"] = integrado_id_arr
     new_dataFrame["INTEGRADO"] = integrado_nome_arr
     new_dataFrame["ENDERECO"] = endereco_arr_
@@ -1596,7 +1595,9 @@ def main():
     new_dataFrame["%BRUTO_LOTE"] = rbl_percent_arr_
     new_dataFrame["KG_BRUTO_LOTE"] = rbl_kg_arr_
     new_dataFrame["$BRUTO_LOTE"] = rbl_real_arr_
+    
     new_dataFrame["V_RENDA_BRUTA_CREDITO"] = vrb_arr_
+    
     new_dataFrame["V_NF"] = vnf_arr_
     new_dataFrame["V_TOTAL_A_DEPOSITAR"] = vtd_arr_
     new_dataFrame["DIST_KM"] = dkm_arr_
