@@ -1,3 +1,4 @@
+from calendar import c
 from collections import OrderedDict
 from glob import glob
 from math import e, nan
@@ -120,6 +121,10 @@ def limpar_texto(texto):
     
     return padrao
 
+def dicio_obj(idl, value) -> dict:
+    obj = {"id": idl, "Data": value }
+    return obj
+    
 
 file=['Colunas_Criadas_CSV']
 create_dirs(file)
@@ -218,6 +223,7 @@ tota_two_arr = []
 tota_three_arr = []
 
 calo_pata_arr = []
+calo_pata_d_arr = []
 
 new_dataFrame= pd.DataFrame()
 
@@ -841,7 +847,30 @@ for index, row in df.iterrows():
         # print(id_l, calo_pata)
         
     if "CALO DE PATA" in new_string or "Calo de Pata" in new_string or "Calo de Pata:" in new_string:
-        print(new_string) 
+        pct_re = re.compile(r"(?<!\w)[+-]?(?:(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d+)?|(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|\d+(?:[.,]\d+)?)\s?%")
+
+        c_d_p = remove_chars_s_points(new_string).split(" ")
+        c_d_p = str(" ".join(c_d_p[-8:]))
+        c_d_p = c_d_p.replace("CALO DE PATA", "").replace("Calo de Pata", "").replace("Calo de Pata:", "").replace(".", "").replace("DE", "")
+        c_d_p = c_d_p.split("REF")
+        
+        cdp = (c_d_p[-1])
+        cdp_f = re.findall(pct_re, cdp)
+        if not cdp_f:
+            cdp_f = "nan"
+        cdp_f = cdp_f[0]
+        
+        cdp_f = dicio_obj(id_l, cdp_f)
+        calo_pata_d_arr.append(cdp_f)
+        
+        # if len(find_numbers(c_d_p)) == 2:
+        #     print(c_d_p)
+        # if len(find_numbers(c_d_p)) == 3:
+        #     print(c_d_p)
+        # if len(find_numbers(c_d_p)) == 4:
+        #     print(c_d_p)
+        
+
 
 a_arr = []
 
@@ -936,6 +965,7 @@ imposto_f_arr = processar_dicionarios(id_unic_arr, imposto_f_arr)
 odc_arr = processar_dicionarios(id_unic_arr, odc_arr)
 conversao_ali_ajustada_arr = processar_dicionarios(id_unic_arr, conversao_ali_ajustada_arr)
 calo_pata_arr = processar_dicionarios(id_unic_arr, calo_pata_arr)
+calo_pata_d_arr = processar_dicionarios(id_unic_arr, calo_pata_d_arr)
 # 
 # ganho_diario_arr
 
@@ -1013,6 +1043,7 @@ new_dataFrame["TOTAL_2"] = tota_two_arr
 new_dataFrame["TOTAL_3"] = tota_three_arr
 
 new_dataFrame["CALO_PATA"] = calo_pata_arr
+new_dataFrame["CALO_PATA_D"] = calo_pata_d_arr
 
 
 print("Salvando arquivo...")
