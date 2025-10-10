@@ -10,6 +10,7 @@ import re
 
 from warnings import simplefilter
 
+
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
 def get_date_now():
@@ -162,6 +163,11 @@ def ler_lista(dados):
         contas_correntes[conta_principal][conta_secundaria] = (descricao, valor)
     
     return
+
+def dicio_obj(idl, value) -> dict:
+    obj = {"id": idl, "Data": value }
+    return obj
+
 
 def separate_():
 
@@ -400,7 +406,9 @@ def separate_():
         new_str = re.sub(r"\[|\]", "", line_item)
                 
         new_str = remove_chars(new_str)
-
+        if "," in new_str:
+            id_l = new_str.split(", ")[0]
+        
         for item in arr_filter:
             if(item in new_str):
                     #get_integrado e atributo
@@ -1236,7 +1244,7 @@ def separate_():
                         if not aj_calo_pata_percent:
                             aj_calo_pata_percent = aj_calo_pata_separate[-1].split(" ")[0]
                         
-                        aj_calo_pata_a_percent_arr.append(aj_calo_pata_percent)
+                        aj_calo_pata_a_percent_arr.append( dicio_obj(id_l, aj_calo_pata_percent))
                         
                         
                         # GET_Aj Calo Pata A_KG
@@ -1247,34 +1255,34 @@ def separate_():
                         if len(aj_calo_pata_kg) == 3:
                             aj_calo_pata_kg_f =  aj_calo_pata_kg[1]
                             
-                        aj_calo_pata_a_kg_arr.append(aj_calo_pata_kg_f)
+                        aj_calo_pata_a_kg_arr.append(dicio_obj(id_l, aj_calo_pata_kg_f))
                         
                         # GET_Aj Calo Pata A_$
                         aj_calo_pata_real_f = aj_calo_pata_separate[-1].split(" ")[-1]
-                        aj_calo_pata_a_real_arr.append(aj_calo_pata_real_f)
+                        aj_calo_pata_a_real_arr.append(dicio_obj(id_l, aj_calo_pata_real_f))
                       
                     if n_c_ == 4:
                         aj_calo_pata_percent = aj_calo_pata_separate[1].replace("Aj Calo Pata A ", "").replace("Aj Calo Pata A", "")
-                        aj_calo_pata_a_percent_arr.append(aj_calo_pata_percent)
+                        aj_calo_pata_a_percent_arr.append(dicio_obj(id_l, aj_calo_pata_percent))
                         
                         aj_calo_pata_kg_f = aj_calo_pata_separate[2]
-                        aj_calo_pata_a_kg_arr.append(aj_calo_pata_kg_f)
+                        aj_calo_pata_a_kg_arr.append(dicio_obj(id_l, aj_calo_pata_kg_f))
                         
                         aj_calo_pata_real_f = aj_calo_pata_separate[-1]
                         if " " in aj_calo_pata_real_f:
                             aj_calo_pata_real_f = aj_calo_pata_real_f[-1]
                             
-                        aj_calo_pata_a_real_arr.append(aj_calo_pata_real_f)
+                        aj_calo_pata_a_real_arr.append(dicio_obj(id_l, aj_calo_pata_real_f))
                     if n_c_ == 5:
                         aj_calo_pata_percent = aj_calo_pata_separate[2]
-                        aj_calo_pata_a_percent_arr.append(aj_calo_pata_percent)
+                        aj_calo_pata_a_percent_arr.append(dicio_obj(id_l, aj_calo_pata_percent))
                         
                         aj_calo_pata_kg_f = aj_calo_pata_separate[3]
-                        aj_calo_pata_a_kg_arr.append(aj_calo_pata_kg_f)
+                        aj_calo_pata_a_kg_arr.append(dicio_obj(id_l, aj_calo_pata_kg_f))
 
                         aj_calo_pata_real_f = aj_calo_pata_separate[-1]
-                        aj_calo_pata_a_real_arr.append(aj_calo_pata_real_f)
-                
+                        aj_calo_pata_a_real_arr.append(dicio_obj(id_l, aj_calo_pata_real_f))
+                        
                 # GET_ AJ_CONDENACOES
                 if arr_filter[41] == item:
                     
@@ -1948,9 +1956,9 @@ def separate_():
 
                     if n_c == 5:
                         pass
-                    percent_calo_real_arr.append(clpta_f)
-                    percent_calo_prev_arr.append(clpta_prev_f)
-                    percent_calo_dife_arr.append(clpta_dif_f)
+                    percent_calo_real_arr.append(dicio_obj(id_l, clpta_f))
+                    percent_calo_prev_arr.append(dicio_obj(id_l, clpta_prev_f))
+                    percent_calo_dife_arr.append(dicio_obj(id_l, clpta_dif_f))
 
                 if arr_filter[56] == item:
                     p_arran_r_s = (remove_empty_spaces(new_str.split(", ")))
@@ -2187,8 +2195,13 @@ def separate_():
     conta_vinculada = processar_dicionarios(key_arr, conta_vinculada)
     senar_arr =  processar_dicionarios(key_arr, senar_arr)
     renda_liquida_ave_arr = processar_dicionarios(key_arr, renda_liquida_ave_arr)
-    
-    
+    aj_calo_pata_a_percent_arr = processar_dicionarios(key_arr, aj_calo_pata_a_percent_arr)
+    aj_calo_pata_a_kg_arr = processar_dicionarios(key_arr, aj_calo_pata_a_kg_arr)
+    aj_calo_pata_a_real_arr = processar_dicionarios(key_arr, aj_calo_pata_a_real_arr)
+    percent_calo_real_arr = processar_dicionarios(key_arr, percent_calo_real_arr)
+    percent_calo_prev_arr = processar_dicionarios(key_arr, percent_calo_prev_arr)
+    percent_calo_dife_arr = processar_dicionarios(key_arr, percent_calo_dife_arr)
+
     new_dataFrame["CHAVE"] = key_arr
     new_dataFrame["CLIFOR"] =  clifor_arr
     new_dataFrame["INTEGRADO"] = name_arr
