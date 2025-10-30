@@ -148,6 +148,33 @@ def main():
     lesao_inflamatoria_arr = []
     sindrome_ascite_arr_  = []
     lesao_trau_antiga_arr = []
+    abscesso_ft_101_arr= []
+    artrite_ft_102_arr = []
+    ascite_ft_104_arr = []
+    celulite_ft_108_arr = []
+    colibacilose_ft_109_arr  = []
+    dermatose_ft_110_arr = []
+    neoplasia_ft_117_arr = []
+    tumores_ft_131_arr = []
+    pericardite_ft_132_arr = []
+    lesao_de_pele_ft_151_arr = []
+    sindrome_hemorragica_ft_152_arr = []
+    lesao_inflamatoria_ft_153_arr = []
+    calo_no_peito_ft_159_arr  = []
+    contaminacao_nao_gi_ft_163_arr = []
+    contaminacao_gastrointestinal_e_b_ft_179_arr = []
+    estados_anormais_ou_patologicos_ft_194_arr = []
+    contaminacao_papo_pendular_ft_688_arr = []
+    contusao_ft_765_arr = []
+    arsl_ft_arr = []
+    contusao_fratura_ft_636_arr = []
+    miopatia_ft_170_arr = []
+    lesao_traumatica_antiga_ft_135_arr = []
+    
+    
+    
+    
+    
     
     print("Filtrando aguarde...")
     for index, row in df.iterrows():
@@ -165,43 +192,56 @@ def main():
             
         # nan = volte para ajustar 
         if "FT" in line_item:
-            # print(new_str)
-            ft_sep = remove_empty_spaces(new_str[1].replace("FT", "").split(" "))
-            ft_f = (ft_sep)[0]
-            if "Condenação" in ft_sep:
-                ft_f_c = df.loc[int(index)-5][0]
-                ft_f_c = ast.literal_eval(ft_f_c)[1]
-                if "FT" in ft_f_c:
-                    ft_f = ft_f_c.replace("FT", "").strip().split(" ")[0]
-                # ajuste apartir daqui
-            ft_arr.append(dicio_obj(id_l, ft_f))
-        
-        
+            ft_f = (line_item)
+            
+            pattern = re.compile(
+                r"FT\s+(\d{1,3}(?:\.\d{3})*)\s+([\d.,]+%)",
+                flags=re.IGNORECASE
+            )
+
+            match = pattern.search(ft_f)
+            if match:
+                qtde_ = (match.group(1) or "nan")   # ex: "798"
+                cond_ = (match.group(2) or "nan")   # ex: "1,589%"
+                # print("qtde_:", qtde_)
+                # print("cond_:", cond_)
+            ft_arr.append(dicio_obj(id_l, qtde_))
+
         if "FP" in line_item:
-            fp_f = None
-            fp_s = remove_empty_spaces(new_str[1].split("FP"))
-            # fp_s = type(fp_s)
-            len_nc = len(fp_s)
-            if len_nc == 2:
-                fp_f = (fp_s[1].strip().split(" "))[0]
-                # print(fp_f)
-                if not find_numbers(fp_f):
-                    fp_f_s = ast.literal_eval(df.loc[int(index)-5][0])
-                    fp_f_s = fp_f_s[1].strip()
-                    fp_f_s = remove_empty_spaces(fp_f_s.split("FP"))
-                    if len(fp_f_s) == 2:
-                        fp_f = (fp_f_s[1].strip())
-                    if len(fp_f_s) == 1:
-                        if find_numbers(ast.literal_eval(df.loc[int(index)-5][0])[-1]):
-                           fp_f = (ast.literal_eval(df.loc[int(index)-5][0])[-1]).split(" ")[0]
-                if find_numbers(fp_f):
-                    fp_f = fp_f
-                    fp_arr.append(dicio_obj(id_l, fp_f))
-                    
-                    # print(fp_f)
-                
-            # if fp_f:
-            fp_arr.append(dicio_obj(id_l, fp_f))
+            fp_f = line_item.replace(", ", "").replace("nan", "").replace(",nan", "")
+            pattern = re.compile(
+                r"""
+                FP                   # literal FP
+                (?:'|n*a*n*)*        # pode ter aspas ou 'nan' depois
+                [^0-9]*              # ignora até número
+                ('?(\d{1,3}(?:\.\d{3})*|\d+(?:,\d+)?))  # grupo 2: quantidade (com ou sem aspas)
+                (?:'|n*a*n*)*[^0-9]* # ignora aspas, nan, espaços
+                ('?(\d+(?:[.,]\d+)?%))                  # grupo 4: percentual (com ou sem aspas)
+                """,
+                flags=re.IGNORECASE | re.VERBOSE
+            )
+            
+            pattern_colado = re.compile(
+                r"FP'?(\d{1,3}(?:\.\d{3})*|\d+(?:,\d+)?)'(\d+(?:[.,]\d+)?%)",
+                flags=re.IGNORECASE
+            )
+            
+            match = pattern.search(fp_f)
+
+            if match:
+                qtde_ = match.group(1) # Ex: 3.393
+                cond_ = match.group(2) or "nan"  # Ex: 27,032%
+
+            if not match:
+                # if "30295607777-2306" in (line_item):
+                match = pattern_colado.search(fp_f.replace(",nan", "").replace("nan", ""))
+                if match:
+                    qtde_ = match.group(1)
+                    cond_ = match.group(2)
+                if not match:
+                    if  "30295614994-2301" in line_item:
+                        print(fp_f, line_item)
+            fp_arr.append(dicio_obj(id_l, qtde_))
             
             # fp_arr = [dicio_obj(id_l, x) for x in fp_arr if x is not None]
         
@@ -249,12 +289,12 @@ def main():
 
                 caquexia_arr.append(dicio_obj(id_l, cqx_f))
 
-        
         if "Sindrome Ascite" in line_item:
             sda_s = new_str
             nc = len(sda_s)
             if nc == 1:
-                print(sda_s)
+                # print(sda_s)
+                pass
             if nc == 2:
                 sda_s = remove_empty_spaces(sda_s[1].split("157 Sindrome Ascite"))
                 sda_s = remove_empty_spaces(sda_s[0].split(" "))
@@ -323,39 +363,46 @@ def main():
                     aero_sec_f = remove_empty_spaces(aero_sec_s)[3]
                     
             aerosaculite_arr.append(dicio_obj(id_l, aero_sec_f))
-        
+        # 226 Artrite FP 
         if "Artrite" in line_item:
-            art_s = new_str
-            if len(art_s) == 2:
-                # print(art_s)
-                pass
-            if len(art_s) == 3:
-                art_s  = remove_empty_spaces( art_s[1].split("Artrite") )
-                # print(art_s)
-                if len(art_s) == 2:
-                    art_s = remove_empty_spaces(art_s[-1].split(" "))
-                    if len(art_s) == 1:
-                        art_f = art_s[0]
-                    if len(art_s) > 1:
-                        art_f = "nan"
-                    artrite_arr.append(dicio_obj(id_l, art_f))
-                    
-            if len(art_s) == 4:
-               if "226 Artrite" in line_item:
-                    art_f = (art_s[2])
-                    if "226 Artrite" in art_f:
-                        art_f = remove_empty_spaces(art_s[3].split(" "))[0]
-                    else:
-                        art_f = "nan"
-                    artrite_arr.append(dicio_obj(id_l, art_f))
+            art_s = line_item
+            art_s = str (art_s)
             
-            if len(art_s) == 5:
-                art_f = (art_s[3])
-                if find_numbers(art_f):
-                    art_f = (art_s[3])
-                else:
-                    art_f = "nan"
-                artrite_arr.append(dicio_obj(id_l, art_f))
+            if "226 Artrite" in art_s:
+                # print(art_s)
+                parts = re.findall(r"'([^']*)'", art_s)
+                # print(parts) 
+                qtde_, cond_ = 0, "nan"
+
+                for i, chunk in enumerate(parts):
+                    if "226 Artrite" in chunk:
+                        # print(chunk)
+                        # tentar achar número e percentual no mesmo trecho
+                        m_same = re.search(
+                            r'226\s+Artrite\s+(\d{1,3}(?:\.\d{3})*)\s+(\d+(?:[.,]\d+)?%)',
+                            chunk,
+                            re.IGNORECASE
+                        )
+                        if m_same:
+                            qtde_ = m_same.group(1)
+                            cond_ = m_same.group(2)
+                        else:
+                            # tentar no próximo trecho
+                            if i + 1 < len(parts):
+                                prox = parts[i + 1]
+                                m_next = re.search(
+                                    r'(\d{1,3}(?:\.\d{3})*)\s+(\d+(?:[.,]\d+)?%)',
+                                    prox
+                                )
+                                if m_next:
+                                    qtde_ = m_next.group(1)
+                                    cond_ = m_next.group(2)
+                        break  # encontrou, sai do loop
+
+                # normalizar a quantidade
+                qtde_norm = (qtde_) if qtde_ != 0 else 0
+
+                artrite_arr.append(dicio_obj(id_l, str(qtde_norm)))
                 
         if "Celulite" in line_item:
             celulite_s = line_item.replace("%", "% ")
@@ -434,33 +481,36 @@ def main():
         
         if "Sindrome Ascite" in  line_item:
             if "256 Sindrome Ascite" in line_item:
-                sda_s = new_str
-                nc_ = len(sda_s)
-                
-                
-                if nc_ == 2:
-                    sda_s = sda_s[1].replace("%", "% ")
-                    sda_f = (sda_s).split("256 Sindrome Ascite")[-1]
-                    sda_f = sda_f.strip()
-                    
-                if nc_ == 3:
-                    sda_s = remove_empty_spaces(sda_s[-1].split(" "))
-                    if not "%" in sda_s[0]:
-                        sda_f = sda_s
-                    else:
-                        sda_f = new_str[1].split("Ascite")[-1]
-                        sda_f = sda_f.strip()
-                        
-                if nc_ == 4:
-                    sda_f = new_str[2]
-                    
-                # if nc_ == 5:
-                #     sda_s = new_str
-                #     print(sda_s)
-                    
-                # if nc_ == 6:
-                #     pass
-                sindrome_ascite_arr_.append(dicio_obj(id_l, sda_f))
+                sda_s = line_item
+                parts = re.findall(r"'([^']*)'", sda_s)
+                qtde_, cond_ = 0, "nan"
+
+                for i, chunk in enumerate(parts):
+                    if "256 Sindrome Ascite" in chunk:
+                        # procurar dentro do mesmo trecho
+                        m_same = re.search(
+                            r'256\s+Sindrome\s+Ascite\s+(\d{1,3}(?:\.\d{3})*)\s+(\d+(?:[.,]\d+)?%)',
+                            chunk, re.IGNORECASE
+                        )
+                        if m_same:
+                            qtde_ = m_same.group(1)
+                            cond_ = m_same.group(2)
+                        else:
+                            # tentar no próximo pedaço
+                            if i + 1 < len(parts):
+                                prox = parts[i + 1]
+                                m_next = re.search(
+                                    r'(\d{1,3}(?:\.\d{3})*)\s+(\d+(?:[.,]\d+)?%)',
+                                    prox
+                                )
+                                if m_next:
+                                    qtde_ = m_next.group(1)
+                                    cond_ = m_next.group(2)
+                        break
+
+                qtde_norm = int(qtde_.replace('.', '')) if qtde_ != 0 else 0
+                sindrome_ascite_arr.append(dicio_obj(id_l, str(qtde_norm)))
+                # sindrome_ascite_arr_.append(dicio_obj(id_l, sda_f))
         
         if "Lesão Traumática Antiga" in line_item:
             lta_s = new_str
@@ -489,8 +539,285 @@ def main():
                 lta_s = new_str[2]
 
             lesao_trau_antiga_arr.append(dicio_obj(id_l, lta_f))
+        
+        # precisa ajustar todos acima com qtde - poercetagem
+        if "Abcesso" in line_item:
+            abs_s = new_str[1].replace('%', '% ').strip()
+            if "101 Abc" in abs_s:
+                abs_s = remove_empty_spaces(abs_s.split("101 Abcesso"))[0].strip()
+                abs_f = abs_s.split(" ")[0]
+            #     nc_ = len(abs_s)
+                if "%" in abs_f:
+                    abs_f = "nan"
+                abs_f = abs_f.strip()
+                abscesso_ft_101_arr.append(dicio_obj(id_l, abs_f))
+        
+        if "Artrite" in line_item:
+            art_s = new_str[1].replace('%', '% ').strip()
+            if '102 Artrite' in art_s:
+                art_s = art_s.replace('102 Artrite', '').strip()
+                art_s = art_s.split(' ')
+                art_f = art_s[0]
+                if "%" in art_f:
+                    art_f = "nan"
+                art_f = art_f.strip()
+                artrite_ft_102_arr.append(dicio_obj(id_l, art_f))
 
+        # FT
+        if "Ascite" in line_item:
+            # 
+            line_item = line_item.replace('%', '% ').strip()
+            m = re.search(r"(?i)\b104\s+Ascite\s+(\d{1,3}(?:\.\d{3})*)\s+[\d.,]+%", line_item)
+            
+            if m:
+                valor = int(m.group(1).replace('.', ''))  # -> 99
+                ascite_ft_104_arr.append(dicio_obj(id_l, str(valor)))
+        
+        # 108 Celulite FT  - separar apartir daqui pra cima 
+        if "Celulite" in line_item: 
+            if "108 Celulite" in line_item:
+                clt_s = line_item.replace('%', '% ').strip()
+                m = re.search(r'(?i)\b108\s+Celulite\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', clt_s)
+                if m:
+                         # texto fixo em uma var
+                    qtde_  = int((m.group(1) or "0").replace('.', ''))  # número após o rótulo (0 se faltar)
+                    cond_  = m.group(2)                               # percentual com '%', ex.: '0,003%'
 
+                    celulite_ft_108_arr.append(dicio_obj(id_l, str(qtde_))) 
+        
+        
+        # 109 Colibacilose FT 
+        if "Colibacilose " in line_item:
+            if "109 Colibacilose" in line_item:
+                clb_s = line_item.replace('%', '% ').strip()
+                
+                match = re.search(r"(\d+)\s+([\d,]+%)", clb_s)
+
+                if match:
+                    qtde_ = match.group(1)     # '5'
+                    cond_ = match.group(2)     # '0,006%'
+                    
+                    colibacilose_ft_109_arr.append(dicio_obj(id_l, qtde_))
+        
+        # 110 Dermatose FT
+        if "Dermatose" in line_item:
+            if "110 Dermatose" in line_item:
+                dmts_s = line_item.replace('%', '% ').strip()
+                match = re.search(r"110\s+Dermatose\s+(\d+)\s+([\d,]+%)", dmts_s)
+                if match:
+                    qtde_d = str(match.group(1))   # Ex: 14
+                    cond_d = match.group(2)   # Ex: 0,018%
+                    dermatose_ft_110_arr.append(dicio_obj(id_l, qtde_d))
+        
+        # 117 Neoplasia FT
+        if "Neoplasia" in line_item:
+            if "117 Neoplasia" in line_item:
+                npls_s = line_item.replace('%', '% ').strip()
+                match = re.search(r"117\s+Neoplasia\s+(\d+)\s+([\d,]+%)", npls_s)
+                if match:
+                    qtde_n = str(match.group(1))   # Ex: 14
+                    cond_n = match.group(2)   # Ex: 0,018%
+                    neoplasia_ft_117_arr.append(dicio_obj(id_l, qtde_n))
+        
+        # 131 Tumores FT
+        if "Tumores" in line_item:
+            if "131 Tumores" in line_item:
+                tmr_s = line_item.replace('%', '% ').strip()
+                
+                m = re.search(r'(?i)\b131\s+Tumores\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', tmr_s)
+                if m:
+                    qtde_ = int((m.group(1) or "0").replace('.', ''))   # número após o código
+                    cond_ = m.group(2)                                 # percentual ex: '0,003%'
+                else:
+                    qtde_, cond_ = 0, "nan"
+
+                tumores_ft_131_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # 132 Pericardite FT
+        if "Pericardite" in line_item:
+            if "132 Pericardite" in line_item:
+                per_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b132\s+Pericardite\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', per_s)
+                                
+                if match:
+                    qtde_p = str(match.group(1) or "0").replace('.', '')   # Ex: 14 
+                    cond_p = match.group(2)   # Ex: 0,018%
+                    pericardite_ft_132_arr.append(dicio_obj(id_l, qtde_p))
+                else:
+                    qtde_p, cond_p = 0, "nan"
+    
+        # 151 Lesão de pele FT
+        if "Lesão de pele" in line_item or "Lesao de pele" in line_item:
+            if "151 Lesão de pele" in line_item or "151 Lesao de pele" in line_item:
+                line_item = line_item.replace("Lesão de pele", "Lesao de pele")
+                ldp_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b151\s+Lesao de pele\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', ldp_s)
+                if match:
+                    qtde_ = int((match.group(1) or "0").replace('.', '')) # número após o código
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                else:
+                    qtde_, cond_ = 0, "nan"
+
+                lesao_de_pele_ft_151_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # 152 Sindrome Hemorragica FT
+        if "Sindrome Hemorragica" in line_item or "Síndrome Hemorrágica" in line_item:
+            if "152 Sindrome Hemorragica" in line_item or "152 Síndrome Hemorrágica" in line_item:
+                line_item = line_item.replace("Síndrome Hemorrágica", "Sindrome Hemorragica")
+                sh_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b152\s+Sindrome Hemorragica\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', sh_s)
+                if match:
+                    qtde_ = int((match.group(1) or "0").replace('.', '')) # número após o código
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                else:
+                    qtde_, cond_ = 0, "nan"
+
+                sindrome_hemorragica_ft_152_arr.append(dicio_obj(id_l, str(qtde_)))
+                
+        if "Lesão Inflamatória" in line_item or "Lesao Inflamatoria" in line_item:
+            if "153 Lesão Inflamatória" in line_item or "153 Lesao Inflamatoria" in line_item:
+                line_item = line_item.replace("Lesão Inflamatória", "Lesao Inflamatoria")
+                li_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b153\s+Lesao Inflamatoria\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', li_s)
+                if match:
+                    qtde_ = int((match.group(1) or "0").replace('.', '')) # número após o código
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                else:
+                    qtde_, cond_ = 0, "nan"
+
+                lesao_inflamatoria_ft_153_arr.append(dicio_obj(id_l, str(qtde_)))            
+        
+        # 163 Contaminação FT
+        if "Contaminação" in line_item:
+            if "163 Contaminação" in line_item:
+                cn_gi_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b163\s+Contaminação Não GI\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', cn_gi_s)
+                if match:
+                    qtde_ = int((match.group(1) or "0").replace('.', '')) # número após o código
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                else:
+                    qtde_, cond_ = 0, "nan"
+
+                contaminacao_nao_gi_ft_163_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # 179 Contaminação Gastrointestinal e B FT
+        if "Contaminação Gastrointestinal e B" in line_item:
+            if "179 Contaminação Gastrointestinal" in line_item:
+                cgb_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b179\s+Contaminação Gastrointestinal e B\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', cgb_s)
+                if match:
+                    qtde_ = str((match.group(1) or "0").replace('.', '')) # número após o código
+                    # print( qtde_, line_item)
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                else:
+                    qtde_, cond_ = 0, "nan"
+
+                contaminacao_gastrointestinal_e_b_ft_179_arr.append(dicio_obj(id_l, str(qtde_)))
+
+        # 194 Estados Anormais ou Patológicos ft
+        if "194 Estados Anormais ou Patológicos" in line_item:
+            if "194 Estados Anormais ou Patológicos" in line_item:
+                eaop_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b194\s+Estados Anormais ou Patológicos\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', eaop_s)
+                if match:
+                    qtde_ = int((match.group(1) or "0").replace('.', '')) # número após o código
+                    # print( qtde_, line_item)
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                else:
+                    qtde_, cond_ = 0, "nan"
+
+                estados_anormais_ou_patologicos_ft_194_arr.append(dicio_obj(id_l, str(qtde_)))
+    
+        if "Contusão" in line_item:
+            cta_s = new_str
+            if "765 Contusão" in line_item:
+                # s = line_item.replace('%', '% ').strip()
+                cta_s = new_str[1].replace('%', '% ').strip()
+                cta_s = remove_empty_spaces(cta_s.split("765 Contusão"))
+                cta_f = None
+                # print(cta_s)
+                if not cta_s:
+                    cta_f  = remove_empty_spaces(new_str[2].split(" "))[0]
+                else:
+                    cta_f = (cta_s[0]).strip()
+                
+                contusao_ft_765_arr.append(dicio_obj(id_l, str(cta_f)))
+
+        # miopatia_ft_170
+        if "Miopatia" in line_item:
+            if "170 Miopatia" in line_item:
+                miop_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b170\s+Miopatia\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', miop_s)
+                if match:
+                    qtde_ = int((match.group(1) or "0").replace('.', '')) # número após o código
+                    # print( qtde_, line_item)
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                    miopatia_ft_170_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # 636 Contusão/Fratura
+        if "Contusão/Fratura" in line_item:
+            if "636 Contusão/Fratura" in line_item or "636 Contusao/Fratura" in line_item:
+                cft_s = line_item.replace('%', '% ').strip()
+                match = re.search(r'(?i)\b636\s+Contusão/Fratura\s+(?:(\d{1,3}(?:\.\d{3})*)\s+)?([\d.,]+%)', cft_s)
+                if match:
+                    qtde_ = int((match.group(1) or "0").replace('.', '')) # número após o código
+                    cond_ = match.group(2)                                 # percentual ex: '0,003%'
+                    contusao_fratura_ft_636_arr.append(dicio_obj(id_l, str(qtde_)))
+            
+        if "Calo no Peito" in line_item:
+            cnp_s  = line_item.replace('%', '% ').strip()
+            if "159 Calo no Peito" in line_item:
+                pattern_cnp = re.compile(
+                r"159\s*Calo\s+no\s+Peito"          # texto fixo
+                r"(?:\s+([\d.,]+)\s*%)?"            # grupo 1: percentual à direita (opcional)
+                # r"(?:.*?\s+(\d{1,3}(?:\.\d{3})*|\d+(?:,\d+)?))?"  # grupo 2: número isolado (ex: 220, 253, 148)
+                , flags=re.IGNORECASE
+            )
+            
+                match = pattern_cnp.search(cnp_s)
+                if match:
+                    qtde_ = match.group(1)
+                calo_no_peito_ft_159_arr.append(dicio_obj(id_l, str(qtde_)))
+                    # conde_ = match.group(2)
+                    # print(qtde_, cnp_s)
+                # 
+        
+        # 688 Contaminação Papo Pendular - FT
+        if "688 Contaminação Papo Pendular" in line_item or "Contaminaçao Papo Pendular"  in line_item or "Contaminacao Papo Pendular" in line_item:
+            cpp_s = line_item.replace('%', '% ')
+            # print(cpp_s)
+
+            pattern_cpp = re.compile(
+    r"(?:\b\d{1,3}[.,]\d{1,3}%\s*)?"                # opcional: percentual antes do texto
+    r"688\s+Contamina[çc][aã]o\s+Papo\s+Pendular"   # texto fixo com cedilha e variantes
+    r"(?:\s+0,?0*%\s*)?"                            # opcional: '0,000%' logo após o texto
+    r"(?:[^0-9]+)?"                                 # ignora palavras como 'Artrite', 'Lesão', etc.
+    r"(\d{1,4}(?:[.,]\d{3})*|\d+)"                  # grupo 1: número após o 0,000% (ex: 253)
+    r"(?:\s*[^\d%]+)?"                              # ignora palavras entre o número e o percentual
+    r"([\d.,]+%)",                                  # grupo 2: percentual (ex: 3,389%)
+    flags=re.IGNORECASE
+)
+            m = pattern_cpp.search(cpp_s)
+            if m:
+                qtde_ = m.group(1)
+                # print( qtde_, cpp_s)
+                cond_ = m.group(2)
+            contaminacao_papo_pendular_ft_688_arr.append(dicio_obj(id_l, str(qtde_)))
+                
+        if "" in line_item:
+            pass
+        
+        if "" in line_item:
+            pass
+        if "" in line_item:
+            pass
+        if "" in line_item:
+            pass
+
+    
+    
+    
+    
     id_uni_f = remover_duplicatas(id_uni)
     
     # integrado_arr_f = list(set(integrado_arr))
@@ -512,42 +839,127 @@ def main():
     lesao_inflamatoria_arr = processar_dicionarios(id_uni_f, lesao_inflamatoria_arr)
     sindrome_ascite_arr_ = processar_dicionarios(id_uni_f, sindrome_ascite_arr_)
     lesao_trau_antiga_arr = processar_dicionarios(id_uni_f, lesao_trau_antiga_arr)
-    
-    
-    
-    
-    
-    
-    
-    
+    abscesso_ft_101_arr = processar_dicionarios(id_uni_f, abscesso_ft_101_arr)
+    artrite_ft_102_arr = processar_dicionarios(id_uni_f, artrite_ft_102_arr)
+    ascite_ft_104_arr = processar_dicionarios(id_uni_f, ascite_ft_104_arr)
+    celulite_ft_108_arr = processar_dicionarios(id_uni_f, celulite_ft_108_arr)
+    colibacilose_ft_109_arr  = processar_dicionarios(id_uni_f, colibacilose_ft_109_arr)
+    dermatose_ft_110_arr    = processar_dicionarios(id_uni_f, dermatose_ft_110_arr)
+    neoplasia_ft_117_arr = processar_dicionarios(id_uni_f, neoplasia_ft_117_arr)
+    tumores_ft_131_arr = processar_dicionarios(id_uni_f, tumores_ft_131_arr)
+    pericardite_ft_132_arr = processar_dicionarios(id_uni_f, pericardite_ft_132_arr)
+    lesao_de_pele_ft_151_arr = processar_dicionarios(id_uni_f, lesao_de_pele_ft_151_arr)
+    sindrome_hemorragica_ft_152_arr = processar_dicionarios(id_uni_f, sindrome_hemorragica_ft_152_arr)
+    lesao_inflamatoria_ft_153_arr   = processar_dicionarios(id_uni_f, lesao_inflamatoria_ft_153_arr)
+    contaminacao_nao_gi_ft_163_arr  = processar_dicionarios(id_uni_f, contaminacao_nao_gi_ft_163_arr)
+    contaminacao_gastrointestinal_e_b_ft_179_arr = processar_dicionarios(id_uni_f, contaminacao_gastrointestinal_e_b_ft_179_arr)
+    estados_anormais_ou_patologicos_ft_194_arr = processar_dicionarios(id_uni_f, estados_anormais_ou_patologicos_ft_194_arr)
+    contusao_ft_765_arr = processar_dicionarios(id_uni_f, contusao_ft_765_arr)
+    miopatia_ft_170_arr = processar_dicionarios(id_uni_f, miopatia_ft_170_arr)
+    contusao_fratura_ft_636_arr = processar_dicionarios(id_uni_f, contusao_fratura_ft_636_arr)
+    calo_no_peito_ft_159_arr =  processar_dicionarios(id_uni_f, calo_no_peito_ft_159_arr)
+    contaminacao_papo_pendular_ft_688_arr = processar_dicionarios(id_uni_f, contaminacao_papo_pendular_ft_688_arr)
+    lesao_traumatica_antiga_ft_135_arr = processar_dicionarios(id_uni_f, lesao_traumatica_antiga_ft_135_arr)
     
     new_dataFrame["CHAVE"] = id_uni_f
     new_dataFrame["FT"] = ft_arr_r
     new_dataFrame["FP"] = fp_arr_
-    new_dataFrame["Aerossaculite_FT"] = arsl_ft_arr
-    new_dataFrame["Aspecto Repugnante"] = aspect_repug_arr
-    new_dataFrame["Septicemia"] = septicemia_arr
-    new_dataFrame["caqueixa"] = caquexia_arr
-    new_dataFrame["Sindrome Ascite"] = sindrome_ascite_arr
-    
-    new_dataFrame["Lesão de pele"] = lesao_pele_arr
 
-    new_dataFrame["Contaminação Gastrointestinal e B"] = contaminacao_b_arr
+    new_dataFrame["ASPECTO_REPUGNANTE_FT_112"] = aspect_repug_arr
+    new_dataFrame["SEPTICEMIA_FT_130"] = septicemia_arr
+    new_dataFrame["CAQUEXIA_FT_105"] = caquexia_arr
+    new_dataFrame["SINDROME_ASCITE_FT_157"] = sindrome_ascite_arr
+
+    new_dataFrame["LESAO_DE_PELE_FP_251"] = lesao_pele_arr
+    new_dataFrame["CONTAMINACAO_GASTROINTESTINAL_E_B_FP_179"] = contaminacao_b_arr
+
     
-    new_dataFrame["Aerossaculite"] = aerosaculite_arr
-    new_dataFrame["Artrite"] = artrite_arr
-    new_dataFrame["Celulite"] = celulite_arr
-    new_dataFrame["LESAO_DE_PELE_251"] = lesao_pele_arr_251
-    new_dataFrame["LESAO_INFLAMATORIA"] = lesao_inflamatoria_arr
-    new_dataFrame["SIDROME_ASCIT"] = sindrome_ascite_arr
-    new_dataFrame["LESAO_TRAUMATICA_ANTIGA"] = lesao_trau_antiga_arr
+    new_dataFrame["AEROSSACULITE_FP_220"]  = aerosaculite_arr
+    new_dataFrame["ARTRITE_FP_226"] = artrite_arr
     
     
+    new_dataFrame["CELULITE_FP_245"] = celulite_arr
+    new_dataFrame["LESAO_DE_PELE_FP_251"] = lesao_pele_arr_251
+    new_dataFrame["LESAO_INFLAMATORIA_FP_253"] = lesao_inflamatoria_arr
+    new_dataFrame["SINDROME_ASCITE_FP_256"] = sindrome_ascite_arr     # (antes: "SIDROME_ASCIT")
+    new_dataFrame["LESAO_TRAUMATICA_ANTIGA_FP_299"] = lesao_trau_antiga_arr
+    new_dataFrame["ABSCESSO_FT_101"]                       = abscesso_ft_101_arr
+    new_dataFrame["ARTRITE_FT_102"]                        = artrite_ft_102_arr
+    new_dataFrame["ASCITE_FT_104"]                         = ascite_ft_104_arr
+    new_dataFrame["CELULITE_FT_108"]                       = celulite_ft_108_arr
+    new_dataFrame["COLIBACILOSE_FT_109"]                   = colibacilose_ft_109_arr
+    new_dataFrame["DERMATOSE_FT_110"]                      = dermatose_ft_110_arr
+    new_dataFrame["NEOPLASIA_FT_117"]                      = neoplasia_ft_117_arr
+    new_dataFrame["TUMORES_FT_131"]                        = tumores_ft_131_arr
+    new_dataFrame["PERICARDITE_FT_132"]                    = pericardite_ft_132_arr
+    new_dataFrame["LESAO_DE_PELE_FT_151"]                  = lesao_de_pele_ft_151_arr
+    new_dataFrame["SINDROME_HEMORRAGICA_FT_152"]           = sindrome_hemorragica_ft_152_arr
+    new_dataFrame["LESAO_INFLAMATORIA_FT_153"]             = lesao_inflamatoria_ft_153_arr
+    new_dataFrame["CALO_NO_PEITO_FT_159"]                  = calo_no_peito_ft_159_arr
+    new_dataFrame["CONTAMINACAO_NAO_GI_FT_163"]            = contaminacao_nao_gi_ft_163_arr
+    new_dataFrame["CONTAMINACAO_GASTROINTESTINAL_E_B_FT_179"] = contaminacao_gastrointestinal_e_b_ft_179_arr
+    new_dataFrame["ESTADOS_ANORMAIS_OU_PATOLOGICOS_FT_194"]   = estados_anormais_ou_patologicos_ft_194_arr
+    
+    new_dataFrame["CONTAMINACAO_PAPO_PENDULAR_FT_688"]     = contaminacao_papo_pendular_ft_688_arr
+    new_dataFrame["CONTUSAO_FT_765"]                       = contusao_ft_765_arr
+    new_dataFrame["AEROSSACULITE_FT_103"] = arsl_ft_arr
+    new_dataFrame["MIOPATIA_FT_170"]                       = miopatia_ft_170_arr
+    new_dataFrame["CONTUSAO_FRATURA_FT_636"]               = contusao_fratura_ft_636_arr
+
+
+
+
+    new_dataFrame["LESAO_TRAUMATICA_ANTIGA_FT_135"]        = lesao_traumatica_antiga_ft_135_arr
+    # new_dataFrame["PROCESSO_INFLAMATORIO_FT_114"]          = processo_inflamatorio_ft_114_arr
+    # new_dataFrame["CANIBALISMO_FT_106"]                    = canibalismo_ft_106_arr
+    # new_dataFrame["NECROSE_CASEOSA_FT_139"]                = necrose_caseosa_ft_139_arr
+    
+    
+    
+
+
+
+
     # lista_c = [(va, id) for id, va in zip(dc_pr_arr, id_uni_f)]
 
 
     print("Salvando arquivo...")
     new_dataFrame.to_csv(f"{file[0]}/sif_tabela{get_date_now()}.csv", mode="w", index=False)
-    input("Arquivo salvo com sucesso...")
+    # input("Arquivo salvo com sucesso...")
 
 main()
+
+
+
+
+# # chaves principais
+# new_dataFrame["CHAVE"] = id_uni_f
+# new_dataFrame["FT"]    = ft_arr_r
+# new_dataFrame["FP"]    = fp_arr_
+
+# # ============================
+# # FT (TOTAL) — arrays únicos
+# # ============================
+
+
+# # ============================
+# # FP (PARCIAL) — arrays únicos
+# # ============================
+# new_dataFrame["CANIBALISMO_FP_206"]                    = canibalismo_fp_206_arr
+# new_dataFrame["AEROSSACULITE_FP_220"]                  = aerossaculite_fp_220_arr -ok 
+# new_dataFrame["PERICARDITE_FP_224"]                    = pericardite_fp_224_arr 
+# new_dataFrame["ABSCESSO_FP_225"]                       = abscesso_fp_225_arr
+# new_dataFrame["ARTRITE_FP_226"]                        = artrite_fp_226_arr -ok 
+# new_dataFrame["CELULITE_FP_245"]                       = celulite_fp_245_arr -ok 
+# new_dataFrame["PROCESSO_INFLAMATORIO_FP_248"]          = processo_inflamatorio_fp_248_arr
+# new_dataFrame["LESAO_DE_PELE_FP_251"]                  = lesao_de_pele_fp_251_arr -ok 
+# new_dataFrame["LESAO_INFLAMATORIA_FP_253"]             = lesao_inflamatoria_fp_253_arr -ok 
+# new_dataFrame["SINDROME_ASCITE_FP_256"]                = sindrome_ascite_fp_256_arr  -ok 
+# new_dataFrame["CALO_NO_PEITO_FP_260"]                  = calo_no_peito_fp_260_arr
+# new_dataFrame["ESTADOS_ANORMAIS_OU_PATOLOGICOS_FP_294"]= estados_anormais_ou_patologicos_fp_294_arr
+# new_dataFrame["LESAO_TRAUMATICA_ANTIGA_FP_299"]        = lesao_traumatica_antiga_fp_299_arr  -ok 
+# new_dataFrame["DERMATOSE_FP_235"]                      = dermatose_fp_235_arr
+# new_dataFrame["MIOPATIA_FP_271"]                       = miopatia_fp_271_arr
+# new_dataFrame["SALPINGITE_FP_244"]                     = salpingite_fp_244_arr
+# new_dataFrame["LESAO_TRAUMATICA_RECENTE_FP_296"]       = lesao_traumatica_recente_fp_296_arr
+# new_dataFrame["TENDINITE_FP_249"]                      = tendinite_fp_249_arr
