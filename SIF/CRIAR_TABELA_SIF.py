@@ -170,9 +170,9 @@ def main():
     contusao_fratura_ft_636_arr = []
     miopatia_ft_170_arr = []
     lesao_traumatica_antiga_ft_135_arr = []
-    
-    
-    
+    processo_inflamatorio_ft_114_arr = []
+    canibalismo_ft_106_arr = []
+    necrose_caseosa_ft_139_arr  = []
     
     
     
@@ -803,14 +803,84 @@ def main():
                 # print( qtde_, cpp_s)
                 cond_ = m.group(2)
             contaminacao_papo_pendular_ft_688_arr.append(dicio_obj(id_l, str(qtde_)))
-                
-        if "" in line_item:
-            pass
         
-        if "" in line_item:
-            pass
-        if "" in line_item:
-            pass
+        #  lesao_traumatica_antiga_ft_135_arr  
+        if "135 Lesão Traumática Antiga" in line_item:
+            ltma_ = line_item.replace('%', '% ')
+            pattern_135 = re.compile(
+                r"(?:\b\d{1,3}[.,]\d{1,3}%\s*)?"                   # opcional: percentual antes do texto
+                r"135\s+Les[aã]o\s+Traum[aá]tica\s+Antiga"         # texto fixo com acentos ou sem
+                r"(?:\s+0,?0*%\s*)?"                               # opcional: '0,000%' logo após o texto
+                r".*?"                                             # qualquer coisa intermediária
+                r"(\d{1,4}(?:[.,]\d{3})*|\d+)"                     # grupo 1: quantidade (ex: 37, 88, 1)
+                r"\s+([\d.,]+%)",                                  # grupo 2: percentual (ex: 0,046%)
+                flags=re.IGNORECASE
+            )
+            
+            m = pattern_135.search(ltma_)
+            if m:
+                qtde_ = m.group(1)
+                cond_ = m.group(2)
+            lesao_traumatica_antiga_ft_135_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # processo_inflamatorio_ft_114_arr
+        if "114 Processo Inflamatório" in line_item:
+            pio_s = line_item.replace('%', '% ')
+            
+            pattern_114 = re.compile(
+                
+            r"(?:\b\d{1,3}[.,]\d{1,3}%\s*)?"                # opcional: percentual antes do texto
+            r"114\s+Processo\s+Inflamat[oó]rio"             # texto fixo com acento opcional
+            r"(?:\s+0,?0*%\s*)?"                            # opcional: '0,000%' logo após o texto
+            r".*?"                                          # qualquer coisa intermediária
+            r"(\d{1,4}(?:[.,]\d{3})*|\d+)"                  # grupo 1: quantidade (ex: 40, 7, 20)
+            r"\s+([\d.,]+%)",                               # grupo 2: percentual (ex: 0,051%)
+            flags=re.IGNORECASE
+        )
+            m=pattern_114.search(pio_s)
+            if m:
+                qtde_ = m.group(1) or "nan"
+                cond_ = m.group(2) or "nan"
+                
+            processo_inflamatorio_ft_114_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # canibalismo_ft_106_arr
+        if "106 Canibalismo" in line_item:
+            cnb_s = line_item.replace('%', '% ')
+            pattern_106 = re.compile(
+                r"106\s+Canibalismo\s+"
+                r"(?:"                              
+                    r"(\d{1,4})\s+([\d.,]+%)"        # CASO 1: 106 Canibalismo 318 0,450%
+                    r"|"
+                    r"(0,?0*%)"                      # CASO 2: 106 Canibalismo 0,000%
+                r")",
+                flags=re.IGNORECASE
+            )
+            m = pattern_106.search(cnb_s)
+            if m:
+                qtde_ = m.group(1) or "nan"
+                cond_ = m.group(2) or "nan"
+                
+            canibalismo_ft_106_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # necrose_caseosa_ft_139_arr
+        if "139 Necrose Caseosa" in line_item:
+            nc_s = line_item.replace('%', '% ')
+            pattern_139 = re.compile(
+            r"139\s+Necrose\s+Caseosa\s+"
+            r"(?:"                       
+                r"(\d{1,4})\s+([\d.,]+%)"  # CASO 1: 139 Necrose Caseosa 12 0,045%
+                r"|"
+                r"(0,?0*%)"                # CASO 2: 139 Necrose Caseosa 0,000%
+            r")",
+            flags=re.IGNORECASE
+        )
+            m=pattern_139.search(nc_s)
+            if m:
+                qtde_ = m.group(1) or "nan"
+                cond_ = m.group(2) or "nan"
+            necrose_caseosa_ft_139_arr.append(dicio_obj(id_l, str(qtde_)))
+        
         if "" in line_item:
             pass
 
@@ -860,6 +930,11 @@ def main():
     calo_no_peito_ft_159_arr =  processar_dicionarios(id_uni_f, calo_no_peito_ft_159_arr)
     contaminacao_papo_pendular_ft_688_arr = processar_dicionarios(id_uni_f, contaminacao_papo_pendular_ft_688_arr)
     lesao_traumatica_antiga_ft_135_arr = processar_dicionarios(id_uni_f, lesao_traumatica_antiga_ft_135_arr)
+    processo_inflamatorio_ft_114_arr = processar_dicionarios(id_uni_f, processo_inflamatorio_ft_114_arr)
+    canibalismo_ft_106_arr = processar_dicionarios(id_uni_f, canibalismo_ft_106_arr)
+    necrose_caseosa_ft_139_arr = processar_dicionarios(id_uni_f, necrose_caseosa_ft_139_arr)
+    
+    
     
     new_dataFrame["CHAVE"] = id_uni_f
     new_dataFrame["FT"] = ft_arr_r
@@ -910,9 +985,9 @@ def main():
 
 
     new_dataFrame["LESAO_TRAUMATICA_ANTIGA_FT_135"]        = lesao_traumatica_antiga_ft_135_arr
-    # new_dataFrame["PROCESSO_INFLAMATORIO_FT_114"]          = processo_inflamatorio_ft_114_arr
-    # new_dataFrame["CANIBALISMO_FT_106"]                    = canibalismo_ft_106_arr
-    # new_dataFrame["NECROSE_CASEOSA_FT_139"]                = necrose_caseosa_ft_139_arr
+    new_dataFrame["PROCESSO_INFLAMATORIO_FT_114"]          = processo_inflamatorio_ft_114_arr
+    new_dataFrame["CANIBALISMO_FT_106"]                    = canibalismo_ft_106_arr
+    new_dataFrame["NECROSE_CASEOSA_FT_139"]                = necrose_caseosa_ft_139_arr
     
     
     
