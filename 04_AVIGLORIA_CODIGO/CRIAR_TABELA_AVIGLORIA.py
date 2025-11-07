@@ -1,3 +1,4 @@
+import array
 from calendar import c
 from collections import OrderedDict
 from glob import glob
@@ -12,6 +13,11 @@ from warnings import simplefilter
 
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 
+
+def remover_percent(string: array) -> list:
+    """Remove percentage signs from a string."""
+    arr =  [s.replace('%', '') for s in string]
+    return arr
 def create_dirs(dirs):
     """Create directories if they don't exist."""
     for dir_ in dirs:
@@ -93,7 +99,7 @@ def processar_dicionarios(id_unic_arr: list, arr_temp: list) -> list:
         Returns:
             list[str]: _description_
         """
-        arr_id = [id_["id"] for id_ in arr_temp]
+        arr_id = [str(id_["id"]) for id_ in arr_temp]
         
         arr_data_final = []
         for id_unico in id_unic_arr:
@@ -122,7 +128,7 @@ def limpar_texto(texto):
     return padrao
 
 def dicio_obj(idl, value) -> dict:
-    obj = {"id": idl, "Data": value }
+    obj = {"Data": idl, "id": value }
     return obj
     
 
@@ -218,12 +224,15 @@ total_dois_arr = []
 
 test_arr = []
 
-tota_one_arr = []
-tota_two_arr = []
-tota_three_arr = []
-
 calo_pata_arr = []
 calo_pata_d_arr = []
+
+
+total_one_arr = []
+total_two_arr = []
+total_three_arr = []
+
+
 
 new_dataFrame= pd.DataFrame()
 
@@ -822,8 +831,13 @@ for index, row in df.iterrows():
         total_s = remove_empty_spaces(total_s.replace("Total:", "").split(" "))
         len_total = len(total_s)
         id_l = line_item.replace(".pdf", "").replace(" ", "")
-        total_dic = {'Data':total_s, 'id':id_l}
-
+        if len_total == 3:
+            total_s = total_s
+            total_dic = {'Data':total_s, 'id':str(id_l)}
+        if len_total == 4:
+            total_s = remove_empty_spaces(remover_percent(total_s))
+            total_dic = {'Data':total_s, 'id':str(id_l)}
+            
         test_arr.append(total_dic)
         
         # if len_total == 1:
@@ -882,28 +896,18 @@ id_unic_arr = list(OrderedDict.fromkeys(id_unic_s))
 x = 0
 f = len(test_arr)
 
+
 for i in range(len(test_arr)):
-    try:
-        x = i+1
-        if x > f:
-            x = f
-            
-        if test_arr[i]['id'] == test_arr[x]['id']:
-            # print(pprint.pprint(test_arr))
-            a_arr.append(test_arr[i])
-        if test_arr[i]['id'] not in a_arr:
-            a_arr.append(test_arr[i])
+    
+    arr_s = list(test_arr[i]['Data'])
+    id_l = test_arr[i]['id']
+    
+    total_one_arr.append(dicio_obj(arr_s[0], id_l))
+    total_two_arr.append(dicio_obj(arr_s[1], id_l))
+    total_three_arr.append(dicio_obj(arr_s[2], id_l))
 
-    except IndexError:
-        continue
 
-a_arr_ = processar_dicionarios(id_unic_arr, a_arr)
-# print(a_arr_)
-# a_arr__  = a_arr_.append(a_arr_)
 
-tota_one_arr = [list(value)[0] for value in a_arr_]
-tota_two_arr = [list(value)[1] for value in a_arr_]
-tota_three_arr = [list(value)[2] for value in a_arr_]
 
 # Padronize todos os arrays de dicionários ANTES de criar o DataFrame
 cms_arr = processar_dicionarios(id_unic_arr, cms_arr)
@@ -966,6 +970,11 @@ odc_arr = processar_dicionarios(id_unic_arr, odc_arr)
 conversao_ali_ajustada_arr = processar_dicionarios(id_unic_arr, conversao_ali_ajustada_arr)
 calo_pata_arr = processar_dicionarios(id_unic_arr, calo_pata_arr)
 calo_pata_d_arr = processar_dicionarios(id_unic_arr, calo_pata_d_arr)
+
+total_one_arr = processar_dicionarios(id_unic_arr, total_one_arr)
+total_two_arr = processar_dicionarios(id_unic_arr, total_two_arr)
+total_three_arr = processar_dicionarios(id_unic_arr, total_three_arr)
+
 # 
 # ganho_diario_arr
 
@@ -1028,8 +1037,8 @@ new_dataFrame["QUEBRA_TECNICA_RACAO"] = q_tec_racao_arr
 new_dataFrame["TRANSPORTE_FRANGO_VIVO"] = transporte_frango_vivo_arr
 new_dataFrame["EXTORNO_ICMS"] = extorno_icms_arr
 new_dataFrame["VALOR_BRUTO"] = valor_bruto_arr
-new_dataFrame["BINIFICACAO_CHECKLIST_%"] = bonificacao_ch_p_arr
-new_dataFrame["BINIFICACAO_CHECKLIST"] = bonificacao_ch_arr
+new_dataFrame["BONIFICACAO_CHECKLIST_%"] = bonificacao_ch_p_arr
+new_dataFrame["BONIFICACAO_CHECKLIST"] = bonificacao_ch_arr
 new_dataFrame["BONIFICAÇÃO"] = bonificacao_arr
 new_dataFrame["DESCONTOS"] = descontos_arr
 new_dataFrame["IMPOSTO_FUNRURAL"] = imposto_f_arr
@@ -1038,9 +1047,10 @@ new_dataFrame["OUTROS_DESCONTOS_DOCUMENTOS"] = odc_arr
 new_dataFrame["VALOR_LIQUIDO"] = valor_liquido_arr
 new_dataFrame["CONVERSAO_META_DA_SEMANA"] = cms_arr
 
-new_dataFrame["TOTAL_1"] = tota_one_arr
-new_dataFrame["TOTAL_2"] = tota_two_arr
-new_dataFrame["TOTAL_3"] = tota_three_arr
+new_dataFrame["TOTAL_1"] = total_one_arr
+new_dataFrame["TOTAL_2"] = total_two_arr
+
+new_dataFrame["TOTAL_3"] = total_three_arr
 
 new_dataFrame["CALO_PATA"] = calo_pata_arr
 new_dataFrame["CALO_PATA_D"] = calo_pata_d_arr
