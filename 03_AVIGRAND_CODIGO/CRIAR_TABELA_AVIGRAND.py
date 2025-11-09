@@ -1,3 +1,4 @@
+from calendar import c
 from genericpath import exists
 import glob, datetime, os
 from datetime import datetime
@@ -383,7 +384,7 @@ def separate_():
         Returns:
             list[str]: _description_
         """
-        arr_id = [id_["id"] for id_ in arr_temp]
+        arr_id = [str(id_["id"]) for id_ in arr_temp]
         
         arr_data_final = []
         for id_unico in id_unic_arr:
@@ -630,21 +631,25 @@ def separate_():
                             
                             if not separate_peso_m_f_:
                                 separate_peso_m_f_ = "nan"
-                               
-                            peso_medio_f_arr.append(separate_peso_m_f_)
+                            
+                            # print(dicio_obj(id_l ,separate_peso_m_f_))
+                            peso_medio_f_arr.append( dicio_obj(id_l ,separate_peso_m_f_))
 
                         # PENSE NUM BAGULHO DOIDO EM
                         if "GPD" not in str(separate_peso_m_f):
                             # real - PESO MEDIO
                             peso_med_r =  separate_peso_m_f[1].replace("Peso Médio","").replace(" ", "")
-                            
-                            peso_medio_real_arr.append(peso_med_r)
+                            if not peso_med_r:
+                                peso_med_r = "nan"
+                                
+                            peso_medio_real_arr.append(dicio_obj(str(id_l) , peso_med_r))
 
                             # prevaj - PESO MEDIO
-                            peso_medio_prevaj_arr.append(separate_peso_m_f[-1].split(" ")[0])
+                            # print(dicio_obj(id_l, separate_peso_m_f[-1].split(" ")[0] ))
+                            peso_medio_prevaj_arr.append(dicio_obj(id_l, separate_peso_m_f[-1].split(" ")[0] ))
 
                             # diferenca - PESO MEDIO
-                            peso_medio_diferenca_arr.append(separate_peso_m_f[-1].split(" ")[1])
+                            peso_medio_diferenca_arr.append(dicio_obj(id_l, separate_peso_m_f[-1].split(" ")[1]))
 
 
                     if len(separate_peso_m_f) == 4:
@@ -656,7 +661,7 @@ def separate_():
 
                         if not peso_medio_real:
                             peso_medio_real = "nan"
-                        peso_medio_real_arr.append(peso_medio_real)
+                        peso_medio_real_arr.append(dicio_obj(id_l, peso_medio_real))
 
                         # prevaj
                         peso_medio_prevaj = separate_peso_m_f[2]
@@ -664,7 +669,7 @@ def separate_():
                         if not peso_medio_prevaj:
                             peso_medio_prevaj = "nan"
 
-                        peso_medio_prevaj_arr.append(peso_medio_prevaj)
+                        peso_medio_prevaj_arr.append(dicio_obj(id_l, peso_medio_prevaj))
 
                         # diferenca
                         peso_medio_diferenca = separate_peso_m_f[3]
@@ -672,7 +677,7 @@ def separate_():
                         if not peso_medio_diferenca:
                             peso_medio_diferenca = "nan"
 
-                        peso_medio_diferenca_arr.append(peso_medio_diferenca)
+                        peso_medio_diferenca_arr.append( dicio_obj(id_l ,peso_medio_diferenca))
 
                     if len(separate_peso_m_f) == 5:
                         print(separate_peso_m_f)
@@ -1671,8 +1676,11 @@ def separate_():
 
                 # GET FUNRURAL - Como todos nao tem, temos que atribuir o valor nan mantendo a ordem pra isso foi usado compreesao de lista
                 if arr_filter[48] == item:
-                    fun_rural_separate = remove_empty_spaces(new_str.split(", "))
-
+                    # fun_rural_separate = remove_empty_spaces(new_str.split(", "))
+                    fun_rural_separate_ = remove_empty_spaces(new_str.split(", "))[-1]
+                    if not fun_rural_separate_:
+                        fun_rural_separate_ = "nan"
+                    fun_rural_separate = dicio_obj(id_l, fun_rural_separate_)
                     funrural_arr.append(fun_rural_separate)
                     
                 if arr_filter[49] == item:
@@ -1784,11 +1792,11 @@ def separate_():
                     
                     # if n_c_ == 6:
 
-                    conv_aliment_real_arr.append(conv_aliment_real)
+                    conv_aliment_real_arr.append(dicio_obj(id_l, conv_aliment_real))
                     
-                    conv_aliment_real_aj_arr.append(conv_aliment_real_aj)
-                    conv_aliment_prev_aj_arr.append(conv_aliment_prev_aj)
-                    conv_aliment_diferenca_arr.append(conv_aliment_d)
+                    conv_aliment_real_aj_arr.append(dicio_obj(id_l, conv_aliment_real_aj))
+                    conv_aliment_prev_aj_arr.append(dicio_obj(id_l,  conv_aliment_prev_aj))
+                    conv_aliment_diferenca_arr.append(dicio_obj(id_l, conv_aliment_d))
                 
                 # Idade de Abate REAL | PREV aj | DIFERE|
 
@@ -1805,28 +1813,29 @@ def separate_():
                         if "Idade de Abate" in idad_d_abt_real_f:
                             idad_d_abt_real_f = (idad_d_abt_real[-1].split(" ")[0]).replace(" ", "")
                             # print(idade_d_abt_s, idad_d_abt_real_f)
-                        idade_de_abate_real_arr.append(idad_d_abt_real_f)
+                        
+                        idade_de_abate_real_arr.append(dicio_obj(id_l, idad_d_abt_real_f))
                         
                         # print(idad_d_abt_real_f)
                         #PrevAj
                         idad_d_abt_prevaj = idad_d_abt_real[-1].split(" ")
-                        idade_de_abate_real_prev_aj_arr.append(idad_d_abt_prevaj[0])
+                        idade_de_abate_real_prev_aj_arr.append(dicio_obj(id_l, idad_d_abt_prevaj[0]))
 
                         #Diferenca
-                        idade_de_abate_real_dif_arr.append(idad_d_abt_prevaj[1])
+                        idade_de_abate_real_dif_arr.append(dicio_obj(id_l ,idad_d_abt_prevaj[1]))
 
                     if n_c_  == 4:
                         # real
                         idad_d_abt_real = (idade_d_abt_s[1].replace("Idade de Abate", ""))
-                        idade_de_abate_real_arr.append(idad_d_abt_real)
+                        idade_de_abate_real_arr.append(dicio_obj(id_l ,idad_d_abt_real))
 
                         #PrevAj
                         idad_d_abt_prevaj = idade_d_abt_s[2]
-                        idade_de_abate_real_prev_aj_arr.append(idad_d_abt_prevaj)
+                        idade_de_abate_real_prev_aj_arr.append(dicio_obj(id_l ,idad_d_abt_prevaj))
                         
                         # diferenca
                         idad_d_abt_diferenca = idade_d_abt_s[3]
-                        idade_de_abate_real_dif_arr.append(idad_d_abt_diferenca)
+                        idade_de_abate_real_dif_arr.append(dicio_obj(id_l, idad_d_abt_diferenca))
                         
 
                     # if n_c_  == 5:
@@ -1910,10 +1919,10 @@ def separate_():
                             mrt_dife = mrt_s[-1]
 
         
-                        mortalidade_real_aj_arr.append(mrt_real_aj)
-                        mortalidade_real_arr.append(mrt_f)
-                        mortalidade_prev.append(mrt_aj_f)
-                        mortalidade_diferenca.append(mrt_dife)
+                        mortalidade_real_aj_arr.append(dicio_obj(id_l, mrt_real_aj))
+                        mortalidade_real_arr.append(dicio_obj(id_l, mrt_f))
+                        mortalidade_prev.append(dicio_obj(id_l, mrt_aj_f))
+                        mortalidade_diferenca.append(dicio_obj(id_l, mrt_dife))
 
                 if arr_filter[55] == item:
                     per_cl_pta_s = remove_empty_spaces(new_str.split(", "))
@@ -2000,9 +2009,9 @@ def separate_():
                     if n_c1 == 5:
                         pass
                     
-                    percent_arranhaduras_real_arr.append(p_arran_r_f)
-                    percent_arranhaduras_prevaj_arr.append(p_arran_prev)
-                    percent_arranhaduras_diferenca_arr.append(p_arran_diferenca)
+                    percent_arranhaduras_real_arr.append(dicio_obj(id_l, p_arran_r_f))
+                    percent_arranhaduras_prevaj_arr.append(dicio_obj(id_l, p_arran_prev))
+                    percent_arranhaduras_diferenca_arr.append(dicio_obj(id_l, p_arran_diferenca))
                     
                 if arr_filter[57] == item:
 
@@ -2048,9 +2057,9 @@ def separate_():
                         #diferenca
                         papo_cheio_dife =  papo_cheio_s[3]
                 
-                    percent_papo_cheio_real_arr.append(papo_cheio_real)
-                    percent_papo_cheio_prev_arr.append(papo_cheio_prev)
-                    percent_papo_cheio_diferenca_arr.append(papo_cheio_dife)
+                    percent_papo_cheio_real_arr.append(dicio_obj(id_l, papo_cheio_real))
+                    percent_papo_cheio_prev_arr.append(dicio_obj(id_l, papo_cheio_prev))
+                    percent_papo_cheio_diferenca_arr.append(dicio_obj(id_l, papo_cheio_dife))
                 
                 if arr_filter[58] == item:
 
@@ -2091,9 +2100,9 @@ def separate_():
                         p_codenacao_diferenca  = p_codenacao_s[3]
 
 
-                    percent_codenacao_real_arr.append(p_codenacao_real)
-                    percent_codenacao_prev_arr.append(p_codenacao_prev)
-                    percent_codenacao_diferenca_arr.append(p_codenacao_diferenca)
+                    percent_codenacao_real_arr.append(dicio_obj(id_l, p_codenacao_real))
+                    percent_codenacao_prev_arr.append(dicio_obj(id_l, p_codenacao_prev))
+                    percent_codenacao_diferenca_arr.append(dicio_obj(id_l ,p_codenacao_diferenca))
                 
                 if arr_filter[59] == item:
                     centro_ = remove_empty_spaces(new_str.split(", "))
@@ -2108,7 +2117,7 @@ def separate_():
                         centro_s = centro_s.replace("Centro", "").replace(" ", "")
                         centro_f = centro_s
                         
-                    centro_arr.append(centro_f)
+                    centro_arr.append(dicio_obj(id_l, centro_f))
                 
                 if arr_filter[60] == item:
                     rdl_a = new_str.split(", ")[1]
@@ -2125,8 +2134,9 @@ def separate_():
                     
                     
     # metodo usando compreessao de lista para FUNRURAL           
-    id_para_valor = {item[0]: item[2] for item in funrural_arr}
-    funrural_arr_f = [id_para_valor.get(id, 'nan') for id in id_uni]
+    # id_para_valor = {item[0]: item[2] for item in funrural_arr}
+    # # print(id_para_valor) 
+    # funrural_arr_f = [id_para_valor.get(id, 'nan') for id in id_uni]
     
     
     # A partir do GET_percentual_basico pega Get_Kg_carne e pega $R_Base
@@ -2201,7 +2211,37 @@ def separate_():
     percent_calo_real_arr = processar_dicionarios(key_arr, percent_calo_real_arr)
     percent_calo_prev_arr = processar_dicionarios(key_arr, percent_calo_prev_arr)
     percent_calo_dife_arr = processar_dicionarios(key_arr, percent_calo_dife_arr)
-
+    funrural_arr_f = processar_dicionarios(key_arr, funrural_arr)
+    conv_aliment_real_arr = processar_dicionarios(key_arr, conv_aliment_real_arr)
+    conv_aliment_real_aj_arr   = processar_dicionarios(key_arr, conv_aliment_real_aj_arr)
+    conv_aliment_prev_aj_arr = processar_dicionarios(key_arr, conv_aliment_prev_aj_arr)
+    conv_aliment_diferenca_arr = processar_dicionarios(key_arr, conv_aliment_diferenca_arr)
+    idade_de_abate_real_arr = processar_dicionarios(key_arr, idade_de_abate_real_arr)
+    idade_de_abate_real_prev_aj_arr = processar_dicionarios(key_arr, idade_de_abate_real_prev_aj_arr)
+    idade_de_abate_real_dif_arr = processar_dicionarios(key_arr, idade_de_abate_real_dif_arr)
+    peso_medio_f_arr = processar_dicionarios(key_arr, peso_medio_f_arr)
+    
+    peso_medio_real_arr = processar_dicionarios(key_arr, peso_medio_real_arr)
+    
+    peso_medio_prevaj_arr = processar_dicionarios(key_arr, peso_medio_prevaj_arr)
+    peso_medio_diferenca_arr = processar_dicionarios(key_arr, peso_medio_diferenca_arr)
+    
+    mortalidade_real_arr = processar_dicionarios(key_arr, mortalidade_real_arr)
+    
+    mortalidade_real_aj_arr = processar_dicionarios(key_arr, mortalidade_real_aj_arr)
+    mortalidade_prev = processar_dicionarios(key_arr, mortalidade_prev)
+    mortalidade_diferenca = processar_dicionarios(key_arr, mortalidade_diferenca)
+    percent_arranhaduras_real_arr = processar_dicionarios(key_arr, percent_arranhaduras_real_arr)
+    percent_arranhaduras_prevaj_arr = processar_dicionarios(key_arr, percent_arranhaduras_prevaj_arr)
+    percent_arranhaduras_diferenca_arr = processar_dicionarios(key_arr, percent_arranhaduras_diferenca_arr)
+    percent_papo_cheio_prev_arr = processar_dicionarios(key_arr, percent_papo_cheio_prev_arr)
+    percent_papo_cheio_real_arr = processar_dicionarios(key_arr, percent_papo_cheio_real_arr)
+    percent_papo_cheio_diferenca_arr = processar_dicionarios(key_arr, percent_papo_cheio_diferenca_arr)
+    percent_codenacao_real_arr = processar_dicionarios(key_arr, percent_codenacao_real_arr)
+    percent_codenacao_prev_arr = processar_dicionarios(key_arr, percent_codenacao_prev_arr)
+    percent_codenacao_diferenca_arr = processar_dicionarios(key_arr, percent_codenacao_diferenca_arr)
+    centro_arr = processar_dicionarios(key_arr, centro_arr)
+    
     new_dataFrame["CHAVE"] = key_arr
     new_dataFrame["CLIFOR"] =  clifor_arr
     new_dataFrame["INTEGRADO"] = name_arr
@@ -2301,7 +2341,11 @@ def separate_():
     new_dataFrame["R$_AVE"] = ave_real_arr
     new_dataFrame["R$_TON"] = ton_real_arr
     new_dataFrame["R$_M2"] = m2_real_arr
+    
+    
     new_dataFrame["FUNRURAL"] = funrural_arr_f
+    
+    
     new_dataFrame["SENAR"] = senar_arr
     new_dataFrame["CONTA_CORRENTE"] = conta_corrente_arr
     new_dataFrame["CONTA_VINCULADA"] = conta_vinculada;
@@ -2311,16 +2355,19 @@ def separate_():
     new_dataFrame["CONVERSAO_ALIMENTAR_PREV_AJ"] = conv_aliment_prev_aj_arr
     new_dataFrame["CONVERSAO_ALIMENTAR_DIFERENCA"] = conv_aliment_diferenca_arr
     
+    
     # Idade de Abate REAL | PREV aj | DIFERE|
     new_dataFrame["IDADE_DE_ABATE_REAL"] = idade_de_abate_real_arr
     new_dataFrame["IDADE_DE_ABATE_PREV_AJ"] = idade_de_abate_real_prev_aj_arr
     new_dataFrame["IDADE_DE_ABATE_DIFERENCA"] = idade_de_abate_real_dif_arr
 
-    new_dataFrame["PESO_MEDIO_REAL"] = peso_medio_f_arr
+    new_dataFrame["PESO_MEDIO_REAL"] = peso_medio_real_arr
+    
     new_dataFrame["PESO_MEDIO_PREV_AJ"] = peso_medio_prevaj_arr 
     new_dataFrame["PESO_MEDIO_DIFERENCA"] =peso_medio_diferenca_arr
 
     new_dataFrame["MORTALIDADE_REAL"] = mortalidade_real_arr
+    
     new_dataFrame["MORTALIDADE_REAL_AJ"] = mortalidade_real_aj_arr
     new_dataFrame["MORTALIDADE_PREV_AJ"]  = mortalidade_prev
     new_dataFrame["MORTALIDADE_DIFERENCA"] =  mortalidade_diferenca
@@ -2339,8 +2386,9 @@ def separate_():
     
     new_dataFrame["%_CODENACAO_REAL"] = percent_codenacao_real_arr
     new_dataFrame["%_CODENACAO_PREV"] = percent_codenacao_prev_arr
-    new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr 
+    new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr
     new_dataFrame["CENTRO"] = centro_arr
+    
     new_dataFrame["RENDA_LIQUIDA_AVE"] = renda_liquida_ave_arr
     
 
