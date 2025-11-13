@@ -173,6 +173,30 @@ def main():
     processo_inflamatorio_ft_114_arr = []
     canibalismo_ft_106_arr = []
     necrose_caseosa_ft_139_arr  = []
+    canibalismo_fp_206_arr = []
+    pericardite_fp_224_arr =  []
+    abscesso_fp_225_arr = []
+    
+    artrite_fp_226_arr = []
+    celulite_fp_245_arr = []
+    lesao_de_pele_fp_251_arr = []
+    lesao_inflamatoria_fp_253_arr = []
+    sindrome_ascite_fp_256_arr = []
+    lesao_traumatica_antiga_fp_257_arr = []
+    processo_inflamatorio_fp_248_arr = []
+    calo_no_peito_fp_260_arr = []
+    contaminacao_nao_gi_fp_263_arr = []
+    estados_anormais_ou_patologicos_fp_294_arr  =[]
+    dermatose_fp_235_arr = []
+    miopatia_fp_271_arr = []
+    salpingite_fp_244_arr = []
+    lesao_traumatica_recente_fp_296_arr = []
+    tendinite_fp_249_arr = []
+    
+    
+    
+    
+    
     
     
     
@@ -881,8 +905,121 @@ def main():
                 cond_ = m.group(2) or "nan"
             necrose_caseosa_ft_139_arr.append(dicio_obj(id_l, str(qtde_)))
         
+        # 206 Canibalismo 
+        if "206 Canibalismo" in line_item:
+            line_item = line_item.replace('%', '% ')
+            pattern_full =  re.search(r"206\s+Canibalismo'\s*,\s*'(\d+)\s+([\d,]+)%", line_item)
+
+            if pattern_full:
+                qtde_ = pattern_full.group(1) or "nan"
+                cond_ = pattern_full.group(2) or "nan"
+
+            canibalismo_fp_206_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # abscesso_fp_225_arr
+        if "225 Abcesso" in line_item:
+            line_item = (line_item).replace('%', '% ')
+            p = re.compile(r"225\s+Abcesso(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)\s+([\d.,]+%)", re.IGNORECASE)           
+            p = p.search(line_item)
+            if p:
+                qtde_ = (p.group(1) or "nan")
+                conde_ = (p.group(2) or "nan")
+            abscesso_fp_225_arr.append(dicio_obj(id_l, str(qtde_))) 
+        
+        # processo_inflamatorio_fp_248_arr                             
+        if "248 Processo Inflamatório" in line_item or "248 Processo Inflamatorio" in line_item:
+            pattern = re.compile(r"248\s+Processo\s+Inflamat[óo]rio(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)\s+([\d.,]+%)", re.IGNORECASE)
+            p = pattern.search(line_item)
+            if p:
+                qtde_ = (p.group(1) or "nan")
+                
+                conde_ = (p.group(2) or "nan")
+            
+            processo_inflamatorio_fp_248_arr.append(dicio_obj(id_l, str(qtde_)))
+           
+        # calo_no_peito_fp_260_arr
+        if "260 Calo no Peito" in line_item:
+            
+            pattern = re.compile(r"260\s+Calo\s+no\s+Peito(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)?\s*([\d.,]+%)",re.I)
+            
+            p = pattern.search(line_item)
+            if p:
+                qtde_ = (p.group(1) or "nan")
+                conde_ = (p.group(2) or "nan")
+                
+            calo_no_peito_fp_260_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # estados_anormais_ou_patologicos_fp_294_arr
+        if "294 Estados Anormais ou Patológicos" in line_item:
+            
+            patt =re.compile(r"294\s+Estados\s+Anormais\s+ou\s+Patol[oó]gicos(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)?\s*([\d.,]+%)", re.IGNORECASE)
+            p=patt.search(line_item)
+            if p:
+                qtde_ = (p.group(1) or "nan")
+                conde_ = (p.group(2) or "nan")
+            
+            estados_anormais_ou_patologicos_fp_294_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # dermatose_fp_235_arr
+        if "235 Dermatose" in line_item:
+            
+            patt = re.compile(r"235\s+Dermatose(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)?\s*([\d.,]+%)", re.IGNORECASE)
+            p=patt.search(line_item)
+            if p: 
+                qtde_ = p.group(1) or "nan"
+                conde_ = p.group(2) or "nan"
+            dermatose_fp_235_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # miopatia_fp_271_arr
+        if "271 Miopatia" in line_item:
+            patt = re.compile(r"271\s+Miopatia(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)?\s*([\d.,]+%)", re.IGNORECASE)
+            p=patt.search(line_item)
+            if p: 
+                qtde_ = p.group(1) or "nan"
+                conde_ = p.group(2) or "nan"
+            miopatia_fp_271_arr.append(dicio_obj(id_l, str(qtde_)))
+
+        # salpingite_fp_244_arr
+        if "244 Salpingite" in line_item:
+            pattern = re.compile(r"244\s+Salpingite(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)?\s*([\d.,]+%)?",re.IGNORECASE)
+            p=pattern.search(line_item)
+            if p: 
+                qtde_ = p.group(1) or "nan"
+                conde_ = p.group(2) or "nan"
+                
+            salpingite_fp_244_arr.append(dicio_obj(id_l, str(qtde_)))
+        
+        # lesao_traumatica_recente_fp_296_arr
+        if "296 Lesão Traumática Recente" in line_item:
+            
+            pattern = re.compile(
+                r"296\s+Les[aã]o\s+Traum[aá]tica\s+Recente(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)?\s*([\d.,]+%)",
+                re.I
+            )
+            p=pattern.search(line_item)
+            if p: 
+                qtde_ = p.group(1) or "nan"
+                conde_ = p.group(2) or "nan"
+
+            lesao_traumatica_recente_fp_296_arr.append(dicio_obj(id_l, str(qtde_)))                  
+        
+        # tendinite_fp_249_arr
+        if "249 Tendinite" in line_item:
+            pattern = re.compile(
+    r"249\s+Tendinite(?:'?\s*,\s*'?)?\s*(\d{1,3}(?:[.,]\d{3})*|\d+)?\s*([\d.,]+%)",
+    re.IGNORECASE)
+            p=pattern.search(line_item)
+            if p: 
+                qtde_ = p.group(1) or "nan"
+                conde_ = p.group(2) or "nan"
+                
+            tendinite_fp_249_arr.append(dicio_obj(id_l, str(qtde_)))
+
+                     
         if "" in line_item:
-            pass
+            pass                      
+                
+            
 
     
     
@@ -933,26 +1070,30 @@ def main():
     processo_inflamatorio_ft_114_arr = processar_dicionarios(id_uni_f, processo_inflamatorio_ft_114_arr)
     canibalismo_ft_106_arr = processar_dicionarios(id_uni_f, canibalismo_ft_106_arr)
     necrose_caseosa_ft_139_arr = processar_dicionarios(id_uni_f, necrose_caseosa_ft_139_arr)
-    
-    
+    canibalismo_fp_206_arr = processar_dicionarios(id_uni_f, canibalismo_fp_206_arr)
+    pericardite_fp_224_arr = processar_dicionarios(id_uni_f, pericardite_fp_224_arr)
+    abscesso_fp_225_arr = processar_dicionarios(id_uni_f, abscesso_fp_225_arr)
+    processo_inflamatorio_fp_248_arr = processar_dicionarios(id_uni_f, processo_inflamatorio_fp_248_arr)
+    calo_no_peito_fp_260_arr  = processar_dicionarios(id_uni_f, calo_no_peito_fp_260_arr)
+    estados_anormais_ou_patologicos_fp_294_arr = processar_dicionarios(id_uni_f, estados_anormais_ou_patologicos_fp_294_arr)
+    dermatose_fp_235_arr = processar_dicionarios(id_uni_f, dermatose_fp_235_arr)
+    miopatia_fp_271_arr = processar_dicionarios(id_uni_f, miopatia_fp_271_arr)
+    salpingite_fp_244_arr = processar_dicionarios(id_uni_f, salpingite_fp_244_arr)
+    lesao_traumatica_recente_fp_296_arr = processar_dicionarios(id_uni_f, lesao_traumatica_recente_fp_296_arr)
+    tendinite_fp_249_arr = processar_dicionarios(id_uni_f, tendinite_fp_249_arr)
+
     
     new_dataFrame["CHAVE"] = id_uni_f
     new_dataFrame["FT"] = ft_arr_r
     new_dataFrame["FP"] = fp_arr_
-
     new_dataFrame["ASPECTO_REPUGNANTE_FT_112"] = aspect_repug_arr
     new_dataFrame["SEPTICEMIA_FT_130"] = septicemia_arr
     new_dataFrame["CAQUEXIA_FT_105"] = caquexia_arr
     new_dataFrame["SINDROME_ASCITE_FT_157"] = sindrome_ascite_arr
-
     new_dataFrame["LESAO_DE_PELE_FP_251"] = lesao_pele_arr
     new_dataFrame["CONTAMINACAO_GASTROINTESTINAL_E_B_FP_179"] = contaminacao_b_arr
-
-    
     new_dataFrame["AEROSSACULITE_FP_220"]  = aerosaculite_arr
     new_dataFrame["ARTRITE_FP_226"] = artrite_arr
-    
-    
     new_dataFrame["CELULITE_FP_245"] = celulite_arr
     new_dataFrame["LESAO_DE_PELE_FP_251"] = lesao_pele_arr_251
     new_dataFrame["LESAO_INFLAMATORIA_FP_253"] = lesao_inflamatoria_arr
@@ -974,23 +1115,26 @@ def main():
     new_dataFrame["CONTAMINACAO_NAO_GI_FT_163"]            = contaminacao_nao_gi_ft_163_arr
     new_dataFrame["CONTAMINACAO_GASTROINTESTINAL_E_B_FT_179"] = contaminacao_gastrointestinal_e_b_ft_179_arr
     new_dataFrame["ESTADOS_ANORMAIS_OU_PATOLOGICOS_FT_194"]   = estados_anormais_ou_patologicos_ft_194_arr
-    
     new_dataFrame["CONTAMINACAO_PAPO_PENDULAR_FT_688"]     = contaminacao_papo_pendular_ft_688_arr
     new_dataFrame["CONTUSAO_FT_765"]                       = contusao_ft_765_arr
-    new_dataFrame["AEROSSACULITE_FT_103"] = arsl_ft_arr
+    new_dataFrame["AEROSSACULITE_FT_103"]                  = arsl_ft_arr
     new_dataFrame["MIOPATIA_FT_170"]                       = miopatia_ft_170_arr
     new_dataFrame["CONTUSAO_FRATURA_FT_636"]               = contusao_fratura_ft_636_arr
-
-
-
-
     new_dataFrame["LESAO_TRAUMATICA_ANTIGA_FT_135"]        = lesao_traumatica_antiga_ft_135_arr
     new_dataFrame["PROCESSO_INFLAMATORIO_FT_114"]          = processo_inflamatorio_ft_114_arr
     new_dataFrame["CANIBALISMO_FT_106"]                    = canibalismo_ft_106_arr
     new_dataFrame["NECROSE_CASEOSA_FT_139"]                = necrose_caseosa_ft_139_arr
-    
-    
-    
+    new_dataFrame["CANIBALISMO_FP_206"]                    = canibalismo_fp_206_arr
+    new_dataFrame["PERICARDITE_FP_224"]                    = pericardite_fp_224_arr     
+    new_dataFrame["ABSCESSO_FP_225"]                       = abscesso_fp_225_arr
+    new_dataFrame["PROCESSO_INFLAMATORIO_FP_248"]          = processo_inflamatorio_fp_248_arr
+    new_dataFrame["CALO_NO_PEITO_FP_260"]                  = calo_no_peito_fp_260_arr
+    new_dataFrame["ESTADOS_ANORMAIS_OU_PATOLOGICOS_FP_294"]= estados_anormais_ou_patologicos_fp_294_arr
+    new_dataFrame["DERMATOSE_FP_235"]                      = dermatose_fp_235_arr
+    new_dataFrame["MIOPATIA_FP_271"]                       = miopatia_fp_271_arr
+    new_dataFrame["SALPINGITE_FP_244"]                     = salpingite_fp_244_arr
+    new_dataFrame["LESAO_TRAUMATICA_RECENTE_FP_296"]       = lesao_traumatica_recente_fp_296_arr
+    new_dataFrame["TENDINITE_FP_249"]                      = tendinite_fp_249_arr
 
 
 
@@ -1005,36 +1149,3 @@ def main():
 main()
 
 
-
-
-# # chaves principais
-# new_dataFrame["CHAVE"] = id_uni_f
-# new_dataFrame["FT"]    = ft_arr_r
-# new_dataFrame["FP"]    = fp_arr_
-
-# # ============================
-# # FT (TOTAL) — arrays únicos
-# # ============================
-
-
-# # ============================
-# # FP (PARCIAL) — arrays únicos
-# # ============================
-# new_dataFrame["CANIBALISMO_FP_206"]                    = canibalismo_fp_206_arr
-# new_dataFrame["AEROSSACULITE_FP_220"]                  = aerossaculite_fp_220_arr -ok 
-# new_dataFrame["PERICARDITE_FP_224"]                    = pericardite_fp_224_arr 
-# new_dataFrame["ABSCESSO_FP_225"]                       = abscesso_fp_225_arr
-# new_dataFrame["ARTRITE_FP_226"]                        = artrite_fp_226_arr -ok 
-# new_dataFrame["CELULITE_FP_245"]                       = celulite_fp_245_arr -ok 
-# new_dataFrame["PROCESSO_INFLAMATORIO_FP_248"]          = processo_inflamatorio_fp_248_arr
-# new_dataFrame["LESAO_DE_PELE_FP_251"]                  = lesao_de_pele_fp_251_arr -ok 
-# new_dataFrame["LESAO_INFLAMATORIA_FP_253"]             = lesao_inflamatoria_fp_253_arr -ok 
-# new_dataFrame["SINDROME_ASCITE_FP_256"]                = sindrome_ascite_fp_256_arr  -ok 
-# new_dataFrame["CALO_NO_PEITO_FP_260"]                  = calo_no_peito_fp_260_arr
-# new_dataFrame["ESTADOS_ANORMAIS_OU_PATOLOGICOS_FP_294"]= estados_anormais_ou_patologicos_fp_294_arr
-# new_dataFrame["LESAO_TRAUMATICA_ANTIGA_FP_299"]        = lesao_traumatica_antiga_fp_299_arr  -ok 
-# new_dataFrame["DERMATOSE_FP_235"]                      = dermatose_fp_235_arr
-# new_dataFrame["MIOPATIA_FP_271"]                       = miopatia_fp_271_arr
-# new_dataFrame["SALPINGITE_FP_244"]                     = salpingite_fp_244_arr
-# new_dataFrame["LESAO_TRAUMATICA_RECENTE_FP_296"]       = lesao_traumatica_recente_fp_296_arr
-# new_dataFrame["TENDINITE_FP_249"]                      = tendinite_fp_249_arr
