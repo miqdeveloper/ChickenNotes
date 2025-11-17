@@ -1219,9 +1219,42 @@ for index, row in df.iterrows():
         aj_qualidade_kg_s = aj_qualidade_s[1]
         aj_qualidade_real_s = aj_qualidade_s[2]
         
+        # Aj Estrutural % - kg - Real
     if arr_filter[43] in line_text:
-        pass
-
+        aj_estr = remove_empty_spaces(remove_chars(line_text.replace("Aj Estrutural", "").replace(":", "")).split(" "))
+        aj_estr = aj_estr[:5]
+    
+        percent_ = "nan"
+        aj_estr_kg_ = "nan"
+        aj_real_ = "nan"
+        
+        if len(aj_estr) > 4:
+            # %
+            if validate_number_decimal(aj_estr[0]):
+                aj_estr_kg_ = aj_estr[0]
+            
+            #   kg 
+            if validate_number_decimal(aj_estr[1]):
+                aj_real_ = aj_estr[1]
+            
+            #   real
+            print("aj_estr:", aj_estr)
+            if validate_number_decimal(aj_estr[2]):
+                percent_ = aj_estr[2]
+                
+            if not validate_number_decimal(aj_estr[0]):
+                # % - kg - Real
+                if len(aj_estr) == 4:
+                    if validate_number_decimal(aj_estr[1]):
+                        percent_ = aj_estr[1]
+                        aj_estr_kg_ = aj_estr[2]
+                        aj_real_ = aj_estr[3]
+            
+        aj_estrutural_percent_arr.append({"id": id_l, "Data": percent_})
+        aj_estrutural_kg_arr.append({"id": id_l, "Data": aj_estr_kg_})
+        aj_estrutural_real_arr.append({"id": id_l, "Data": aj_real_})
+    
+    
 key_arr = list(OrderedDict.fromkeys(key_arr))
 print("len key_arr", len(key_arr))
 
@@ -1298,6 +1331,9 @@ condenacoes_percent_arr = processar_dicionarios(key_arr, condenacoes_percent_arr
 condenacoes_kg_arr_ = processar_dicionarios(key_arr, condenacoes_kg_arr)
 condenacoes_real_arr = processar_dicionarios(key_arr, condenacoes_real_arr_)
 
+aj_qualidade_percent_arr = processar_dicionarios(key_arr, aj_qualidade_percent_arr)
+aj_qualidade_kg_arr = processar_dicionarios(key_arr, aj_qualidade_kg_arr)
+aj_qualidade_real_arr = processar_dicionarios(key_arr, aj_qualidade_real_arr)
 
 new_dataFrame = pd.DataFrame()
 
@@ -1385,9 +1421,9 @@ new_dataFrame["%_CONDENACOES"] = condenacoes_percent_arr
 new_dataFrame["KG_CONDENACOES"] = condenacoes_kg_arr_
 new_dataFrame["R$_CONDENACOES"] = condenacoes_real_arr
 
-#  new_dataFrame["%_AJ_QUALIDADE_QT"] = aj_qualidade_percent_arr
-#  new_dataFrame["KG_AJ_QUALIDADE_QT"] = aj_qualidade_kg_arr
-#  new_dataFrame["R$_AJ_QUALIDADE_QT"] = aj_qualidade_real_arr
+new_dataFrame["%_AJ_QUALIDADE_QT"] = aj_qualidade_percent_arr
+new_dataFrame["KG_AJ_QUALIDADE_QT"] = aj_qualidade_kg_arr
+new_dataFrame["R$_AJ_QUALIDADE_QT"] = aj_qualidade_real_arr
 
 #  new_dataFrame["%_AJ_ESTRUTURAL"] = aj_estrutural_percent_arr
 #  new_dataFrame["KG_AJ_ESTRUTURAL"] = aj_estrutural_kg_arr
