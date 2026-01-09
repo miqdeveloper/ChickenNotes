@@ -77,7 +77,7 @@ if not os.path.exists('arquivosPDF') or not os.path.isdir('images') or not os.pa
     except FileExistsError:
         pass
 
-pdf_path = os.path.abspath('arquivosPDF')
+pdf_path = os.path.abspath('arquivosPDF/arquivosPDF_SemTexto')
 images_path = os.path.abspath('images')
 process_images = os.path.abspath('process_output')
 csv_f = os.path.abspath('output')
@@ -283,7 +283,7 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
             # Debug: imprime cada linha processada
             records.append({
                 "filename": fname,
-                "text": line
+                "content": line
             })
         # os.remove(tif_path)  # Remove arquivo após processamento
         return fname
@@ -306,11 +306,11 @@ def ocr_tifs_to_csv(input_dir: str, output_csv: str) -> None:
         # tif_path = os.path.join(input_dir, fname)
 
     df = pd.DataFrame(records)
-    df.to_csv(output_csv, index=False, sep=';', mode='w', encoding='utf-8')
+    df.to_csv(output_csv, index=False, sep=',', mode='a', encoding='utf-8')
     print(f"\n\nArquivo CSV gerado: {output_csv}")
     
     
-def init():
+def init_():
     files_ = glob.glob(pdf_path+'\\'+'*.pdf')
     if not files_:
       print("Nenhum arquivo PDF encontrado na pasta especificada.")
@@ -323,13 +323,13 @@ def init():
       batch_process_tifs_threaded(images_path, process_images)
       
       print("Usando OCR...\n")
-      ocr_tifs_to_csv(process_images, os.path.join(csv_f, 'saida.csv'))
+      ocr_tifs_to_csv(process_images, os.path.join(csv_f, 'output.csv'))
     #   clean_files(process_images)  # Limpa arquivos TIF processados
       clean_files(images_path)  # Limpa arquivos TIF processados
     except Exception as err:
         print(f"Erro ao processar os arquivos: {err}")
 
-init()
+# init()
 t_e = (time.time() - t_i)/60
 
 print(f"Tempo de execucao -> {t_e:.2f}")

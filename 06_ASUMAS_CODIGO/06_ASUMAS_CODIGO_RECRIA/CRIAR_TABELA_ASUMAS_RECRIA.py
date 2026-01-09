@@ -166,11 +166,11 @@ def dicio_obj(idl, value) -> dict:
 file = ["Colunas_Criadas_CSV"]
 create_dirs(file)
 
-file_execel = "output/saida.csv"
+file_execel = "output/output.csv"
 
 # df_2 = pd.read_csv(file_execel, encoding="utf-8", index_col=0)
 df = pd.read_csv(
-	file_execel, encoding="utf-8", sep=";", engine="python", on_bad_lines="skip"
+	file_execel, encoding="utf-8", sep=",", engine="python", on_bad_lines="skip"
 )
 if "text" in df.columns:
 	df = df.rename(columns={"text": "content"})
@@ -284,6 +284,7 @@ resultado_bruto_lote_v4_map = {}
 for row in df.itertuples():
 
 	line_item = row.filename
+ 
 	content_line = str(row.content)
 	# content_line = str(row.get("content", ""))
 	new_string = remove_chars_s_points(content_line)
