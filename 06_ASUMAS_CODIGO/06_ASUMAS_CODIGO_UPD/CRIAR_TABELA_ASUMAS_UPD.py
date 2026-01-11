@@ -566,6 +566,7 @@ for row in df.itertuples():
 			gpd_map[separe_id_] = gpd
 
 	if "Mortalidade PlantelReal:" in new_string:
+		print(new_string)
 		m = re.search(
 			r"\bRa[cç][aã]o\s+Consumida\s*:\s*(?P<racao>\d+(?:[0-9A-Za-z]*|[,.]\d+)?)\b",
 			new_string,
