@@ -196,7 +196,6 @@ peso_abatido_map = {}
 data_alojamento_map = {}
 suino_consumo_map = {}
 qtde_abatido_map = {}
-peso_medio_map = {}
 sexo_map = {}
 peso_medio_aloj_map = {}
 idade_media_map = {}
@@ -208,6 +207,13 @@ racao_consumida_map = {}
 ajuste_modal_map = {}
 ajs_peso_leitao_map = {}
 data_abate_map = {}
+abate_femea_map = {}
+venda_femea_map = {}
+reprodutores_macho_map = {}
+entrada_macho_map = {}
+mortes_macho_map = {}
+abate_macho_map = {}
+venda_macho_map = {}
 peso_entreg_fase_map = {}
 ajuste_desmame_21d_map = {}
 qtde_mortos_transp_map = {}
@@ -409,7 +415,7 @@ for row in df.itertuples():
 			qtde_mortos_map[separe_id_] = qtde_mortos
 
 
-	if "Entrada Fêmea:" in new_string:
+	if "Entrada Fêmea:" in new_string or "Entrada Femea:" in new_string:
 		
 		m = re.search(
 			r"\bEntrada\s*F[eê]mea\b\s*[:=-]?\s*([0-9Oo]+)\b", new_string, flags=re.IGNORECASE
@@ -422,174 +428,174 @@ for row in df.itertuples():
 
 		qtde_retorno_map[separe_id_] = qtde_retorno
 
-	if "Peso Abatido" in new_string:
+	if "Mortes Fêmea" in new_string or "Mortes Femea" in new_string:
+		
 		m = re.search(
-			r"\bPeso\s*Abat\w*\s*:\s*(\d+)\b", new_string, flags=re.IGNORECASE
+			r"\bMortes?\s*F[eê]mea\b[^0-9Oo]*?([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
 		)
-		peso_abatido = int(m.group(1)) if m else None
-		peso_abatido_map[separe_id_] = peso_abatido
+		mortes_femea = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		peso_abatido_map[separe_id_] = mortes_femea
 
-	if "Data Alojamento" in new_string:
+	if "Abate Fêmea:" in new_string:
 		m = re.search(
-			r"\bData\s*Aloj\w*\s*:\s*(?P<data>\d{1,2}\s*/\s*\d{1,2}\s*/+\s*\d{4})",
+			r"\bAbate\s*F[eê]mea\b\s*[:=-]?\s*([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		abate_femea = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		abate_femea_map[separe_id_] = abate_femea
+
+	if "Venda Fêmea:" in new_string or "Venda Femea:" in new_string:
+		m = re.search(
+			r"\bVenda\s*F[eê]mea\b\s*[:=-]?\s*([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		venda_femea = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		venda_femea_map[separe_id_] = venda_femea
+
+	if "Reprodutores Macho:" in new_string:
+		m = re.search(
+			r"\bReprodutores\s*Macho\b\s*[:=-]?\s*([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		reprodutores_macho = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		reprodutores_macho_map[separe_id_] = reprodutores_macho
+
+	if "Entrada Macho:" in new_string:
+		m = re.search(
+			r"\bEntrada\s*Macho\b\s*[:=-]?\s*([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		entrada_macho = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		entrada_macho_map[separe_id_] = entrada_macho
+
+	if "Mortes Macho" in new_string:
+		m = re.search(
+			r"\bMortes?\s*Macho\b[^0-9Oo]*?([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		mortes_macho = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		mortes_macho_map[separe_id_] = mortes_macho
+
+	if "Abate Macho:" in new_string:
+		m = re.search(
+			r"\bAbate\s*Macho\b\s*[:=-]?\s*([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		abate_macho = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		abate_macho_map[separe_id_] = abate_macho
+
+	if "Venda Macho:" in new_string:
+		m = re.search(
+			r"\bVenda\s*Macho\b\s*[:=-]?\s*([0-9Oo]+)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		venda_macho = (
+			int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
+		)
+		venda_macho_map[separe_id_] = venda_macho
+
+	if "Leitao Desmamado/Fêmea/Ano Prev:" in new_string:
+		
+		m = re.search(
+    r"Leitao\s+Desmamado/Fêmea/Ano\s+Prev:\s*([0-9]+(?:[.,][0-9]+)?)",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		peso_recebido_raw = m.group(1) if m else None
+		peso_recebido_map[separe_id_] = peso_recebido_raw
+
+	if "Mortalidade Plantel Prev:" in new_string:
+		
+		m = re.search(
+			r"Mortalidade\s+Plantel\s+Prev:\s*([0-9O]+(?:[.,/][0-9O]+)?)",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		ajuste_nutricao = m.group(1) if m else None
+		ajuste_nutricao_map[separe_id_] = ajuste_nutricao
+
+	if "Peso Médio Leitão Prev:" in new_string:
+		m = re.search(
+    	r'Peso\s*M[eé]dio\s*Leit[aã]o\s*Prev:\s*([0-9]+(?:\.[0-9]+)?)',
 			new_string,
 			flags=re.IGNORECASE,
 		)
 
-		data_raw = m.group("data") if m else "none"
-		data_alojamento_map[separe_id_] = data_raw
-
-	if (
-		"Suíno Consumo" in new_string
-		or "Suino Consumo" in new_string
-		or "SuínoConsumo" in new_string
-	):
-
-		m = re.search(
-			r"\bSu[ií]no\s*Consumo\s*:\s*([0-9OoÓó]+)\b",
-			new_string,
-			flags=re.IGNORECASE,
-		)
+		ajs_peso_suino = None
 		if m:
-			suino_consumo = m.group(1)
-			suino_consumo_map[separe_id_] = suino_consumo
-
-	if "Qtde Abatido" in new_string:
-		m = re.search(
-			r"\bQtde\s*Abat\w*\s*:\s*([0-9OoÓó]+)\b", new_string, flags=re.IGNORECASE
-		)
-		if m:
-			qtde_abatido = (
-				int(
-					m.group(1).translate(
-						str.maketrans({"O": "0", "o": "0", "Ó": "0", "ó": "0"})
-					)
-				)
-				if m
-				else None
+			s = m.group(1).translate(
+				str.maketrans({"O": "0", "o": "0", "Ó": "0", "ó": "0"})
 			)
+			s = s.replace(",", ".")
+			ajs_peso_suino = float(s)
 
-			qtde_abatido_map[separe_id_] = qtde_abatido
+			peso_suino_map[separe_id_] = ajs_peso_suino
 
-	# if "Peso Médio:" in new_string or "Peso Medio:" in new_string:
-	# 	m = re.search(
-	# 		r"\bPeso\s*M[ée]d\w*\s*:\s*([0-9OoÓó][0-9OoÓó\.,/]+)",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	peso_medio_raw = m.group(1) if m else None
-	# 	peso_medio_map[separe_id_] = peso_medio_raw
+	if "Leitao Desmamado/Fêmea/Ano Real:" in new_string or "Leitão Desmamado/F" in new_string:
 
-	# if "Sexo:" in new_string or "SeXo:" in new_string:
+		m = re.search(
+			r"Leit[aã]o\s+Desmamado\/F[eê]mea\/Ano\s+Real:\s*([0-9]+(?:\.[0-9]+)?)",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		if m:
+			gpd = (m.group(1))
+			gpd_map[separe_id_] = gpd
 
-	# 	m = re.search(
-	# 		r"\bSexo\s*:\s*(?P<sexo>.+?)\s*(?=—|-|\bPeso\b|$)",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	if m:
-	# 		sexo = m.group(1) if m else None
-	# 		sexo_map[separe_id_] = sexo
+	if "Mortalidade PlantelReal:" in new_string:
+		m = re.search(
+			r"\bRa[cç][aã]o\s+Consumida\s*:\s*(?P<racao>\d+(?:[0-9A-Za-z]*|[,.]\d+)?)\b",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		if m:
+			raw = m.group("racao").upper()
+			# corrige "O", "o", "Ó", "ó" → "0"
+			raw = raw.translate(str.maketrans({"O": "0", "o": "0", "Ó": "0", "ó": "0"}))
+			# remove qualquer letra que ainda reste
+			raw = re.sub(r"[A-Za-z]", "", raw)
+			# converte vírgula para ponto, se houver
+			raw = raw.replace(",", ".")
+			try:
+				racao = int(float(raw))
+			except ValueError:
+				racao = None
+		else:
+			racao = None
+		racao_consumida_map[separe_id_] = racao
 
-	# if "Peso médio Alojado:" in new_string:
+	if "Peso Médio Leitão  Real:" in new_string:
+		m = re.search(
+			r"\bAjuste\s*Modal\s*:\s*(?P<modal>N[ÃA]O|SIM)\b[^\w]*",
+			new_string,
+			flags=re.IGNORECASE,
+		)
+		ajuste_modal = m.group("modal").upper() if m else None
 
-	# 	m = re.search(
-	# 		r"\bPeso\s*m[ée]d\w*\s*Aloj\w*\s*:\s*(?P<peso>[0-9OoÓó]+(?:[.,/][0-9OoÓó]+)*)",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	peso_medio_raw = m.group(1) if m else None
-	# 	peso_medio_aloj_map[separe_id_] = peso_medio_raw
-
-	# if ("Idade média" in new_string) or ("dade média" in new_string):
-
-	# 	m = re.search(
-	# 		r"\b(?:I)?dade\s*m[ée]dia\s*:\s*([0-9A-Za-z]+)\b",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-
-	# 	idade_raw = m.group(1) if m else None
-	# 	idade_media = re.sub(r"\D+", "", idade_raw) if idade_raw else No
-	# 	idade_media_map[separe_id_] = idade_media
-
-	# if "Peso Recebido:" in new_string:
-
-	# 	m = re.search(
-	# 		r"\bPeso\s*Receb\w*\s*:\s*([0-9OoÓó]+(?:[.,/][0-9OoÓó]+)*)",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	peso_recebido_raw = m.group(1) if m else None
-	# 	peso_recebido_map[separe_id_] = peso_recebido_raw
-
-	# if "Ajuste Nutrição:" in new_string:
-	# 	m = re.search(
-	# 		r"\bAjuste\s*Nutri\w*\s*:\s*(?P<ajuste>N[ÃA]O|SIM)\b[^\w]*",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	ajuste_nutricao = m.group("ajuste").upper() if m else None
-	# 	ajuste_nutricao_map[separe_id_] = ajuste_nutricao
-
-	# if "Peso Suíno:" in new_string or "AjsPeso Suíno:" in new_string:
-	# 	m = re.search(
-	# 		r"\b(?:Ajs\s*Peso\s*Su[ií]no|AjsPeso\s*Su[ií]no)\s*:\s*(?P<ajs>[0-9OoÓó]+(?:[.,][0-9OoÓó]+)*)\b",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-
-	# 	ajs_peso_suino = None
-	# 	if m:
-	# 		s = m.group("ajs").translate(
-	# 			str.maketrans({"O": "0", "o": "0", "Ó": "0", "ó": "0"})
-	# 		)
-	# 		s = s.replace(",", ".")
-	# 		ajs_peso_suino = float(s)
-
-	# 		peso_suino_map[separe_id_] = ajs_peso_suino
-
-	# if "GPD:" in new_string:
-	# 	m = re.search(
-	# 		r"\bGPD\s*:\s*(?P<gpd>\d{1,2}(?:[.,]\d+)?)\b",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	if m:
-	# 		gpd = float(m.group("gpd").replace(",", "."))
-	# 		gpd_map[separe_id_] = gpd
-
-	# if "Ração Consumida:" in new_string:
-	# 	m = re.search(
-	# 		r"\bRa[cç][aã]o\s+Consumida\s*:\s*(?P<racao>\d+(?:[0-9A-Za-z]*|[,.]\d+)?)\b",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	if m:
-	# 		raw = m.group("racao").upper()
-	# 		# corrige "O", "o", "Ó", "ó" → "0"
-	# 		raw = raw.translate(str.maketrans({"O": "0", "o": "0", "Ó": "0", "ó": "0"}))
-	# 		# remove qualquer letra que ainda reste
-	# 		raw = re.sub(r"[A-Za-z]", "", raw)
-	# 		# converte vírgula para ponto, se houver
-	# 		raw = raw.replace(",", ".")
-	# 		try:
-	# 			racao = int(float(raw))
-	# 		except ValueError:
-	# 			racao = None
-	# 	else:
-	# 		racao = None
-	# 	racao_consumida_map[separe_id_] = racao
-
-	# if "Ajuste Modal:" in new_string:
-	# 	m = re.search(
-	# 		r"\bAjuste\s*Modal\s*:\s*(?P<modal>N[ÃA]O|SIM)\b[^\w]*",
-	# 		new_string,
-	# 		flags=re.IGNORECASE,
-	# 	)
-	# 	ajuste_modal = m.group("modal").upper() if m else None
-
-	# 	ajuste_modal_map[separe_id_] = ajuste_modal
+		ajuste_modal_map[separe_id_] = ajuste_modal
 
 	# if (
 	# 	"AjsPeso Leitão:" in new_string
@@ -1167,18 +1173,26 @@ new_dataFrame["DATA_META"] = [qtde_alojada_map.get(i, "") for i in id_unic_arr]
 new_dataFrame["REPRODUTORES_FEMEA"] = [qtde_mortos_map.get(i, "") for i in id_unic_arr]
 new_dataFrame["ENTRADA_FEMEA"] = [qtde_retorno_map.get(i, "") for i in id_unic_arr]
 
-# new_dataFrame["PESO_ABATIDO"] = [peso_abatido_map.get(i, "") for i in id_unic_arr]
-# new_dataFrame["DATA_ALOJAMENTO"] = [data_alojamento_map.get(i, "") for i in id_unic_arr]
-# new_dataFrame["SUINO_CONSUMO"] = [suino_consumo_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["MORTES_FEMEA"] = [peso_abatido_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["ABATE_FEMEA"] = [abate_femea_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["VENDA_FEMEA"] = [venda_femea_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["REPRODUTORES_MACHO"] = [reprodutores_macho_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["ENTRADA_MACHO"] = [entrada_macho_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["MORTES_MACHO"] = [mortes_macho_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["ABATE_MACHO"] = [abate_macho_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["VENDA_MACHO"] = [venda_macho_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_PREV"] = [peso_recebido_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["MORTALIDADE_PLANTEL_PREV"] = [ajuste_nutricao_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["PESO_MEDIO_LEITAO_PREV"] = [peso_suino_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_REAL"] = [gpd_map.get(i, "") for i in id_unic_arr]
+
+
 # new_dataFrame["QTDE_ABATIDO"] = [qtde_abatido_map.get(i, "") for i in id_unic_arr]
-# # new_dataFrame["PESO_MEDIO"] = [peso_medio_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["SEXO"] = [sexo_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["PESO_MEDIO_ALOJ"] = [peso_medio_aloj_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["IDADE_MEDIA"] = [idade_media_map.get(i, "") for i in id_unic_arr]
-# new_dataFrame["PESO_RECEBIDO"] = [peso_recebido_map.get(i, "") for i in id_unic_arr]
-# new_dataFrame["AJUSTE_NUTRIÇÃO"] = [ajuste_nutricao_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["PESO_SUINO"] = [peso_suino_map.get(i, "") for i in id_unic_arr]
-# new_dataFrame["GPD"] = [gpd_map.get(i, "") for i in id_unic_arr]
+
 # new_dataFrame["RACAO_CONSUMIDA"] = [racao_consumida_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["AJUSTE_MODAL"] = [ajuste_modal_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["RACAO_CONSUMIDA"] = [racao_consumida_map.get(i, "") for i in id_unic_arr]
@@ -1231,7 +1245,6 @@ new_dataFrame["ENTRADA_FEMEA"] = [qtde_retorno_map.get(i, "") for i in id_unic_a
 # new_dataFrame["CONDENADOS_REAL"] = [
 #     condenacoes_real_map.get(i, "") for i in id_unic_arr
 # ]
-# new_dataFrame["PESO_AJUSTE_SUINO"] = [peso_suino_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["DIF_COND_PREV_REAL"] = [
 #     dif_cond_prev_real_map.get(i, "") for i in id_unic_arr
 # ]
