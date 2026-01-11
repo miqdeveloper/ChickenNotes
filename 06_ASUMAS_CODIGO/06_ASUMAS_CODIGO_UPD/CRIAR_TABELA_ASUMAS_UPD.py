@@ -566,14 +566,14 @@ for row in df.itertuples():
 			gpd_map[separe_id_] = gpd
 
 	if "Mortalidade PlantelReal:" in new_string:
-		print(new_string)
+		
 		m = re.search(
-			r"\bRa[cç][aã]o\s+Consumida\s*:\s*(?P<racao>\d+(?:[0-9A-Za-z]*|[,.]\d+)?)\b",
+			r"Mortalidade\s*Plantel\s*Real:\s*([0-9]+(?:\.[0-9]+)?)(?![\s/,])",
 			new_string,
 			flags=re.IGNORECASE,
 		)
 		if m:
-			raw = m.group("racao").upper()
+			raw = m.group(1)
 			# corrige "O", "o", "Ó", "ó" → "0"
 			raw = raw.translate(str.maketrans({"O": "0", "o": "0", "Ó": "0", "ó": "0"}))
 			# remove qualquer letra que ainda reste
@@ -588,7 +588,7 @@ for row in df.itertuples():
 			racao = None
 		racao_consumida_map[separe_id_] = racao
 
-	if "Peso Médio Leitão  Real:" in new_string:
+	if "Peso Médio Leitão Real:" in new_string:
 		m = re.search(
 			r"\bAjuste\s*Modal\s*:\s*(?P<modal>N[ÃA]O|SIM)\b[^\w]*",
 			new_string,
@@ -1186,6 +1186,7 @@ new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_PREV"] = [peso_recebido_map.get(i, "")
 new_dataFrame["MORTALIDADE_PLANTEL_PREV"] = [ajuste_nutricao_map.get(i, "") for i in id_unic_arr]
 new_dataFrame["PESO_MEDIO_LEITAO_PREV"] = [peso_suino_map.get(i, "") for i in id_unic_arr]
 new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_REAL"] = [gpd_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["MORTALIDADE_PLANTE_REAL"] = [racao_consumida_map.get(i, "") for i in id_unic_arr]
 
 
 # new_dataFrame["QTDE_ABATIDO"] = [qtde_abatido_map.get(i, "") for i in id_unic_arr]
@@ -1194,7 +1195,6 @@ new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_REAL"] = [gpd_map.get(i, "") for i in 
 # new_dataFrame["IDADE_MEDIA"] = [idade_media_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["PESO_SUINO"] = [peso_suino_map.get(i, "") for i in id_unic_arr]
 
-# new_dataFrame["RACAO_CONSUMIDA"] = [racao_consumida_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["AJUSTE_MODAL"] = [ajuste_modal_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["RACAO_CONSUMIDA"] = [racao_consumida_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["AJUSTE_PESO_LEITÃO"] = [
