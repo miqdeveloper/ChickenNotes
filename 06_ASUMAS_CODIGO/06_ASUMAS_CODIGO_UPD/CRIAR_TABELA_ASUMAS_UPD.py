@@ -589,6 +589,7 @@ for row in df.itertuples():
 		racao_consumida_map[separe_id_] = racao
 
 	if "Peso Médio Leitão Real:" in new_string:
+		print(new_string)
 		m = re.search(
 			r"\bAjuste\s*Modal\s*:\s*(?P<modal>N[ÃA]O|SIM)\b[^\w]*",
 			new_string,
