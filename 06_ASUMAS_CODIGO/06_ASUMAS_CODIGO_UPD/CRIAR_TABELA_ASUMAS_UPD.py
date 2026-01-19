@@ -293,7 +293,7 @@ for row in df.itertuples():
     separe_id_ = separe_id_.replace("=", "").replace(" ", "")
     if "-" in separe_id_:
         separe_id_ = separe_id_.split("_pg")[0]
-    id_unic_s.append(separe_id_)
+        id_unic_s.append(separe_id_)
 
     if "Integrado:" in new_string:
         m = re.search(
@@ -698,7 +698,7 @@ for row in df.itertuples():
         qtde_cab_faltantes_map[separe_id_] = qtde_cab_faltantes
 
     if "Vlr Reprodutor:" in new_string:
-        
+
         m = re.search(
             r"v[il]r\.?\s*reprodutor\s*[:=]?\s*[dD]?(\d+(?:[.,]\d+)?)",
             new_string,
@@ -709,14 +709,14 @@ for row in df.itertuples():
 
         qtde_cab_sinistro_map[separe_id_] = qtde_cab_sinistro
 
-    if "Vlr kg Ração Matriz:" in new_string:
+    if "Vlr kg Ração Matriz:" in new_string or "Matriz:" in new_string:
         m = re.search(
-            r"\bOutras\s+Perdas\s*:\s*([0-9OoÓó]+)\b",
+            r"vlr\s*kg\s*ra[cç][aã]o\s*matriz\s*[:=]?\s*(\d+(?:[.,]\d+)?)",
             new_string,
             flags=re.IGNORECASE,
         )
         outras_perdas = (
-            int(
+            float(
                 m.group(1).translate(
                     str.maketrans({"O": "0", "o": "0", "Ó": "0", "ó": "0"})
                 )
@@ -726,108 +726,105 @@ for row in df.itertuples():
         )
         outras_perdas_map[separe_id_] = outras_perdas
 
-    # if "Conv. Ajustada Prev" in new_string:
-    # 	m = re.search(
-    # 		r"\bConv\.?\s*Ajustada\s*Prev\.?\s*:\s*([\d\.]+)\b",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+    if "Vlr kg Ração Leitão:" in new_string or "Vlr kg" in new_string:
+        pattern = re.compile(
+            r"(?ix)(?:v[l1iI]{0,3}r\W*kg\W*ra[cç](?:ao|ão)\W*leit(?:ao|ão))\W*[:\-]?\W*([0-9]+(?:[.,][0-9]+)?)",
+            flags=re.IGNORECASE,
+        )
 
-    # 	conv_ajustada_prev = m.group(1) if m else "nan"
-    # 	conv_ajustada_prev_map[separe_id_] = conv_ajustada_prev
+        m = pattern.search(new_string)
+        conv_ajustada_prev = m.group(1) if m else "nan"
+        conv_ajustada_prev_map[separe_id_] = conv_ajustada_prev
 
-    # if "Conv. Alimentar Real" in new_string:
-    # 	m = re.search(
-    # 		r"\bConv\.?\s*Alimentar\s*Real\.?\s*:\s*([\d\.]+)\b",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+    if "Básico de Partilha:" in new_string:
+        print(new_string)
+        m = re.search(
+            r"\bConv\.?\s*Alimentar\s*Real\.?\s*:\s*([\d\.]+)\b",
+            new_string,
+            flags=re.IGNORECASE,
+        )
 
-    # 	conv_alimentar_real = m.group(1) if m else "nan"
-    # 	conv_alimentar_real_map[separe_id_] = conv_alimentar_real
+        conv_alimentar_real = m.group(1) if m else "nan"
+        conv_alimentar_real_map[separe_id_] = conv_alimentar_real
 
-    # if "Conv. Real Ajustada:" in new_string:
-    # 	m = re.search(
-    # 		r"\bConv\.?\s*Real\s+Ajustada\s*:\s*(?P<conv>\d+(?:[.,]\d+)?)\b",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
-    # 	conv_real_ajustada = m.group("conv").replace(",", ".") if m else "nan"
-    # 	conv_real_ajustada_map[separe_id_] = (
-    # 		float(conv_real_ajustada) if conv_real_ajustada != "nan" else "nan"
-    # 	)
+    if "Ajuste Leitão Desmamado(LDFA):" in new_string:
+        m = re.search(
+            r"\bConv\.?\s*Real\s+Ajustada\s*:\s*(?P<conv>\d+(?:[.,]\d+)?)\b",
+            new_string,
+            flags=re.IGNORECASE,
+        )
+        conv_real_ajustada = m.group("conv").replace(",", ".") if m else "nan"
+        conv_real_ajustada_map[separe_id_] = (
+            float(conv_real_ajustada) if conv_real_ajustada != "nan" else "nan"
+        )
 
-    # if "Qtde Condenados Total:" in new_string:
-    # 	m = re.search(
-    # 		r"Qtde\s*Condenados\s*Total\s*:\s*([0O\d]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+    if "Ajuste Ração Reprodutor(RRFA):" in new_string:
+        m = re.search(
+            r"Qtde\s*Condenados\s*Total\s*:\s*([0O\d]+)",
+            new_string,
+            flags=re.IGNORECASE,
+        )
 
-    # 	condenados_total = m.group(1).replace("O", "0") if m else "nan"
+        condenados_total = m.group(1).replace("O", "0") if m else "nan"
 
-    # 	# Armazena o valor limpo (ex: '0')
-    # 	condenados_total_map[separe_id_] = condenados_total
+        # Armazena o valor limpo (ex: '0')
+        condenados_total_map[separe_id_] = condenados_total
 
-    # if (
-    # 	"Pc Mortalidade Prev:" in new_string
-    # 	or "PcMortalidadePrev:" in new_string
-    # 	or "Mortalidade Prev" in new_string
-    # ):
+    if "Ajuste Ração Leitão (RLT):" in new_string:
 
-    # 	m = re.search(
-    # 		r"P[ce]\s*Mortalidade\s*Prev\s*:\s*([\d\.,]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+        m = re.search(
+            r"P[ce]\s*Mortalidade\s*Prev\s*:\s*([\d\.,]+)",
+            new_string,
+            flags=re.IGNORECASE,
+        )
 
-    # 	mortalidade_prev = m.group(1) if m else "nan"
+        mortalidade_prev = m.group(1) if m else "nan"
 
-    # 	# Armazena o valor (ex: '3.050')
-    # 	mortalidade_prev_map[separe_id_] = mortalidade_prev
+        # Armazena o valor (ex: '3.050')
+        mortalidade_prev_map[separe_id_] = mortalidade_prev
 
-    # if "Qtde Condenados Parcial:" in new_string or "Condenados Pa" in new_string:
-    # 	m = re.search(
-    # 		r"Qtde\s*Condenados\s*Par[cd]i?[aá][al]+\s*:\s*([0O\d]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+    if "Ajuste Mortalidade:" in new_string:
+        m = re.search(
+            r"Qtde\s*Condenados\s*Par[cd]i?[aá][al]+\s*:\s*([0O\d]+)",
+            new_string,
+            flags=re.IGNORECASE,
+        )
 
-    # 	condenados_parcial = m.group(1).replace("O", "0") if m else "nan"
+        condenados_parcial = m.group(1).replace("O", "0") if m else "nan"
 
-    # 	condenados_parcial_map[separe_id_] = condenados_parcial
+        condenados_parcial_map[separe_id_] = condenados_parcial
 
-    # if "Pc Mortalidade Real:" in new_string or "Mortalidade Real:" in new_string:
-    # 	m = re.search(
-    # 		r"P[ce]\s*Mortalidade\s*Real\s*:\s*([\d\.,]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
-    # 	mortalidade_real = m.group(1) if m else "nan"
-    # 	mortalidade_real_map[separe_id_] = mortalidade_real
+    if "Ajuste Peso Médio(PMT):" in new_string:
+        m = re.search(
+            r"P[ce]\s*Mortalidade\s*Real\s*:\s*([\d\.,]+)",
+            new_string,
+            flags=re.IGNORECASE,
+        )
+        mortalidade_real = m.group(1) if m else "nan"
+        mortalidade_real_map[separe_id_] = mortalidade_real
 
-    # if "Pc Condenações Prev:" in new_string or "Condenações Prev:" in new_string:
-    # 	m = re.search(
-    # 		r"P[ce]*\s*Condena[cç][oõ]es\s*Prev\s*:\s*([0O\d]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+    if "Ajuste Check-List:" in new_string:
+        m = re.search(
+            r"P[ce]*\s*Condena[cç][oõ]es\s*Prev\s*:\s*([0O\d]+)",
+            new_string,
+            flags=re.IGNORECASE,
+        )
 
-    # 	condenacoes_prev = m.group(1).replace("O", "0") if m else "nan"
+        condenacoes_prev = m.group(1).replace("O", "0") if m else "nan"
 
-    # 	condenacoes_prev_map[separe_id_] = condenacoes_prev
+        condenacoes_prev_map[separe_id_] = condenacoes_prev
 
-    # if "Dif. Mort (PrevXReal):" in new_string or "Mort (PrevXReal):" in new_string:
-    # 	m = re.search(
-    # 		r"Dif\.?\s*Mort\s*\(PrevXReal\)\s*:\s*[-]?\s*([\d\.,]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+    if "Resultado Bruto do Lote:" in new_string:
+        m = re.search(
+            r"Dif\.?\s*Mort\s*\(PrevXReal\)\s*:\s*[-]?\s*([\d\.,]+)",
+            new_string,
+            flags=re.IGNORECASE,
+        )
 
-    # 	# Limpa espaços entre o sinal negativo e o número (ex: transforma '- 0.890' em '-0.890')
-    # 	dif_mort = m.group(1).replace(" ", "") if m else "nan"
+        # Limpa espaços entre o sinal negativo e o número (ex: transforma '- 0.890' em '-0.890')
+        dif_mort = m.group(1).replace(" ", "") if m else "nan"
 
-    # 	dif_mort_map[separe_id_] = dif_mort
+        dif_mort_map[separe_id_] = dif_mort
 
     # if "Pc Condenações Real:" in new_string or "Condenações Real:" in new_string:
     # 	m = re.search(
@@ -1215,8 +1212,13 @@ new_dataFrame["QT_LEITOES"] = [peso_total_aloj_map.get(i, "") for i in id_unic_a
 
 new_dataFrame["VLR_LEITAO"] = [qtde_cab_faltantes_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["VLR_PRODUTOR"] = [
-    qtde_cab_sinistro_map.get(i, "") for i in id_unic_arr
+new_dataFrame["VLR_PRODUTOR"] = [qtde_cab_sinistro_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["VLR_KG_RACAO_MATRIZ"] = [
+    outras_perdas_map.get(i, "") for i in id_unic_arr
+]
+
+new_dataFrame["VLR_KG_RACAO_LEITAO"] = [
+    conv_ajustada_prev_map.get(i, "") for i in id_unic_arr
 ]
 
 # new_dataFrame["QTDE_ABATIDO"] = [qtde_abatido_map.get(i, "") for i in id_unic_arr]
@@ -1228,10 +1230,6 @@ new_dataFrame["VLR_PRODUTOR"] = [
 # new_dataFrame["RACAO_CONSUMIDA"] = [racao_consumida_map.get(i, "") for i in id_unic_arr]
 
 
-# new_dataFrame["OUTRAS_PERDAS"] = [outras_perdas_map.get(i, "") for i in id_unic_arr]
-# new_dataFrame["CONV_AJUSTADA_PREV"] = [
-#     conv_ajustada_prev_map.get(i, "") for i in id_unic_arr
-# ]
 # new_dataFrame["CONV_ALIMENTAR_REAL"] = [
 #     conv_alimentar_real_map.get(i, "") for i in id_unic_arr
 # ]

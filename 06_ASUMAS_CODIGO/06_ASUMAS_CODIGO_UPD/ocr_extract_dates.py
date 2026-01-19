@@ -324,7 +324,7 @@ def init_():
       
       print("Usando OCR...\n")
       ocr_tifs_to_csv(process_images, os.path.join(csv_f, 'output.csv'))
-    #   clean_files(process_images)  # Limpa arquivos TIF processados
+      clean_files(process_images)  # Limpa arquivos TIF processados
       clean_files(images_path)  # Limpa arquivos TIF processados
     except Exception as err:
         print(f"Erro ao processar os arquivos: {err}")
