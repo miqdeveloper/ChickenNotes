@@ -737,106 +737,467 @@ for row in df.itertuples():
         conv_ajustada_prev_map[separe_id_] = conv_ajustada_prev
 
     if "Básico de Partilha:" in new_string:
-        print(new_string)
+
         m = re.search(
-            r"\bConv\.?\s*Alimentar\s*Real\.?\s*:\s*([\d\.]+)\b",
+            r"""(?ix)                       # ignore case + verbose
+            básico\ de\ partilha[:\s]*      # texto fixo
+            (?P<percentual>\d{1,2}(?:[.,]\d+)?)   # percentual
+            (?:\s+                          # opcional R$/Cab
+                (?P<r_cab>\d+(?:[.,]\d+)?)
+            )?
+            \s+
+            (?P<valor>\d+(?:[.,]\d+)?)      # valor em R$
+            """,
             new_string,
-            flags=re.IGNORECASE,
         )
 
-        conv_alimentar_real = m.group(1) if m else "nan"
-        conv_alimentar_real_map[separe_id_] = conv_alimentar_real
+        percentual = m.group("percentual") if m and m.group("percentual") else "nan"
+
+        r_cab = m.group("r_cab") if m and m.group("r_cab") else "nan"
+
+        valor = m.group("valor") if m and m.group("valor") else "nan"
+
+        # opcional converter para float
+        def norm_number(s):
+            return (
+                float(s.replace(",", ".").replace("O", "0").replace("o", "0"))
+                if s != "nan"
+                else "nan"
+            )
+
+        percentual = norm_number(percentual)
+        r_cab = norm_number(r_cab)
+        valor = norm_number(valor)
+
+        conv_alimentar_real_map[separe_id_] = {
+            "percentual": percentual,
+            "r_cab": r_cab,
+            "valor": valor,
+        }
+        # print(conv_alimentar_real_map[separe_id_]['percentual'])
+        # conv_alimentar_real = m.group(1) if m else "nan"
+        # conv_alimentar_real_map[separe_id_] = conv_alimentar_real
 
     if "Ajuste Leitão Desmamado(LDFA):" in new_string:
-        m = re.search(
-            r"\bConv\.?\s*Real\s+Ajustada\s*:\s*(?P<conv>\d+(?:[.,]\d+)?)\b",
-            new_string,
-            flags=re.IGNORECASE,
+        # print(new_string)
+        pattern = re.compile(
+            r"""(?ix)                             # case-insensitive + verbose
+    ajuste\ leit[ãa]o\ desmamado          # texto fixo “Ajuste Leitão Desmamado”
+    \s* \(?LDFA\)?                       # pode ter parênteses em LDFA
+    \s*[:\-]?\s*                         # separador possivel (: ou -)
+    
+    (?P<coef_a>\d+(?:[.,]\d+)?)          # coeficiente A (obrigatório)
+    
+    (?:                                  # grupo opcional para coeficiente B
+        \s+
+        (?P<coef_b>\d+(?:[.,]\d+)?)
+    )?
+    
+    (?:                                  # grupo opcional para valor em R$
+        \s+
+        (?P<valor>                       # captura valor bruto
+            \d+(?:[.,]\d+)?              # valor normal
+            (?:                         # ou valor sujo com / no meio
+                /[0-9]*\d+[.,]?\d*
+            )?
         )
-        conv_real_ajustada = m.group("conv").replace(",", ".") if m else "nan"
-        conv_real_ajustada_map[separe_id_] = (
-            float(conv_real_ajustada) if conv_real_ajustada != "nan" else "nan"
+    )?
+    """,
         )
+
+        m = pattern.search(new_string)
+        # print(m)
+
+        coef_a = m.group("coef_a") if m and m.group("coef_a") else "nan"
+        coef_b = m.group("coef_b") if m and m.group("coef_b") else "nan"
+        valor_ldfa = m.group("valor") if m and m.group("valor") else "nan"
+
+        # converter para float (normalizando vírgula e caracteres estranhos)
+        def to_float(x):
+            try:
+                return float(x.replace(",", "."))
+            except:
+                return float("nan")
+
+        coef_a = to_float(coef_a)
+        coef_b = to_float(coef_b)
+        valor_ldfa = to_float(valor_ldfa)
+
+        conv_real_ajustada_map[separe_id_] = {
+            "coef_a": coef_a,
+            "coef_b": coef_b,
+            "valor": valor_ldfa,
+        }
+        # print(conv_real_ajustada_map[separe_id_])
 
     if "Ajuste Ração Reprodutor(RRFA):" in new_string:
-        m = re.search(
-            r"Qtde\s*Condenados\s*Total\s*:\s*([0O\d]+)",
-            new_string,
-            flags=re.IGNORECASE,
+        pattern = re.compile(
+            r"""(?ix)                                # verbose + ignorecase
+            ajuste\ ra[cç]\w*\s*reprodutor           # "Ajuste Ração Reprodutor"
+            \s* \(?RRFA\)?                           # (RRFA) com ou sem parênteses
+            \s*[:\-]?\s*                             # separador opcional (: ou -)
+
+            (?P<coef_a>[-−]?\s*\d+(?:[.,]\d+)?)      # coeficiente A (com sinal opcional)
+
+            (?:\s*[-–—]?\s*                          # possível separador tipo "-" entre campos
+                (?P<coef_b>[-−]?\s*\d+(?:[.,]\d+)?)
+            )?                                       # coef B opcional
+
+            (?:\s*[-–—]?\s*                          # possível separador tipo "-" antes do valor
+                (?P<valor>[-−]?\s*\d+(?:[.,]\d+)?(?:/[0-9]+[.,]?\d*)?)
+            )?                                       # valor opcional (aceita uma barra suja)
+            """,
         )
 
-        condenados_total = m.group(1).replace("O", "0") if m else "nan"
+        m = pattern.search(new_string)
 
-        # Armazena o valor limpo (ex: '0')
-        condenados_total_map[separe_id_] = condenados_total
+        raw_a = m.group("coef_a") if m and m.group("coef_a") else "nan"
+        raw_b = m.group("coef_b") if m and m.group("coef_b") else "nan"
+        raw_val = m.group("valor") if m and m.group("valor") else "nan"
+
+        # Normalização robusta: troca OCR, mantem sinal, lida com barras, vírgulas, pontos repetidos
+        def clean_and_float(s):
+            if s is None:
+                return float("nan")
+            if isinstance(s, (int, float)):
+                return float(s)
+            s = s.strip()
+            if s.lower() in ("nan", ""):
+                return float("nan")
+
+            # Correções OCR comuns
+            s = s.replace("O", "0").replace("o", "0")
+            s = s.replace("−", "-").replace("—", "-").replace("–", "-")
+            s = s.replace(",", ".")
+
+            # Remover caracteres indesejados mantendo digits, dot, minus, slash
+            s = re.sub(r"[^0-9\.\-\/]", "", s)
+
+            # Se houver múltiplas barras, pegar a última parte que parece número
+            if "/" in s:
+                parts = [p for p in s.split("/") if p != ""]
+                # tentar escolher a parte mais plausível (preferir que contenha '.')
+                chosen = parts[-1]
+                for p in reversed(parts):
+                    if re.match(r"^-?\d+\.\d+$", p):
+                        chosen = p
+                        break
+                s = chosen
+
+            # Se houver mais de um ponto (.) — juntar tudo mantendo o primeiro como decimal
+            if s.count(".") > 1:
+                first, rest = s.split(".", 1)
+                rest = re.sub(r"\.", "", rest)  # remove outros pontos
+                s = first + "." + rest
+
+            # Se string for só um sinal ou vazio, retornar nan
+            if re.fullmatch(r"[-]+", s) or s == "":
+                return float("nan")
+
+            try:
+                return float(s)
+            except Exception:
+                # tentativa final: extrair o primeiro número com regex
+                mnum = re.search(r"-?\d+(?:\.\d+)?", s)
+                if mnum:
+                    return float(mnum.group(0))
+                return float("nan")
+
+        coef_a = clean_and_float(raw_a)
+        coef_b = clean_and_float(raw_b)
+        valor_rrfa = clean_and_float(raw_val)
+
+        condenados_total_map[separe_id_] = {
+            "coef_a": coef_a,
+            "coef_b": coef_b,
+            "valor": valor_rrfa,
+        }
 
     if "Ajuste Ração Leitão (RLT):" in new_string:
+        # print(new_string)
+        pattern = re.compile(
+            r"""(?ix)
+            ajuste\ ra[cç]\w*\s*leit[oã]o             # texto fixo “Ajuste Ração Leitão”
+            \s* \(?RLT\)?                             # (RLT) com ou sem parênteses
+            \s*[:\-]?\s*                              # separador opcional
 
-        m = re.search(
-            r"P[ce]\s*Mortalidade\s*Prev\s*:\s*([\d\.,]+)",
-            new_string,
-            flags=re.IGNORECASE,
+            (?P<coef_a>[-−]?\s*\d+(?:[.,]\d+)?)        # coeficiente A (com sinal opcional)
+
+            (?:\s*[-–—]?\s*                            # possível separador “-” entre campos
+                (?P<coef_b>[-−]?\s*\d+(?:[.,]\d+)?)
+            )?                                         # coef B opcional
+
+            (?:\s*[-–—]?\s*                            # possível separador antes do valor
+                (?P<valor>[-−]?\s*\d+(?:[.,]\d+)?(?:/[0-9]+[.,]?\d*)?)
+            )?                                         # valor opcional
+            """,
         )
 
-        mortalidade_prev = m.group(1) if m else "nan"
+        m = pattern.search(new_string)
+
+        raw_a = m.group("coef_a") if m and m.group("coef_a") else "nan"
+        raw_b = m.group("coef_b") if m and m.group("coef_b") else "nan"
+        raw_val = m.group("valor") if m and m.group("valor") else "nan"
+
+        # Função de normalização robusta (tratando vírgula, sinais e barras)
+        def clean_and_float(s):
+            if s is None:
+                return "nan"
+            if isinstance(s, (int, str)):
+                return s
+            s = s.strip()
+            if s.lower() in ("nan", ""):
+                return "nan"
+
+            # normalizações típicas (OCR, vírgulas, sinais)
+            s = s.replace("O", "0").replace("o", "0")
+            s = s.replace("−", "-").replace("—", "-").replace("–", "-")
+            s = s.replace(",", ".")
+
+            # remover chars indesejados mantendo dígitos, ponto, sinal e barra
+            s = re.sub(r"[^0-9\.\-\/]", "", s)
+
+            # se houver barra, usar parte final plausível
+            if "/" in s:
+                parts = [p for p in s.split("/") if p != ""]
+                chosen = parts[-1]
+                for p in reversed(parts):
+                    if re.match(r"^-?\d+\.\d+$", p):
+                        chosen = p
+                        break
+                s = chosen
+
+            # se houver múltiplos pontos, manter apenas o primeiro como decimal
+            if s.count(".") > 1:
+                first, rest = s.split(".", 1)
+                rest = re.sub(r"\.", "", rest)
+                s = first + "." + rest
+
+            if re.fullmatch(r"[-]+", s) or s == "":
+                return "nan"
+
+            try:
+                return s
+            except:
+                mnum = re.search(r"-?\d+(?:\.\d+)?", s)
+                if mnum:
+                    return mnum.group(0)
+                return float("nan")
+
+        coef_a = clean_and_float(raw_a)
+        coef_b = clean_and_float(raw_b)
+        valor_rlt = clean_and_float(raw_val)
+
+        mortalidade_prev_map[separe_id_] = {
+            "coef_a": coef_a,
+            "coef_b": coef_b,
+            "valor": valor_rlt,
+        }
 
         # Armazena o valor (ex: '3.050')
-        mortalidade_prev_map[separe_id_] = mortalidade_prev
+        # mortalidade_prev_map[separe_id_] = mortalidade_prev
 
     if "Ajuste Mortalidade:" in new_string:
-        m = re.search(
-            r"Qtde\s*Condenados\s*Par[cd]i?[aá][al]+\s*:\s*([0O\d]+)",
-            new_string,
-            flags=re.IGNORECASE,
+        pattern = re.compile(
+            r"""(?ix)
+            ajuste\ mortalidade
+            \s*[:\-]?\s*
+
+            (?P<coef_a>[-−]?\s*\d+(?:[.,]\d+)?)
+
+            (?:\s*[-–—]?\s*
+                (?P<coef_b>[-−]?\s*\d+(?:[.,]\d+)?)
+            )?
+
+            (?:\s*[-–—]?\s*
+                (?P<valor>[-−]?\s*\d+(?:[.,]\d+)?(?:/[0-9]+[.,]?\d*)?)
+            )?
+            """,
         )
 
-        condenados_parcial = m.group(1).replace("O", "0") if m else "nan"
+        m = pattern.search(new_string)
 
-        condenados_parcial_map[separe_id_] = condenados_parcial
+        coef_a = m.group("coef_a").strip() if m and m.group("coef_a") else "nan"
+        coef_b = m.group("coef_b").strip() if m and m.group("coef_b") else "nan"
+        valor_mortalidade = (
+            m.group("valor").strip() if m and m.group("valor") else "nan"
+        )
+
+        # limpeza leve: normalizar vírgula → ponto, remover espaços desnecessários
+        def clean_str(s):
+            if not s or s.lower() == "nan":
+                return "nan"
+            # trocar O errados por 0 e vírgula por ponto
+            s = s.replace("O", "0").replace("o", "0")
+            s = s.replace(",", ".")
+            # remover espaços múltiplos
+            s = re.sub(r"\s+", "", s)
+            return s
+
+        coef_a = clean_str(coef_a)
+        coef_b = clean_str(coef_b)
+        valor_mortalidade = clean_str(valor_mortalidade)
+
+        condenados_parcial_map[separe_id_] = {
+            "coef_a": coef_a,
+            "coef_b": coef_b,
+            "valor": valor_mortalidade,
+        }
+        # print(condenados_parcial_map[separe_id_])
+
+    # condenados_parcial_map[separe_id_] = condenados_parcial
 
     if "Ajuste Peso Médio(PMT):" in new_string:
-        m = re.search(
-            r"P[ce]\s*Mortalidade\s*Real\s*:\s*([\d\.,]+)",
-            new_string,
-            flags=re.IGNORECASE,
+        # print(new_string)
+        pattern_pmt = re.compile(
+            r"""(?ix)
+            ajuste\ peso\ m[eé]dio\s*\(PMT\)    # cabeçalho
+            \s*[:\-]?\s*
+            (?P<coef_a>[-−]?\s*\d+(?:[.,]\d+)?)            # coef A (obrigatório)
+            (?:\s*[-–—]?\s*(?P<coef_b>[-−]?\s*\d+(?:[.,]\d+)?))?   # coef B (opcional)
+            (?:\s*[-–—]?\s*(?P<valor>[-−]?\s*\d+(?:[.,]\d+)?(?:/[0-9]+[.,]?\d*)?))? # valor (opcional)
+            """,
         )
-        mortalidade_real = m.group(1) if m else "nan"
-        mortalidade_real_map[separe_id_] = mortalidade_real
+
+        m = pattern_pmt.search(new_string)
+
+        def clean_str(s):
+            if not s:
+                return "nan"
+            s = s.strip().replace("O", "0").replace("o", "0").replace(",", ".")
+            s = re.sub(r"\s+", "", s)
+            return s
+
+        mortalidade_real_map[separe_id_] = {
+            "coef_a": (
+                clean_str(m.group("coef_a")) if m and m.group("coef_a") else "nan"
+            ),
+            "coef_b": (
+                clean_str(m.group("coef_b")) if m and m.group("coef_b") else "nan"
+            ),
+            "valor": clean_str(m.group("valor")) if m and m.group("valor") else "nan",
+        }
+        # print(mortalidade_real_map[separe_id_])
+        # mortalidade_real_map[separe_id_] = mortalidade_real
 
     if "Ajuste Check-List:" in new_string:
-        m = re.search(
-            r"P[ce]*\s*Condena[cç][oõ]es\s*Prev\s*:\s*([0O\d]+)",
-            new_string,
-            flags=re.IGNORECASE,
+        pattern_check = re.compile(
+            r"""(?ix)
+            ajuste\ check-?list
+            \s*[:\-]?\s*
+            (?P<coef_a>[-]?\s*\d+(?:[.,]\d+)?)
+            (?:\s*[-]?\s*(?P<coef_b>[-]?\s*\d+(?:[.,]\d+)?))?
+            (?:\s*[-]?\s*(?P<valor>[-]?\s*\d+(?:[.,]\d+)?(?:/[0-9]+[.,]?\d*)?))?
+            """,
         )
 
-        condenacoes_prev = m.group(1).replace("O", "0") if m else "nan"
+        m = pattern_check.search(new_string)
 
-        condenacoes_prev_map[separe_id_] = condenacoes_prev
+        def clean_str(s):
+            if not s:
+                return "nan"
+            s = s.strip().replace("O", "0").replace("o", "0").replace(",", ".")
+            return re.sub(r"\s+", "", s)
+
+        condenacoes_prev_map[separe_id_] = {
+            "coef_a": (
+                clean_str(m.group("coef_a")) if m and m.group("coef_a") else "nan"
+            ),
+            "coef_b": (
+                clean_str(m.group("coef_b")) if m and m.group("coef_b") else "nan"
+            ),
+            "valor": clean_str(m.group("valor")) if m and m.group("valor") else "nan",
+        }
+        # condenacoes_prev_map[separe_id_] = condenacoes_prev
 
     if "Resultado Bruto do Lote:" in new_string:
-        m = re.search(
-            r"Dif\.?\s*Mort\s*\(PrevXReal\)\s*:\s*[-]?\s*([\d\.,]+)",
-            new_string,
-            flags=re.IGNORECASE,
+
+        pattern_result = re.compile(
+            r"""(?ix)
+        resultado\ bruto\ do\ lote     # texto fixo
+        \s*[:\-]?\s*
+
+        (?P<campo_a>[-]?\s*\d+(?:[.,]\d+)?)   # primeiro número
+
+        (?:                                  # segundo número (opcional)
+            [^\d\-]*                         # permite chars sujos no meio
+            (?P<campo_b>[-]?\s*\d+(?:[.,]\d+)?)
+        )?
+
+        (?:                                  # terceiro número (opcional)
+            [^\d\-]*                         # permite chars sujos entre grupos
+            (?P<valor>[-]?\s*\d+(?:[.,]\d+)?(?:/[0-9]+[.,]?\d*)?)
+        )?
+        """,
         )
 
-        # Limpa espaços entre o sinal negativo e o número (ex: transforma '- 0.890' em '-0.890')
-        dif_mort = m.group(1).replace(" ", "") if m else "nan"
+        m = pattern_result.search(new_string)
 
-        dif_mort_map[separe_id_] = dif_mort
+        def clean_str(s):
+            if not s:
+                return "nan"
+            s = s.strip()
+            s = s.replace("O", "0").replace("o", "0")  # correção OCR comum
+            s = s.replace(",", ".")
+            # remove chars indesejados, mantém dígitos, ponto, barra e sinal
+            s = re.sub(r"[^0-9\.\-\/]", "", s)
+            # colapsa múltiplos pontos (mantém o primeiro como decimal)
+            if s.count(".") > 1:
+                first, rest = s.split(".", 1)
+                rest = re.sub(r"\.", "", rest)
+                s = first + "." + rest
+            return s if s != "" else "nan"
 
-    # if "Pc Condenações Real:" in new_string or "Condenações Real:" in new_string:
-    # 	m = re.search(
-    # 		r"P[ce]*\s*Condena[cç][oõ]es\s*Real\s*:\s*([0O\d]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+        dif_mort_map[separe_id_] = {
+            "campo_a": (
+                clean_str(m.group("campo_a")) if m and m.group("campo_a") else "nan"
+            ),
+            "campo_b": (
+                clean_str(m.group("campo_b")) if m and m.group("campo_b") else "nan"
+            ),
+            "valor": clean_str(m.group("valor")) if m and m.group("valor") else "nan",
+        }
 
-    # 	# Substitui 'O' (letra) por '0' (número) para normalização
-    # 	condenacoes_real = m.group(1).replace("O", "0") if m else "nan"
+    if "Desconto Senar Normal" in new_string:
+        # print(new_string)
 
-    # 	condenacoes_real_map[separe_id_] = condenacoes_real
+        pattern_senar = re.compile(
+            r"""(?ix)
+            desconto\ senar\ normal        # texto fixo
+            \s*[:\-]?\s*
+            (?P<valor1>[-]?\s*\d+(?:[.,]\d+)?)    # primeiro valor
+            (?:\s+
+                (?P<valor2>[-]?\s*\d+(?:[.,]\d+)?)
+            )?                                  # segundo valor opcional
+            (?:\s+
+                (?P<valor3>[-]?\s*\d+(?:[.,]\d+)?)
+            )?                                  # terceiro valor opcional
+            """,
+        )
+
+        m = pattern_senar.search(new_string)
+
+        def clean_str(s):
+            if not s:
+                return "nan"
+            s = s.strip().replace("O", "0").replace("o", "0")
+            s = s.replace(",", ".")
+            s = re.sub(r"[^0-9\.\-]", "", s)
+            return s if s != "" else "nan"
+
+        condenacoes_real_map[separe_id_] = {
+            "valor1": (
+                clean_str(m.group("valor1")) if m and m.group("valor1") else "nan"
+            ),
+            "valor2": (
+                clean_str(m.group("valor2")) if m and m.group("valor2") else "nan"
+            ),
+            "valor3": (
+                clean_str(m.group("valor3")) if m and m.group("valor3") else "nan"
+            ),
+        }
+
+        # condenacoes_real_map[separe_id_] = condenacoes_real
 
     # if "Ganho Peso Diario Prev:" in new_string:
     # 	m = re.search(
@@ -1221,6 +1582,136 @@ new_dataFrame["VLR_KG_RACAO_LEITAO"] = [
     conv_ajustada_prev_map.get(i, "") for i in id_unic_arr
 ]
 
+
+new_dataFrame["BASICO_PERCENTUAL"] = [
+    conv_alimentar_real_map.get(i, {}).get("percentual", float("nan"))
+    for i in id_unic_arr
+]
+
+new_dataFrame["BASICO_R_CAB"] = [
+    conv_alimentar_real_map.get(i, {}).get("r_cab", float("nan")) for i in id_unic_arr
+]
+
+new_dataFrame["BASICO_VALOR"] = [
+    conv_alimentar_real_map.get(i, {}).get("valor", float("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_LDFA_PORCETAGE"] = [
+    conv_real_ajustada_map.get(i, {}).get("coef_a", float("nan")) for i in id_unic_arr
+]
+
+new_dataFrame["AJUSTE_LDFA_REAL_CAB"] = [
+    conv_real_ajustada_map.get(i, {}).get("coef_b", float("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_LDFA_REAL_REAL"] = [
+    conv_real_ajustada_map.get(i, {}).get("valor", float("nan")) for i in id_unic_arr
+]
+
+new_dataFrame["RRFA_%"] = [
+    condenados_total_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+]
+new_dataFrame["RRFA_R$_CAB"] = [
+    condenados_total_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+]
+new_dataFrame["RRFA_REAL_$"] = [
+    condenados_total_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_%"] = [
+    mortalidade_prev_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_$_CAB"] = [
+    mortalidade_prev_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_$"] = [
+    mortalidade_prev_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_MORTALIDADE_%"] = [
+    condenados_parcial_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_MORTALIDADE_R$_CAB"] = [
+    condenados_parcial_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_MORTALIDADE_R$"] = [
+    condenados_parcial_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_MORTALIDADE_R$"] = [
+    condenados_parcial_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_PESO_MEDIO_PMT_%"] = [
+    mortalidade_real_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_PESO_MEDIO_PMT_R$_CAB"] = [
+    mortalidade_real_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+]
+
+new_dataFrame["AJUSTE_PESO_MEDIO_PMT_R$"] = [
+    mortalidade_real_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["AJUSTE_CHECK_LIST_%"] = [
+    condenacoes_prev_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+]
+
+new_dataFrame["AJUSTE_CHECK_LIST_R$_CAB"] = [
+    condenacoes_prev_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+]
+
+new_dataFrame["AJUSTE_CHECK_LIST_R$"] = [
+    condenacoes_prev_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["RESULTADO_BRUTO_LOTE_%"] = [
+    dif_mort_map.get(i, {}).get("campo_a", ("nan")) for i in id_unic_arr
+]
+
+new_dataFrame["RESULTADO_BRUTO_LOTE_R$_CAB"] = [
+    dif_mort_map.get(i, {}).get("campo_b", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["RESULTADO_BRUTO_LOTE_R$_CAB"] = [
+    dif_mort_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["DESCONTO_SENAR_NORMAL_DEBITO"] = [
+    dif_mort_map.get(i, {}).get("valor1", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["DESCONTO_SENAR_NORMAL_CREDITO"] = [
+    dif_mort_map.get(i, {}).get("valor2", ("nan")) for i in id_unic_arr
+]
+
+
+new_dataFrame["DESCONTO_SENAR_NORMAL_R$_CAB"] = [
+    dif_mort_map.get(i, {}).get("valor3", ("nan")) for i in id_unic_arr
+]
+
+
 # new_dataFrame["QTDE_ABATIDO"] = [qtde_abatido_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["SEXO"] = [sexo_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["PESO_MEDIO_ALOJ"] = [peso_medio_aloj_map.get(i, "") for i in id_unic_arr]
@@ -1230,31 +1721,13 @@ new_dataFrame["VLR_KG_RACAO_LEITAO"] = [
 # new_dataFrame["RACAO_CONSUMIDA"] = [racao_consumida_map.get(i, "") for i in id_unic_arr]
 
 
-# new_dataFrame["CONV_ALIMENTAR_REAL"] = [
-#     conv_alimentar_real_map.get(i, "") for i in id_unic_arr
-# ]
 # new_dataFrame["CONV_REAL_AJUSTADA"] = [
 #     conv_real_ajustada_map.get(i, "") for i in id_unic_arr
 # ]
 # new_dataFrame["QTDE_CONDENADOS_TOTAL"] = [
 #     condenados_total_map.get(i, "") for i in id_unic_arr
 # ]
-# new_dataFrame["MORTALIDADE_PREV"] = [
-#     mortalidade_prev_map.get(i, "") for i in id_unic_arr
-# ]
-# new_dataFrame["CONDENADOS_PARCIAL"] = [
-#     condenados_parcial_map.get(i, "") for i in id_unic_arr
-# ]
-# new_dataFrame["MORTALIDADE_REAL"] = [
-#     mortalidade_real_map.get(i, "") for i in id_unic_arr
-# ]
-# new_dataFrame["CONDENADOS_PREV"] = [
-#     condenacoes_prev_map.get(i, "") for i in id_unic_arr
-# ]
-# new_dataFrame["DIF_MORT"] = [dif_mort_map.get(i, "") for i in id_unic_arr]
-# new_dataFrame["CONDENADOS_REAL"] = [
-#     condenacoes_real_map.get(i, "") for i in id_unic_arr
-# ]
+
 # new_dataFrame["DIF_COND_PREV_REAL"] = [
 #     dif_cond_prev_real_map.get(i, "") for i in id_unic_arr
 # ]
