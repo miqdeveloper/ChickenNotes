@@ -1639,6 +1639,7 @@ def main():
 
     print("Salvando arquivo...")
     new_dataFrame.to_csv(f"{file[0]}/avisidro_tabela{get_date_now()}.csv", mode="w", index=False)
+    new_dataFrame.to_excel(f"{file[0]}/avisidro_tabela{get_date_now()}.xlsx", index=False)
     input("Arquivo salvo com sucesso...")
 
 main()
