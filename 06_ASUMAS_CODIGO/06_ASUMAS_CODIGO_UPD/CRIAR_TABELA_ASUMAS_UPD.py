@@ -143,6 +143,51 @@ def _norm(v):
     )
 
 
+def _normalizar_venda_outros_tokens(tokens: list[str]) -> list[str]:
+    def _clean(token: str) -> str:
+        token = token.strip()
+        if not token:
+            return ""
+        sign = "-" if token.startswith("-") else ""
+        token = token.replace("-", "").replace(" ", "")
+        token = token.translate(
+            str.maketrans(
+                {
+                    "O": "0",
+                    "o": "0",
+                    "Ó": "0",
+                    "ó": "0",
+                    "U": "0",
+                    "u": "0",
+                    "D": "0",
+                }
+            )
+        )
+        token = token.replace(",", ".")
+        token = re.sub(r"[A-Za-z]", "", token)
+        return f"{sign}{token}" if token else ""
+
+    cleaned = [_clean(token) for token in tokens]
+    cleaned = [token for token in cleaned if token]
+    combined = []
+    i = 0
+    while i < len(cleaned):
+        token = cleaned[i]
+        if (
+            i + 1 < len(cleaned)
+            and "." not in token
+            and token.lstrip("-").isdigit()
+            and cleaned[i + 1].isdigit()
+            and len(cleaned[i + 1]) == 2
+        ):
+            combined.append(f"{token}.{cleaned[i + 1]}")
+            i += 2
+            continue
+        combined.append(token)
+        i += 1
+    return combined
+
+
 def limpar_texto(texto):
     padrao = (
         str(texto)
@@ -212,6 +257,9 @@ entrada_macho_map = {}
 mortes_macho_map = {}
 abate_macho_map = {}
 venda_macho_map = {}
+venda_outros_produtos_v1_map = {}
+venda_outros_produtos_v2_map = {}
+venda_outros_produtos_v3_map = {}
 peso_entreg_fase_map = {}
 ajuste_desmame_21d_map = {}
 qtde_mortos_transp_map = {}
@@ -522,6 +570,28 @@ for row in df.itertuples():
             int(m.group(1).replace("O", "0").replace("o", "0")) if m else "nan"
         )
         venda_macho_map[separe_id_] = venda_macho
+
+    if re.search(r"\bVenda\s+Outros\s+Produtos\b", new_string, flags=re.IGNORECASE):
+        m = re.search(
+            r"\bVenda\s+Outros\s+Produtos\b\s*(.*)",
+            new_string,
+            flags=re.IGNORECASE,
+        )
+        tail = m.group(1) if m else ""
+        tokens = re.findall(
+            r"-?\s*[0-9OoÓóUuD]+(?:[.,][0-9OoÓóUuD]+)?",
+            tail,
+        )
+        valores = _normalizar_venda_outros_tokens(tokens)
+        venda_outros_produtos_v1_map[separe_id_] = (
+            valores[0] if len(valores) > 0 else "nan"
+        )
+        venda_outros_produtos_v2_map[separe_id_] = (
+            valores[1] if len(valores) > 1 else "nan"
+        )
+        venda_outros_produtos_v3_map[separe_id_] = (
+            valores[2] if len(valores) > 2 else "nan"
+        )
 
     if "Leitao Desmamado/Fêmea/Ano Prev:" in new_string:
 
@@ -1536,6 +1606,15 @@ new_dataFrame["ENTRADA_MACHO"] = [entrada_macho_map.get(i, "") for i in id_unic_
 new_dataFrame["MORTES_MACHO"] = [mortes_macho_map.get(i, "") for i in id_unic_arr]
 new_dataFrame["ABATE_MACHO"] = [abate_macho_map.get(i, "") for i in id_unic_arr]
 new_dataFrame["VENDA_MACHO"] = [venda_macho_map.get(i, "") for i in id_unic_arr]
+new_dataFrame["VENDA_OUTROS_PRODUTOS_V1"] = [
+    venda_outros_produtos_v1_map.get(i, "") for i in id_unic_arr
+]
+new_dataFrame["VENDA_OUTROS_PRODUTOS_V2"] = [
+    venda_outros_produtos_v2_map.get(i, "") for i in id_unic_arr
+]
+new_dataFrame["VENDA_OUTROS_PRODUTOS_V3"] = [
+    venda_outros_produtos_v3_map.get(i, "") for i in id_unic_arr
+]
 new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_PREV"] = [
     peso_recebido_map.get(i, "") for i in id_unic_arr
 ]
