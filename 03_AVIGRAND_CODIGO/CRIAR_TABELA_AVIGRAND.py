@@ -78,16 +78,16 @@ arr_filter = ["Integrado",
               "Conversão Alimentar",
               "Idade de Abate",
               "Mortalidade",
-              "% Calo de Pata A",
+              "Calo de Pata",
               "% Arranhaduras",
               "% Papo Cheio", 
               "% Condenação",
               "Centro",
-              "Renda Líquida/"
-            
+              "Renda Líquida",
+              
             ]
 
-# print("Qtd. Filtros Disponíveis: ", len(arr_filter))
+print("Qtd. Filtros Disponíveis: ", len(arr_filter))
 # print("LCFD: ", arr_filter.index("Peso Médio"))
 
 file_execel = r'Arquivos_Extraidos_CSV/dados_extraidos_avigrand.csv'
@@ -1243,13 +1243,19 @@ def separate_():
                     aj_calo_pata_separate = remove_empty_spaces(new_str.split(", "))
                     n_c_ = len(aj_calo_pata_separate)
                     
+                    # if aj_calo_pata_separate[0].strip() == "977107-5700573435":
+                    if "977107-5700573438" == id_l:
+                        print(new_str)
+                    
                     if n_c_ == 3:
                         # GET_Aj Calo Pata A_%
                         aj_calo_pata_percent = aj_calo_pata_separate[1].replace("Aj Calo Pata A ", "").replace("Aj Calo Pata A", "")
                         if not aj_calo_pata_percent:
                             aj_calo_pata_percent = aj_calo_pata_separate[-1].split(" ")[0]
-                        
+                        if not aj_calo_pata_percent:
+                            aj_calo_pata_percent = aj_calo_pata_separate[2]
                         aj_calo_pata_a_percent_arr.append( dicio_obj(id_l, aj_calo_pata_percent))
+                        
                         
                         
                         # GET_Aj Calo Pata A_KG
@@ -1259,7 +1265,9 @@ def separate_():
 
                         if len(aj_calo_pata_kg) == 3:
                             aj_calo_pata_kg_f =  aj_calo_pata_kg[1]
-                            
+                        
+                        if not aj_calo_pata_kg_f or aj_calo_pata_kg_f == " ":
+                            print(aj_calo_pata_kg_f)
                         aj_calo_pata_a_kg_arr.append(dicio_obj(id_l, aj_calo_pata_kg_f))
                         
                         # GET_Aj Calo Pata A_$
@@ -1268,8 +1276,12 @@ def separate_():
                       
                     if n_c_ == 4:
                         aj_calo_pata_percent = aj_calo_pata_separate[1].replace("Aj Calo Pata A ", "").replace("Aj Calo Pata A", "")
+                        
+                        if not aj_calo_pata_percent:
+                            aj_calo_pata_percent = aj_calo_pata_separate[2]
                         aj_calo_pata_a_percent_arr.append(dicio_obj(id_l, aj_calo_pata_percent))
                         
+    
                         aj_calo_pata_kg_f = aj_calo_pata_separate[2]
                         aj_calo_pata_a_kg_arr.append(dicio_obj(id_l, aj_calo_pata_kg_f))
                         
@@ -1278,6 +1290,7 @@ def separate_():
                             aj_calo_pata_real_f = aj_calo_pata_real_f[-1]
                             
                         aj_calo_pata_a_real_arr.append(dicio_obj(id_l, aj_calo_pata_real_f))
+
                     if n_c_ == 5:
                         aj_calo_pata_percent = aj_calo_pata_separate[2]
                         aj_calo_pata_a_percent_arr.append(dicio_obj(id_l, aj_calo_pata_percent))
@@ -1287,7 +1300,7 @@ def separate_():
 
                         aj_calo_pata_real_f = aj_calo_pata_separate[-1]
                         aj_calo_pata_a_real_arr.append(dicio_obj(id_l, aj_calo_pata_real_f))
-                        
+                    
                 # GET_ AJ_CONDENACOES
                 if arr_filter[41] == item:
                     
@@ -1933,8 +1946,10 @@ def separate_():
                         if nc_2 == 2:
 
                             # real
-                            clpta_f = (per_cl_pta_s[1].replace("% Calo de Pata A", "").replace(" ",""))
-
+                            clpta_f = (per_cl_pta_s[1].replace("% Calo de Pata A", "").replace("% Calo de Pata", "").replace(" ",""))
+                            # if not clpta_f or clpta_f == "nan":
+                            #     print(new_str)
+                                
                             # prev
                             clpta_prev_f = per_cl_pta_s[2].split(" ")[0]
 
@@ -1955,7 +1970,7 @@ def separate_():
                     if n_c == 4:
 
                         # real
-                        clpta_f = (per_cl_pta_s[1].replace("% Calo de Pata A", "").replace(" ", ""))
+                        clpta_f = (per_cl_pta_s[1].replace("% Calo de Pata A", "").replace("% Calo de Pata", "").replace(" ", ""))
                         
                         # prev
                         clpta_prev_f = per_cl_pta_s[2].replace(" ", "")
@@ -1963,9 +1978,10 @@ def separate_():
                         #diferenca 
                         clpta_dif_f = per_cl_pta_s[-1].replace(" ", "")
 
-                    if n_c == 5:
-                        pass
-                    percent_calo_real_arr.append(dicio_obj(id_l, clpta_f))
+                    # if n_c == 5:
+                        # print(per_cl_pta_s)
+                        
+                    percent_calo_real_arr.append(dicio_obj(id_l, clpta_f.replace("%CalodePata", "")))
                     percent_calo_prev_arr.append(dicio_obj(id_l, clpta_prev_f))
                     percent_calo_dife_arr.append(dicio_obj(id_l, clpta_dif_f))
 
@@ -2131,8 +2147,20 @@ def separate_():
                     
                     rdl_a_f = {"id": id_, "Data": rdl_a}
                     renda_liquida_ave_arr.append(rdl_a_f)
+
+                # if str(arr_filter[61]) in str(item):
+                #     print(item)
                     
+                    # id_ = id_l
+                    # rdl_t = new_str.split(", ")[1]
                     
+                    # if find_numbers(rdl_t):
+                    #     rdl_t = (rdl_t.replace("Renda Líquida/Ton", "")).strip()
+                    # else:
+                    #     rdl_t = (new_str.split(", ")[2]).strip()
+                    
+                    # rdl_t_f = {"id": id_, "Data": rdl_t}
+                    # renda_liquida_ton_arr.append(rdl_t_f)              
     # metodo usando compreessao de lista para FUNRURAL           
     # id_para_valor = {item[0]: item[2] for item in funrural_arr}
     # # print(id_para_valor) 
@@ -2243,153 +2271,153 @@ def separate_():
     centro_arr = processar_dicionarios(key_arr, centro_arr)
     
     new_dataFrame["CHAVE"] = key_arr
-    new_dataFrame["CLIFOR"] =  clifor_arr
-    new_dataFrame["INTEGRADO"] = name_arr
-    new_dataFrame["MUNICIPIO"] = arr_municipio
-    new_dataFrame["TECNICO"] = tecnico_arr
-    new_dataFrame["AREA_ALOJ"] = arr_area_aloj
-    new_dataFrame["TELEFONE"] = telefone_arr
-    new_dataFrame["AVIARIO"] = aviario_arr
-    new_dataFrame["EMAIL"] = email_arr
-    new_dataFrame["T_VENTILACAO"] = t_vent_arr
-    new_dataFrame["TIPO_PRODUTO"] = arr_categoria
-    new_dataFrame["LINHAGEM"] = arr_linhagem
-    new_dataFrame["KG_M2"] = kgm2_arr
-    new_dataFrame["MATERIAL_GENETICO"] = material_arr
-    new_dataFrame["AVE_M2"] = ave_m2_arr
-    new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
-    new_dataFrame["DATA_ALOJ"] = arr_data_aloj
-    new_dataFrame["QUANT_ABATE"] = qabate_arr
-    new_dataFrame["MORTE_TOTAL"] = mort_total_arr
-    new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
-    new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
-    new_dataFrame["DATA_ABATE"] = arr_data_abate
-    new_dataFrame["IDADE_ABATE"] = idade_abate_arr
-    new_dataFrame["PM_PINTO"] = arr_peso_medio
-    new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
-    new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
-    new_dataFrame["GPD"]=gpd_arr
-    new_dataFrame["PESO_TOTAL"] = peso_total_arr
-    new_dataFrame["CAAF"] = caaf_arr
-    new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
-    new_dataFrame["VALOR_KG_FRANGO"] = valor_kg_f_arr
-    new_dataFrame["VALOR_KG_RACAO"] = valor_kg_racao_arr
-    new_dataFrame["VALOR_DO_PINTO"] = valor_pinto_real_arr
-    new_dataFrame["PERCENTUAL_BASICO"] = percentual_basico_arr
-    new_dataFrame["KG_CARNE_BASE"] = carne_base_arr
-    new_dataFrame["R$_BASE"] = real_base_arr
+    # new_dataFrame["CLIFOR"] =  clifor_arr
+    # new_dataFrame["INTEGRADO"] = name_arr
+    # new_dataFrame["MUNICIPIO"] = arr_municipio
+    # new_dataFrame["TECNICO"] = tecnico_arr
+    # new_dataFrame["AREA_ALOJ"] = arr_area_aloj
+    # new_dataFrame["TELEFONE"] = telefone_arr
+    # new_dataFrame["AVIARIO"] = aviario_arr
+    # new_dataFrame["EMAIL"] = email_arr
+    # new_dataFrame["T_VENTILACAO"] = t_vent_arr
+    # new_dataFrame["TIPO_PRODUTO"] = arr_categoria
+    # new_dataFrame["LINHAGEM"] = arr_linhagem
+    # new_dataFrame["KG_M2"] = kgm2_arr
+    # new_dataFrame["MATERIAL_GENETICO"] = material_arr
+    # new_dataFrame["AVE_M2"] = ave_m2_arr
+    # new_dataFrame["QUANT_ALOJADO"] = arr_quant_alojado
+    # new_dataFrame["DATA_ALOJ"] = arr_data_aloj
+    # new_dataFrame["QUANT_ABATE"] = qabate_arr
+    # new_dataFrame["MORTE_TOTAL"] = mort_total_arr
+    # new_dataFrame["QUANTIDADE_MORTOS"] = quant_mortes_arr
+    # new_dataFrame["QUANTIDADE_ELIMINADOS"] = quant_eliminados_arr
+    # new_dataFrame["DATA_ABATE"] = arr_data_abate
+    # new_dataFrame["IDADE_ABATE"] = idade_abate_arr
+    # new_dataFrame["PM_PINTO"] = arr_peso_medio
+    # new_dataFrame["AVES_FALTANTES"] = aves_faltantes_arr
+    # new_dataFrame["PESO_MEDIO"] = peso_medio_f_arr
+    # new_dataFrame["GPD"]=gpd_arr
+    # new_dataFrame["PESO_TOTAL"] = peso_total_arr
+    # new_dataFrame["CAAF"] = caaf_arr
+    # new_dataFrame["RACAO_CONSUMIDA"] = racao_c_arr
+    # new_dataFrame["VALOR_KG_FRANGO"] = valor_kg_f_arr
+    # new_dataFrame["VALOR_KG_RACAO"] = valor_kg_racao_arr
+    # new_dataFrame["VALOR_DO_PINTO"] = valor_pinto_real_arr
+    # new_dataFrame["PERCENTUAL_BASICO"] = percentual_basico_arr
+    # new_dataFrame["KG_CARNE_BASE"] = carne_base_arr
+    # new_dataFrame["R$_BASE"] = real_base_arr
     
     
-    new_dataFrame['%_AJ_ESCALA_PROD'] = aj_porcent_arr
-    new_dataFrame['KG_AJ_ESCALA_PROD'] = aj_kg_arr
-    new_dataFrame["R$_AJ_ESCALA_PROD"] = aj_real_arr
+    # new_dataFrame['%_AJ_ESCALA_PROD'] = aj_porcent_arr
+    # new_dataFrame['KG_AJ_ESCALA_PROD'] = aj_kg_arr
+    # new_dataFrame["R$_AJ_ESCALA_PROD"] = aj_real_arr
     
-    new_dataFrame["%_SAZONALIDADE"] = aj_sazonalidade_percent_arr
-    new_dataFrame["KG_SAZONALIDADE"] = aj_sazonalidade_kg_arr
-    new_dataFrame["R$_SAZONALIDADE"] = aj_sazonalidade_real_arr
+    # new_dataFrame["%_SAZONALIDADE"] = aj_sazonalidade_percent_arr
+    # new_dataFrame["KG_SAZONALIDADE"] = aj_sazonalidade_kg_arr
+    # new_dataFrame["R$_SAZONALIDADE"] = aj_sazonalidade_real_arr
     
-    new_dataFrame["%_AJ_SEXO_PESO"] = aj_sex_pes_percent_arr
-    new_dataFrame["KG_AJ_SEXO_PESO"] = aj_sex_pes_kg_arr
-    new_dataFrame["R$_AJ_SEXO_PESO"] = aj_sex_pes_real_arr
+    # new_dataFrame["%_AJ_SEXO_PESO"] = aj_sex_pes_percent_arr
+    # new_dataFrame["KG_AJ_SEXO_PESO"] = aj_sex_pes_kg_arr
+    # new_dataFrame["R$_AJ_SEXO_PESO"] = aj_sex_pes_real_arr
     
-    new_dataFrame["%_AJ_IDADE"] = aj_idade_percent_arr
-    new_dataFrame["KG_AJ_IDADE"] = aj_idade_kg_arr 
-    new_dataFrame["R$_AJ_IDADE"] =  aj_idade_real_arr
+    # new_dataFrame["%_AJ_IDADE"] = aj_idade_percent_arr
+    # new_dataFrame["KG_AJ_IDADE"] = aj_idade_kg_arr 
+    # new_dataFrame["R$_AJ_IDADE"] =  aj_idade_real_arr
     
-    new_dataFrame["%_AJ_MORTALIDADE"] =  aj_mortalidade_percent_arr
-    new_dataFrame["KG_AJ_MORTALIDADE"] =  aj_mortalidade_kg_arr
-    new_dataFrame["R$_AJ_MORTALIDADE"] =  aj_mortalidade_real_arr
+    # new_dataFrame["%_AJ_MORTALIDADE"] =  aj_mortalidade_percent_arr
+    # new_dataFrame["KG_AJ_MORTALIDADE"] =  aj_mortalidade_kg_arr
+    # new_dataFrame["R$_AJ_MORTALIDADE"] =  aj_mortalidade_real_arr
 
-    new_dataFrame["%_CONV_ALIMENTAR"] =  aj_conv_alimentar_percent_arr
-    new_dataFrame["KG_CONV_ALIMENTAR"] =  aj_conv_alimentar_kg_arr
-    new_dataFrame["R$_CONV_ALIMENTAR"] =  aj_conv_alimentar_real_arr
+    # new_dataFrame["%_CONV_ALIMENTAR"] =  aj_conv_alimentar_percent_arr
+    # new_dataFrame["KG_CONV_ALIMENTAR"] =  aj_conv_alimentar_kg_arr
+    # new_dataFrame["R$_CONV_ALIMENTAR"] =  aj_conv_alimentar_real_arr
     
-    # new_dataFrame["LOTE"] = arr_pedido # nao usado
+    # # new_dataFrame["LOTE"] = arr_pedido # nao usado
 
-    new_dataFrame["%_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_percent_arr
-    new_dataFrame["KG_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_kg_arr
-    new_dataFrame["R$_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_real_arr
+    # new_dataFrame["%_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_percent_arr
+    # new_dataFrame["KG_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_kg_arr
+    # new_dataFrame["R$_AJ_MERITOCRACIA_MT"] = aj_meritocracia_mt_real_arr
 
-    new_dataFrame["%_AJ_CALO_PATA_A"] = aj_calo_pata_a_percent_arr
-    new_dataFrame["KG_AJ_CALO_PATA_A"] = aj_calo_pata_a_kg_arr
-    new_dataFrame["R$_AJ_CALO_PATA_A"] = aj_calo_pata_a_real_arr
+    # new_dataFrame["%_AJ_CALO_PATA_A"] = aj_calo_pata_a_percent_arr
+    # new_dataFrame["KG_AJ_CALO_PATA_A"] = aj_calo_pata_a_kg_arr
+    # new_dataFrame["R$_AJ_CALO_PATA_A"] = aj_calo_pata_a_real_arr
 
-    new_dataFrame["%_CONDENACOES"] = condenacoes_percent_arr
-    new_dataFrame["KG_CONDENACOES"] = condenacoes_kg_arr
-    new_dataFrame["R$_CONDENACOES"] = codenacoes_real_arr
+    # new_dataFrame["%_CONDENACOES"] = condenacoes_percent_arr
+    # new_dataFrame["KG_CONDENACOES"] = condenacoes_kg_arr
+    # new_dataFrame["R$_CONDENACOES"] = codenacoes_real_arr
 
-    new_dataFrame["%_AJ_QUALIDADE_QT"] = aj_qualidade_percent_arr
-    new_dataFrame["KG_AJ_QUALIDADE_QT"] = aj_qualidade_kg_arr
-    new_dataFrame["R$_AJ_QUALIDADE_QT"] = aj_qualidade_real_arr
+    # new_dataFrame["%_AJ_QUALIDADE_QT"] = aj_qualidade_percent_arr
+    # new_dataFrame["KG_AJ_QUALIDADE_QT"] = aj_qualidade_kg_arr
+    # new_dataFrame["R$_AJ_QUALIDADE_QT"] = aj_qualidade_real_arr
 
-    new_dataFrame["%_AJ_ESTRUTURAL"] = aj_estrutural_percent_arr
-    new_dataFrame["KG_AJ_ESTRUTURAL"] = aj_estrutural_kg_arr
-    new_dataFrame["R$_AJ_ESTRUTURAL"] = aj_estrutural_real_arr
+    # new_dataFrame["%_AJ_ESTRUTURAL"] = aj_estrutural_percent_arr
+    # new_dataFrame["KG_AJ_ESTRUTURAL"] = aj_estrutural_kg_arr
+    # new_dataFrame["R$_AJ_ESTRUTURAL"] = aj_estrutural_real_arr
     
-    new_dataFrame["%_AJ_PROCEDIMENTOS"] = aj_procedimentos_percent_arr
-    new_dataFrame["KG_AJ_PROCEDIMENTOS"] = aj_procedimentos_kg_arr
-    new_dataFrame["R$_AJ_PROCEDIMENTOS"] = aj_procedimentos_real_arr
+    # new_dataFrame["%_AJ_PROCEDIMENTOS"] = aj_procedimentos_percent_arr
+    # new_dataFrame["KG_AJ_PROCEDIMENTOS"] = aj_procedimentos_kg_arr
+    # new_dataFrame["R$_AJ_PROCEDIMENTOS"] = aj_procedimentos_real_arr
 
-    new_dataFrame["%_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_percent_arr
-    new_dataFrame["KG_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_kg_arr
-    new_dataFrame["R$_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_real_arr
+    # new_dataFrame["%_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_percent_arr
+    # new_dataFrame["KG_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_kg_arr
+    # new_dataFrame["R$_AJ_PROCESSOS_PROCEDIMENTOS_PP"] = aj_processos_procedimentos_pp_real_arr
 
-    new_dataFrame["%_RESULTADO_LOTE"] = resultado_lote_percent_arr
-    new_dataFrame["KG_RESULTADO_LOTE"] = resultado_lote_kg_arr
-    new_dataFrame["R$_RESULTADO_LOTE"] = resultado_lote_real_arr
+    # new_dataFrame["%_RESULTADO_LOTE"] = resultado_lote_percent_arr
+    # new_dataFrame["KG_RESULTADO_LOTE"] = resultado_lote_kg_arr
+    # new_dataFrame["R$_RESULTADO_LOTE"] = resultado_lote_real_arr
     
-    new_dataFrame["R$_AVE"] = ave_real_arr
-    new_dataFrame["R$_TON"] = ton_real_arr
-    new_dataFrame["R$_M2"] = m2_real_arr
-    
-    
-    new_dataFrame["FUNRURAL"] = funrural_arr_f
+    # new_dataFrame["R$_AVE"] = ave_real_arr
+    # new_dataFrame["R$_TON"] = ton_real_arr
+    # new_dataFrame["R$_M2"] = m2_real_arr
     
     
-    new_dataFrame["SENAR"] = senar_arr
-    new_dataFrame["CONTA_CORRENTE"] = conta_corrente_arr
-    new_dataFrame["CONTA_VINCULADA"] = conta_vinculada;
-    
-    new_dataFrame["CONVERSAO_ALIMENTAR_REAL"] = conv_aliment_real_arr
-    new_dataFrame["CONVERSAO_ALIMENTAR_AJ"] = conv_aliment_real_aj_arr
-    new_dataFrame["CONVERSAO_ALIMENTAR_PREV_AJ"] = conv_aliment_prev_aj_arr
-    new_dataFrame["CONVERSAO_ALIMENTAR_DIFERENCA"] = conv_aliment_diferenca_arr
+    # new_dataFrame["FUNRURAL"] = funrural_arr_f
     
     
-    # Idade de Abate REAL | PREV aj | DIFERE|
-    new_dataFrame["IDADE_DE_ABATE_REAL"] = idade_de_abate_real_arr
-    new_dataFrame["IDADE_DE_ABATE_PREV_AJ"] = idade_de_abate_real_prev_aj_arr
-    new_dataFrame["IDADE_DE_ABATE_DIFERENCA"] = idade_de_abate_real_dif_arr
+    # new_dataFrame["SENAR"] = senar_arr
+    # new_dataFrame["CONTA_CORRENTE"] = conta_corrente_arr
+    # new_dataFrame["CONTA_VINCULADA"] = conta_vinculada;
+    
+    # new_dataFrame["CONVERSAO_ALIMENTAR_REAL"] = conv_aliment_real_arr
+    # new_dataFrame["CONVERSAO_ALIMENTAR_AJ"] = conv_aliment_real_aj_arr
+    # new_dataFrame["CONVERSAO_ALIMENTAR_PREV_AJ"] = conv_aliment_prev_aj_arr
+    # new_dataFrame["CONVERSAO_ALIMENTAR_DIFERENCA"] = conv_aliment_diferenca_arr
+    
+    
+    # # Idade de Abate REAL | PREV aj | DIFERE|
+    # new_dataFrame["IDADE_DE_ABATE_REAL"] = idade_de_abate_real_arr
+    # new_dataFrame["IDADE_DE_ABATE_PREV_AJ"] = idade_de_abate_real_prev_aj_arr
+    # new_dataFrame["IDADE_DE_ABATE_DIFERENCA"] = idade_de_abate_real_dif_arr
 
-    new_dataFrame["PESO_MEDIO_REAL"] = peso_medio_real_arr
+    # new_dataFrame["PESO_MEDIO_REAL"] = peso_medio_real_arr
     
-    new_dataFrame["PESO_MEDIO_PREV_AJ"] = peso_medio_prevaj_arr 
-    new_dataFrame["PESO_MEDIO_DIFERENCA"] =peso_medio_diferenca_arr
+    # new_dataFrame["PESO_MEDIO_PREV_AJ"] = peso_medio_prevaj_arr 
+    # new_dataFrame["PESO_MEDIO_DIFERENCA"] =peso_medio_diferenca_arr
 
-    new_dataFrame["MORTALIDADE_REAL"] = mortalidade_real_arr
+    # new_dataFrame["MORTALIDADE_REAL"] = mortalidade_real_arr
     
-    new_dataFrame["MORTALIDADE_REAL_AJ"] = mortalidade_real_aj_arr
-    new_dataFrame["MORTALIDADE_PREV_AJ"]  = mortalidade_prev
-    new_dataFrame["MORTALIDADE_DIFERENCA"] =  mortalidade_diferenca
+    # new_dataFrame["MORTALIDADE_REAL_AJ"] = mortalidade_real_aj_arr
+    # new_dataFrame["MORTALIDADE_PREV_AJ"]  = mortalidade_prev
+    # new_dataFrame["MORTALIDADE_DIFERENCA"] =  mortalidade_diferenca
 
     new_dataFrame["%_CALO_PATA_REAL"]  =  percent_calo_real_arr
     new_dataFrame["%_CALO_PATA_PREV"] = percent_calo_prev_arr
     new_dataFrame["%_CALO_PATA_REAL_DIFERENCA"]  = percent_calo_dife_arr
 
-    new_dataFrame["%_ARRANHADURAS_REAL"]  = percent_arranhaduras_real_arr
-    new_dataFrame["%_ARRANHADURAS_PREV_AJ"]  = percent_arranhaduras_prevaj_arr
-    new_dataFrame["%_ARRANHADURAS_DIFERENCA"]  = percent_arranhaduras_diferenca_arr
+    # new_dataFrame["%_ARRANHADURAS_REAL"]  = percent_arranhaduras_real_arr
+    # new_dataFrame["%_ARRANHADURAS_PREV_AJ"]  = percent_arranhaduras_prevaj_arr
+    # new_dataFrame["%_ARRANHADURAS_DIFERENCA"]  = percent_arranhaduras_diferenca_arr
 
-    new_dataFrame["%_PAPO_CHEIO_REAL"]  = percent_papo_cheio_real_arr
-    new_dataFrame["%_PAPO_CHEIO_PREV"]  = percent_papo_cheio_prev_arr
-    new_dataFrame["%_PAPO_CHEIO_DIFERENCA"]  = percent_papo_cheio_diferenca_arr
+    # new_dataFrame["%_PAPO_CHEIO_REAL"]  = percent_papo_cheio_real_arr
+    # new_dataFrame["%_PAPO_CHEIO_PREV"]  = percent_papo_cheio_prev_arr
+    # new_dataFrame["%_PAPO_CHEIO_DIFERENCA"]  = percent_papo_cheio_diferenca_arr
     
-    new_dataFrame["%_CODENACAO_REAL"] = percent_codenacao_real_arr
-    new_dataFrame["%_CODENACAO_PREV"] = percent_codenacao_prev_arr
-    new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr
-    new_dataFrame["CENTRO"] = centro_arr
+    # new_dataFrame["%_CODENACAO_REAL"] = percent_codenacao_real_arr
+    # new_dataFrame["%_CODENACAO_PREV"] = percent_codenacao_prev_arr
+    # new_dataFrame["%_CODENACAO_DIFERENCA"] = percent_codenacao_diferenca_arr
+    # new_dataFrame["CENTRO"] = centro_arr
     
-    new_dataFrame["RENDA_LIQUIDA_AVE"] = renda_liquida_ave_arr
+    # new_dataFrame["RENDA_LIQUIDA_AVE"] = renda_liquida_ave_arr
     
 
 
