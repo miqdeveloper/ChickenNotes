@@ -19,7 +19,7 @@ def get_date_now():
 file=['Colunas_Criadas_CSV']
 create_dirs(file)
 
-file_execel = r"Arquivos_Extraidos_CSV/dados_extraidos_avisidro.csv"
+file_execel = r"Arquivos_Extraidos_CSV/dados_extraidos_avisidro_cp.csv"
 
 # df_2 = pd.read_csv(file_execel, encoding="utf-8", index_col=0)   
 df = pd.read_csv(file_execel, encoding="utf-8")
@@ -541,24 +541,39 @@ def main():
                         
                     # print(id_l, avc_percent_f, len(new_str))
             if "NAN_P" in avc_kg_f:
-                avc_kg_f = (new_str[2].split(" "))[1]
+                avc_kg_f = (new_str[2].split(" "))[-1]
+                # print(avc_kg_f, new_str)
+                # print(avc_kg_f, new_str)
+                
+                
                 
             if "NAN_P" in avc_real_f:
-                avc_real_f = (new_str[2].split(" "))[-1]
-            # d_j = {"id":l_id, "Data":avc_percent_f}
+                avc_real_f = new_str[1].replace("Avaliação Conversão", "").split(" ")
+                avc_real_f = (remove_empty_spaces(avc_real_f)[0])
+                # print(avc_real_f, new_str)
+                # len_n = len(avc_real_f)
+                # if len_n == 2:
+                #     avc_real_f = avc_real_f
+                #     # print(avc_real_f, new_str)
+                # avc_real_f = "ERRO_AV"
+                
+            d_j = {"id":l_id, "Data":avc_percent_f}
            
             # avc_percent_f = dicio_obj(l_id, avc_percent_f)
             
-            d_j = dicio_obj(l_id, avc_percent_f)
             
             avc_kg_f_ = dicio_obj(l_id, avc_kg_f)
             
+            
             avc_real_f_ = dicio_obj(l_id, avc_real_f)
             
+                
             avc_percente_arr.append(d_j)
+           
             
             avc_kg_arr.append(avc_kg_f_)           
             avc_real_arr.append(avc_real_f_)
+        #CORRIGIDO 08/05/2024
         
         #OK
         if "Avaliação Condenação" in str(new_str):
@@ -814,8 +829,7 @@ def main():
                 # # $
                 acl_r_f_s = avc_cl_separate__
                 acl_r_f_s = (acl_r_f_s[2].split(" "))
-                acl_r_f = acl_r_f_s[1]
-                
+                acl_r_f = acl_r_f_s[-1]
 
                 if len(acl_r_f_s) == 3:
                     acl_r_f =  acl_r_f_s[-1]
@@ -875,7 +889,12 @@ def main():
                 if  find_numbers(new_str[1]):
                     rbl_p_f = new_str[1].replace("Resultado Bruto do Lote", "").strip()
                     rbl_s_kg = new_str[2].split(" ")[0]
-                    rbl_s_r = new_str[2].split(" ")[1]
+                    rbl_s_r = new_str[1].replace("Resultado Bruto do Lote ", "")
+                    rbl_s_r = (rbl_s_r).split(" ")
+                    
+                    rbl_s_r =  (rbl_p_f.strip().split(" ")[0])
+                    # rbl_s_r = "ERRO_AV"
+                    
                 else:
                     rbl_p_f = remove_empty_spaces(new_str[2].split(" "))[0]
                     rbl_s_kg = new_str[2].split(" ")[1]
@@ -1155,12 +1174,16 @@ def main():
                 gpd_f = (gpd_f[0])
 
             if n_c__ == 4:
+                # print(find_numbers(new_str[2]))
                 
-                if (find_numbers(new_str[2].split(" ")[1])):
-                   gpd_f = (new_str[2].split(" ")[1])
-                   
-                if len(new_str[1].split("GPD")) == 2:
-                    gpd_f = (new_str[1].split("GPD")[1])
+                # if (find_numbers(new_str[2].split(" ")[1])):
+                #    gpd_f = (new_str[2].split(" ")[1])
+                # else:
+                #      gpd_f = (new_str[2].split(" ")[0])
+                     
+                # if len(new_str[1].split("GPD")) == 2:
+                #     gpd_f = (new_str[1].split("GPD")[1])
+                gpd_f = "nan"
                 
             # print(n_c__)
             # if n_c__ == 6:
