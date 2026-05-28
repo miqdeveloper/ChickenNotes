@@ -232,6 +232,13 @@ total_one_arr = []
 total_two_arr = []
 total_three_arr = []
 
+exame_arr_f = []
+
+meta_caa_arr = []
+
+meta_tres_semanas = []
+
+complemento_referente_arr = []
 
 
 new_dataFrame= pd.DataFrame()
@@ -884,7 +891,47 @@ for index, row in df.iterrows():
         # if len(find_numbers(c_d_p)) == 4:
         #     print(c_d_p)
         
+    if "EXAME:" in new_string:
+        exame_s = new_string.replace(":", " ").split("EXAME")[-1].replace(" ", "")
+        exame_s_ = {"id": separe_id_, "Data": exame_s}
+        exame_arr_f.append(exame_s_)
 
+
+    if "META CAA DO MES" in new_string or "META CAA DO MÊS" in new_string or "META CAA DO M(cid:234)S" in new_string:
+        regex = r"^(META CAA DO MES)\s+([0-9]+(?:[,.][0-9]+)?)$"
+        texto = new_string.replace("META CAA DO MÊS", "META CAA DO MES").replace("META CAA DO M(cid:234)S", "META CAA DO MES")
+        resultado = re.findall(regex, texto, flags=re.MULTILINE)
+        
+        valor_f = [valor for chave, valor in resultado] 
+        valor_f_ = (valor_f[0]) if valor_f else "nan"
+            
+        
+        meta_caa_arr.append(dicio_obj(valor_f_,id_l))
+        
+    if "META ULTIMAS" in new_string:
+        rx = re.compile(r'(?i)\bMETA\s+ULTIMAS\s+3\s+(?:SEMANAS|EXAME)\s*:\s*((?:\d{1,3}(?:\.\d{3})+|\d+)(?:\s*,\s*\d+)?)')
+
+        valores = [re.sub(r'\s+', '', m.group(1)) for m in rx.finditer(new_string)]
+        v_f = valores[0] if valores else "nan"
+        meta_tres_semanas.append(dicio_obj(v_f, id_l))
+            
+    if "COND TOTAL" in new_string:
+        # print(new_string)
+        pass
+    if "COMPLEMENTO REFERENTE A VIABILIDADE" in new_string:
+        padrao = re.compile(r"R\$\s*([\d.]+,\d{2})")
+        res_ = padrao.search(new_string)
+        res_f = (res_.group(1) if res_ else "nan")
+        
+        complemento_referente_arr.append(dicio_obj(res_f, id_l))
+        
+        
+    if "P/ CAA" in new_string:
+        # print(new_string)
+        pass
+        
+    
+    
 
 a_arr = []
 
@@ -974,8 +1021,12 @@ calo_pata_d_arr = processar_dicionarios(id_unic_arr, calo_pata_d_arr)
 total_one_arr = processar_dicionarios(id_unic_arr, total_one_arr)
 total_two_arr = processar_dicionarios(id_unic_arr, total_two_arr)
 total_three_arr = processar_dicionarios(id_unic_arr, total_three_arr)
+exame_arr_f = processar_dicionarios(id_unic_arr, exame_arr_f)
+meta_caa_arr_ = processar_dicionarios(id_unic_arr, meta_caa_arr)
+meta_tres_semanas = processar_dicionarios(id_unic_arr, meta_tres_semanas)
 
-# 
+complemento_referente_arr = processar_dicionarios(id_unic_arr, complemento_referente_arr)
+
 # ganho_diario_arr
 
 # Não aplique processar_dicionarios para arrays simples (listas de valores)
@@ -1053,7 +1104,20 @@ new_dataFrame["TOTAL_2"] = total_two_arr
 new_dataFrame["TOTAL_3"] = total_three_arr
 
 new_dataFrame["CALO_PATA"] = calo_pata_arr
-new_dataFrame["CALO_PATA_D"] = calo_pata_d_arr
+
+new_dataFrame["EXAME"] = exame_arr_f
+
+new_dataFrame["META_CAA_MES"] = meta_caa_arr_
+
+new_dataFrame["META_ULTIMAS_3_SEMANAS"] = meta_tres_semanas
+
+new_dataFrame["COMPLEMENTO_REFERENTE_VIABILIDADE_PG_FINANCIAMENTO"] = complemento_referente_arr
+
+
+
+
+
+# new_dataFrame["CALO_PATA_D"] = calo_pata_d_arr
 
 
 print("Salvando arquivo...")
