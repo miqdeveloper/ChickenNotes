@@ -926,11 +926,9 @@ for index, row in df.iterrows():
         complemento_referente_arr.append(dicio_obj(res_f, id_l))
         
         
-    if "P/ CAA" in new_string:
-        # print(new_string)
-        pass
-        
-    
+    if "POR CONVERSAO ALIMENTAR" in new_string:
+        print(new_string)
+
     
 
 a_arr = []
