@@ -239,6 +239,7 @@ meta_caa_arr = []
 meta_tres_semanas = []
 
 complemento_referente_arr = []
+bonificacao_conversao_alimentar_arr = []
 
 
 new_dataFrame= pd.DataFrame()
@@ -927,7 +928,12 @@ for index, row in df.iterrows():
         
         
     if "POR CONVERSAO ALIMENTAR" in new_string:
-        print(new_string)
+        padrao = re.compile(r"\(\d+,\d{2}\)\s*R\$\s*[\d.]+,\d{2}")
+        res_ = padrao.search(new_string)
+        res_f = (res_.group(0).replace(" ", "") if res_ else "nan")
+        
+        bonificacao_conversao_alimentar_arr.append(dicio_obj(res_f, id_l))
+        
 
     
 
@@ -1024,6 +1030,7 @@ meta_caa_arr_ = processar_dicionarios(id_unic_arr, meta_caa_arr)
 meta_tres_semanas = processar_dicionarios(id_unic_arr, meta_tres_semanas)
 
 complemento_referente_arr = processar_dicionarios(id_unic_arr, complemento_referente_arr)
+bonificacao_conversao_alimentar_arr = processar_dicionarios(id_unic_arr, bonificacao_conversao_alimentar_arr)
 
 # ganho_diario_arr
 
@@ -1112,7 +1119,7 @@ new_dataFrame["META_ULTIMAS_3_SEMANAS"] = meta_tres_semanas
 new_dataFrame["COMPLEMENTO_REFERENTE_VIABILIDADE_PG_FINANCIAMENTO"] = complemento_referente_arr
 
 
-
+new_dataFrame["BONIFICACAO_CONVERSAO_ALIMENTAR"] = bonificacao_conversao_alimentar_arr  
 
 
 # new_dataFrame["CALO_PATA_D"] = calo_pata_d_arr
