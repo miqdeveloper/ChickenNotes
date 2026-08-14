@@ -246,7 +246,7 @@ new_dataFrame= pd.DataFrame()
 
 for index, row in df.iterrows():
     #row[0] - se refere ao nome do arquivo - #row[1] -  se refere ao conteudo da linha  
-    line_item, content_line = row[0], row[1]
+    line_item, content_line = row.iloc[0], row.iloc[1]
     new_string = remove_chars_s_points(content_line)
     
     # print(new_string)

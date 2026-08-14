@@ -1233,16 +1233,16 @@ for row in df.itertuples():
 
         pattern_senar = re.compile(
             r"""(?ix)
-            desconto\ senar\ normal        # texto fixo
-            \s*[:\-]?\s*
-            (?P<valor1>[-]?\s*\d+(?:[.,]\d+)?)    # primeiro valor
-            (?:\s+
-                (?P<valor2>[-]?\s*\d+(?:[.,]\d+)?)
-            )?                                  # segundo valor opcional
-            (?:\s+
-                (?P<valor3>[-]?\s*\d+(?:[.,]\d+)?)
-            )?                                  # terceiro valor opcional
-            """,
+                desconto\ senar\ normal        # texto fixo
+                \s*[:\-]?\s*
+                (?P<valor1>[-]?\s*\d+(?:[.,]\d+)?)    # primeiro valor
+                (?:\s+
+                    (?P<valor2>[-]?\s*\d+(?:[.,]\d+)?)
+                )?                                  # segundo valor opcional
+                (?:\s+
+                    (?P<valor3>[-]?\s*\d+(?:[.,]\d+)?)
+                )?                                  # terceiro valor opcional
+                """,
         )
 
         m = pattern_senar.search(new_string)
@@ -1269,13 +1269,38 @@ for row in df.itertuples():
 
         # condenacoes_real_map[separe_id_] = condenacoes_real
 
-    # if "Ganho Peso Diario Prev:" in new_string:
-    # 	m = re.search(
-    # 		r"Ganho\s*Peso\s*Diario\s*Prev\s*:\s*([\d\.,]+)",
-    # 		new_string,
-    # 		flags=re.IGNORECASE,
-    # 	)
+        if "Subtotal D/C" in new_string or "Subtotal" in new_string:
+            print(new_string)
+            pattern_subtotal_dc = re.compile(
+                r"""(?ix)
+        \bsubtotal\s*d\s*(?:/)?\s*c\b     # Subtotal D/C ou Subtotal DC
+        \s*[:\-]?\s*
 
+        (?P<cred>[-]?\s*\d+(?:\s*[.,]\s*\d+)?)?   # 1º valor (opcional)
+
+        (?:                                       # 2º valor (opcional)
+            [^\d\-]+
+            (?P<deb>[-]?\s*\d+(?:\s*[.,]\s*\d+)?)
+        )?
+
+        (?:                                       # 3º valor (opcional)
+            [^\d\-]+
+            (?P<real_cab>[-]?\s*\d+(?:\s*[.,]\s*\d+)?)
+        )?
+        """,
+            )
+            m = pattern_subtotal_dc.search(new_string)
+            print(m.group('cred'))
+            # qtde_abatido_map[separe_id_] = {
+            #     "cred": clean_str(m.group("cred")) if m and m.group("cred") else "nan",
+            #     "deb": clean_str(m.group("deb")) if m and m.group("deb") else "nan",
+            #     "real_cab": (
+            #         clean_str(m.group("real_cab"))
+            #         if m and m.group("real_cab")
+            #         else "nan"
+            #     ),
+            # }
+            # print(qtde_abatido_map[separe_id_]['cred'])
     # # PARA O ASSISTENTE DE IA - REVISE  TODAS AS REGEX
     # if "Ajuste peso Suino:" in new_string:
     # 	m = re.search(
@@ -1581,217 +1606,220 @@ id_unic_arr = list(OrderedDict.fromkeys(id_unic_s))
 
 new_dataFrame["ID_INTEGRAD"] = id_unic_arr
 
-new_dataFrame["INTEGRADO"] = [integrado_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["ENDERECO"] = [endereco_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["INTEGRADO"] = [integrado_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["ENDERECO"] = [endereco_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["MUNICIPIO"] = [municipio_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["CPF_CGC"] = [cpf_cgc_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["FAZENDA"] = [fazenda_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["LOTE"] = [lote_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["MUNICIPIO"] = [municipio_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["CPF_CGC"] = [cpf_cgc_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["FAZENDA"] = [fazenda_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["LOTE"] = [lote_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["CAPACIDADE"] = [capacidade_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["REFERENCIA"] = [referencia_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["CAPACIDADE"] = [capacidade_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["REFERENCIA"] = [referencia_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["DATA_META"] = [qtde_alojada_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["REPRODUTORES_FEMEA"] = [qtde_mortos_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["ENTRADA_FEMEA"] = [qtde_retorno_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["DATA_META"] = [qtde_alojada_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["REPRODUTORES_FEMEA"] = [qtde_mortos_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["ENTRADA_FEMEA"] = [qtde_retorno_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["MORTES_FEMEA"] = [peso_abatido_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["ABATE_FEMEA"] = [abate_femea_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["VENDA_FEMEA"] = [venda_femea_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["REPRODUTORES_MACHO"] = [
-    reprodutores_macho_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["ENTRADA_MACHO"] = [entrada_macho_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["MORTES_MACHO"] = [mortes_macho_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["ABATE_MACHO"] = [abate_macho_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["VENDA_MACHO"] = [venda_macho_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["VENDA_OUTROS_PRODUTOS_V1"] = [
-    venda_outros_produtos_v1_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["VENDA_OUTROS_PRODUTOS_V2"] = [
-    venda_outros_produtos_v2_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["VENDA_OUTROS_PRODUTOS_V3"] = [
-    venda_outros_produtos_v3_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_PREV"] = [
-    peso_recebido_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["MORTALIDADE_PLANTEL_PREV"] = [
-    ajuste_nutricao_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["PESO_MEDIO_LEITAO_PREV"] = [
-    peso_suino_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_REAL"] = [
-    gpd_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["MORTALIDADE_PLANTE_REAL"] = [
-    racao_consumida_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["PESO_MEDIO_LEITAO_REAL"] = [
-    ajuste_modal_map.get(i, "") for i in id_unic_arr
-]
+# new_dataFrame["MORTES_FEMEA"] = [peso_abatido_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["ABATE_FEMEA"] = [abate_femea_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["VENDA_FEMEA"] = [venda_femea_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["REPRODUTORES_MACHO"] = [
+#     reprodutores_macho_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["ENTRADA_MACHO"] = [entrada_macho_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["MORTES_MACHO"] = [mortes_macho_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["ABATE_MACHO"] = [abate_macho_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["VENDA_MACHO"] = [venda_macho_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["RACAO_REPRODUTOR_FEMEA_ANO_PREV"] = [
-    ajs_peso_leitao_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["RACAO_LEITAO_ENTREGUE_PREV"] = [
-    data_abate_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["CHECK_LIST"] = [peso_entreg_fase_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["RACAO_REPRODUTOR_FEMEA_ANO_REAL"] = [
-    ajuste_desmame_21d_map.get(i, "") for i in id_unic_arr
-]
+# new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_PREV"] = [
+#     peso_recebido_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["MORTALIDADE_PLANTEL_PREV"] = [
+#     ajuste_nutricao_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["PESO_MEDIO_LEITAO_PREV"] = [
+#     peso_suino_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["LEITAO_DESMAMADO_FEMEA_ANO_REAL"] = [
+#     gpd_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["MORTALIDADE_PLANTE_REAL"] = [
+#     racao_consumida_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["PESO_MEDIO_LEITAO_REAL"] = [
+#     ajuste_modal_map.get(i, "") for i in id_unic_arr
+# ]
 
-new_dataFrame["RACAO_LEITAO_ENTREGUE_REAL"] = [
-    qtde_mortos_transp_map.get(i, "") for i in id_unic_arr
-]
-new_dataFrame["QT_LEITOES"] = [peso_total_aloj_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["RACAO_REPRODUTOR_FEMEA_ANO_PREV"] = [
+#     ajs_peso_leitao_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["RACAO_LEITAO_ENTREGUE_PREV"] = [
+#     data_abate_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["CHECK_LIST"] = [peso_entreg_fase_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["RACAO_REPRODUTOR_FEMEA_ANO_REAL"] = [
+#     ajuste_desmame_21d_map.get(i, "") for i in id_unic_arr
+# ]
 
-new_dataFrame["VLR_LEITAO"] = [qtde_cab_faltantes_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["RACAO_LEITAO_ENTREGUE_REAL"] = [
+#     qtde_mortos_transp_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["QT_LEITOES"] = [peso_total_aloj_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["VLR_PRODUTOR"] = [qtde_cab_sinistro_map.get(i, "") for i in id_unic_arr]
-new_dataFrame["VLR_KG_RACAO_MATRIZ"] = [
-    outras_perdas_map.get(i, "") for i in id_unic_arr
-]
+# new_dataFrame["VLR_LEITAO"] = [qtde_cab_faltantes_map.get(i, "") for i in id_unic_arr]
 
-new_dataFrame["VLR_KG_RACAO_LEITAO"] = [
-    conv_ajustada_prev_map.get(i, "") for i in id_unic_arr
-]
+# new_dataFrame["VLR_PRODUTOR"] = [qtde_cab_sinistro_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["VLR_KG_RACAO_MATRIZ"] = [
+#     outras_perdas_map.get(i, "") for i in id_unic_arr
+# ]
+
+# new_dataFrame["VLR_KG_RACAO_LEITAO"] = [
+#     conv_ajustada_prev_map.get(i, "") for i in id_unic_arr
+# ]
 
 
-new_dataFrame["BASICO_PERCENTUAL"] = [
-    conv_alimentar_real_map.get(i, {}).get("percentual", float("nan"))
-    for i in id_unic_arr
-]
+# new_dataFrame["BASICO_PERCENTUAL"] = [
+#     conv_alimentar_real_map.get(i, {}).get("percentual", float("nan"))
+#     for i in id_unic_arr
+# ]
 
-new_dataFrame["BASICO_R_CAB"] = [
-    conv_alimentar_real_map.get(i, {}).get("r_cab", float("nan")) for i in id_unic_arr
-]
+# new_dataFrame["BASICO_R_CAB"] = [
+#     conv_alimentar_real_map.get(i, {}).get("r_cab", float("nan")) for i in id_unic_arr
+# ]
 
-new_dataFrame["BASICO_VALOR"] = [
-    conv_alimentar_real_map.get(i, {}).get("valor", float("nan")) for i in id_unic_arr
-]
-
-
-new_dataFrame["AJUSTE_LDFA_PORCETAGE"] = [
-    conv_real_ajustada_map.get(i, {}).get("coef_a", float("nan")) for i in id_unic_arr
-]
-
-new_dataFrame["AJUSTE_LDFA_REAL_CAB"] = [
-    conv_real_ajustada_map.get(i, {}).get("coef_b", float("nan")) for i in id_unic_arr
-]
+# new_dataFrame["BASICO_VALOR"] = [
+#     conv_alimentar_real_map.get(i, {}).get("valor", float("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_LDFA_REAL_REAL"] = [
-    conv_real_ajustada_map.get(i, {}).get("valor", float("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_LDFA_PORCETAGE"] = [
+#     conv_real_ajustada_map.get(i, {}).get("coef_a", float("nan")) for i in id_unic_arr
+# ]
 
-new_dataFrame["RRFA_%"] = [
-    condenados_total_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
-]
-new_dataFrame["RRFA_R$_CAB"] = [
-    condenados_total_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
-]
-new_dataFrame["RRFA_REAL_$"] = [
-    condenados_total_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_LDFA_REAL_CAB"] = [
+#     conv_real_ajustada_map.get(i, {}).get("coef_b", float("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_%"] = [
-    mortalidade_prev_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_LDFA_REAL_REAL"] = [
+#     conv_real_ajustada_map.get(i, {}).get("valor", float("nan")) for i in id_unic_arr
+# ]
+
+# new_dataFrame["RRFA_%"] = [
+#     condenados_total_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+# ]
+# new_dataFrame["RRFA_R$_CAB"] = [
+#     condenados_total_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+# ]
+# new_dataFrame["RRFA_REAL_$"] = [
+#     condenados_total_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_$_CAB"] = [
-    mortalidade_prev_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_%"] = [
+#     mortalidade_prev_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_$"] = [
-    mortalidade_prev_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_$_CAB"] = [
+#     mortalidade_prev_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_MORTALIDADE_%"] = [
-    condenados_parcial_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_RACAO_LEITAO_RLT_$"] = [
+#     mortalidade_prev_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_MORTALIDADE_R$_CAB"] = [
-    condenados_parcial_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_MORTALIDADE_%"] = [
+#     condenados_parcial_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_MORTALIDADE_R$"] = [
-    condenados_parcial_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_MORTALIDADE_R$_CAB"] = [
+#     condenados_parcial_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_MORTALIDADE_R$"] = [
-    condenados_parcial_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_MORTALIDADE_R$"] = [
+#     condenados_parcial_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_PESO_MEDIO_PMT_%"] = [
-    mortalidade_real_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_MORTALIDADE_R$"] = [
+#     condenados_parcial_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_PESO_MEDIO_PMT_R$_CAB"] = [
-    mortalidade_real_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
-]
-
-new_dataFrame["AJUSTE_PESO_MEDIO_PMT_R$"] = [
-    mortalidade_real_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_PESO_MEDIO_PMT_%"] = [
+#     mortalidade_real_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["AJUSTE_CHECK_LIST_%"] = [
-    condenacoes_prev_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_PESO_MEDIO_PMT_R$_CAB"] = [
+#     mortalidade_real_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+# ]
 
-new_dataFrame["AJUSTE_CHECK_LIST_R$_CAB"] = [
-    condenacoes_prev_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
-]
-
-new_dataFrame["AJUSTE_CHECK_LIST_R$"] = [
-    condenacoes_prev_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_PESO_MEDIO_PMT_R$"] = [
+#     mortalidade_real_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["RESULTADO_BRUTO_LOTE_%"] = [
-    dif_mort_map.get(i, {}).get("campo_a", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_CHECK_LIST_%"] = [
+#     condenacoes_prev_map.get(i, {}).get("coef_a", ("nan")) for i in id_unic_arr
+# ]
 
-new_dataFrame["RESULTADO_BRUTO_LOTE_R$_CAB"] = [
-    dif_mort_map.get(i, {}).get("campo_b", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_CHECK_LIST_R$_CAB"] = [
+#     condenacoes_prev_map.get(i, {}).get("coef_b", ("nan")) for i in id_unic_arr
+# ]
 
-
-new_dataFrame["RESULTADO_BRUTO_LOTE_R$_CAB"] = [
-    dif_mort_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
-]
-
-
-new_dataFrame["DESCONTO_SENAR_NORMAL_DEBITO"] = [
-    dif_mort_map.get(i, {}).get("valor1", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["AJUSTE_CHECK_LIST_R$"] = [
+#     condenacoes_prev_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["DESCONTO_SENAR_NORMAL_CREDITO"] = [
-    dif_mort_map.get(i, {}).get("valor2", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["RESULTADO_BRUTO_LOTE_%"] = [
+#     dif_mort_map.get(i, {}).get("campo_a", ("nan")) for i in id_unic_arr
+# ]
+
+# new_dataFrame["RESULTADO_BRUTO_LOTE_R$_CAB"] = [
+#     dif_mort_map.get(i, {}).get("campo_b", ("nan")) for i in id_unic_arr
+# ]
 
 
-new_dataFrame["DESCONTO_SENAR_NORMAL_R$_CAB"] = [
-    dif_mort_map.get(i, {}).get("valor3", ("nan")) for i in id_unic_arr
-]
+# new_dataFrame["RESULTADO_BRUTO_LOTE_R$_CAB"] = [
+#     dif_mort_map.get(i, {}).get("valor", ("nan")) for i in id_unic_arr
+# ]
 
 
-# new_dataFrame["QTDE_ABATIDO"] = [qtde_abatido_map.get(i, "") for i in id_unic_arr]
+# new_dataFrame["DESCONTO_SENAR_NORMAL_DEBITO"] = [
+#     dif_mort_map.get(i, {}).get("valor1", ("nan")) for i in id_unic_arr
+# ]
+
+
+# new_dataFrame["DESCONTO_SENAR_NORMAL_CREDITO"] = [
+#     dif_mort_map.get(i, {}).get("valor2", ("nan")) for i in id_unic_arr
+# ]
+
+
+# new_dataFrame["DESCONTO_SENAR_NORMAL_R$_CAB"] = [
+#     dif_mort_map.get(i, {}).get("valor3", ("nan")) for i in id_unic_arr
+# ]
+
+# new_dataFrame["VENDA_OUTROS_PRODUTOS_DEBITO"] = [
+#     venda_outros_produtos_v1_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["VENDA_OUTROS_PRODUTOS_CREDITO"] = [
+#     venda_outros_produtos_v2_map.get(i, "") for i in id_unic_arr
+# ]
+# new_dataFrame["VENDA_OUTROS_PRODUTOS_REAL_CAB"] = [
+#     venda_outros_produtos_v3_map.get(i, "") for i in id_unic_arr
+# ]
+
+new_dataFrame["QTDE_ABATIDO"] = [qtde_abatido_map.get(i, "") for i in id_unic_arr]
+
+
 # new_dataFrame["SEXO"] = [sexo_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["PESO_MEDIO_ALOJ"] = [peso_medio_aloj_map.get(i, "") for i in id_unic_arr]
 # new_dataFrame["IDADE_MEDIA"] = [idade_media_map.get(i, "") for i in id_unic_arr]
